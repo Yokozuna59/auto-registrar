@@ -4,7 +4,7 @@
 
 ## Installation
 
-1. First clone the repo: ```git clone https://github.com/Modalessi/pyanime```
+1. First clone the repo: ```git clone https://github.com/Yokozuna59/c4c_kfupm```
 2. Create a virtual environment: ```python3 -m venv enviromentName```
 3. Activate the virtual environment: ```source enviromentName/bin/activate```
 4. Install the requirements: ```pip install -r requirements.txt```
@@ -12,4 +12,4 @@
 
 ## Usage
 
-You can
+<!-- You can -->

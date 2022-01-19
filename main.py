@@ -1,3 +1,4 @@
+import re
 import requests
 from bs4 import BeautifulSoup
 import time
@@ -38,7 +39,7 @@ def get_terms_and_departments(terms, departments):
      search_input = get_search_input()
      if (search_input == False):
           return
-
+     print
 
 def get_deps_list(i):
      deps_code = ["ACFN", "AE", "ARE", "ARC", "CE", "CEM", "CHE", "CHEM", "COE", "CPG", "CRP", "ERTH", "EE", "ELI", "ELD", "ISOM", "GS", "IAS", "ICS", "LS", "MATH", "MBA", "ME", "MGT", "PE", "PETE", "PYHS", "PSE", "SE", "CIE", "MSE"]
@@ -104,21 +105,25 @@ def get_example(i):
 
 def get_search_input():
      filters = int(input("[*] - How many fliters you want to check each time: "))
+     filter_dictionary = {}
 
      for i in range(filters):
           print("[1] Section\n[2] Activity\n[3] CRN\n[4] Course Name\n[5] Instructor\n[6] Day\n[7] Time\n[8] Location\n[9] Status\n[10] Gender")
+          fliter_list = []
           search_by = int(input("[*] - Search by: "))
 
           if (search_by > 0 and search_by <= 10):
+               search_type = inter_search(search_by - 1)[0]
                if (search_by == 7 or search_by == 9 or search_by == 10):
                     print(get_example(search_by))
-               input(f"[*] - Enter {inter_search(search_by - 1)[0]}{inter_search(search_by - 1 )[1]}: ")
-
-               # for i in search_by.split():
-               #      pass
+               user_input = input(f"[*] - Enter {search_type}{inter_search(search_by - 1 )[1]}: ")
+               fliter_list.extend(user_input.split(" "))
+               filter_dictionary[search_type] = fliter_list
           else:
                print("You can't choose a number out of range!")
                return False
+
+     return filter_dictionary
 
 
 
