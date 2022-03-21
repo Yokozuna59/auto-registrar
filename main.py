@@ -1,8 +1,223 @@
-import re
 import requests
 from bs4 import BeautifulSoup
 import time
 import json
+
+
+def registrar_requests():
+    # Requesting the API
+    request = requests.get("https://registrar.kfupm.edu.sa/courses-classes/course-offering/")
+
+    # Checking if the API is working
+    if (request.status_code != 200):
+        not200()
+    elif (request.status_code == 200):
+        get_user_input(get_terms("Term", request.content))
+        get_user_input(get_departments("Department", request.content))
+    else:
+        down()
+
+
+def not200():
+    print("The API isn't working for the time being, the script will check every 60s.")
+    time.sleep(40)
+    registrar_requests()
+    return True
+
+
+def down():
+    print("The site is down for maintenance for the time being, the code will check every 60s.")
+    time.sleep(40)
+    registrar_requests()
+    return True
+
+
+def get_terms(content):
+    soup = BeautifulSoup(content, "html.parser")
+    terms = soup.find(id="course_term_code")
+
+    terms_list = []
+    options = terms.find_all("option")[1::]
+    for option in options:
+        terms_list.append(option.text)
+
+    return terms_list
+
+
+def departments_list(i):
+    deps_code = ["ACFN", "AE", "ARE", "ARC", "CE", "CEM", "CHE", "CHEM", "COE", "CPG", "CRP", "ERTH", "EE", "ELI", "ELD", "ISOM", "GS", "IAS", "ICS", "LS", "MATH", "MBA", "ME", "MGT", "PE", "PETE", "PYHS", "PSE", "SE", "CIE", "MSE"]
+
+    return deps_code[i]
+
+
+def get_departments(content):
+    soup = BeautifulSoup(content, "html.parser")
+    departments = soup.find(id="course_dept_code")
+
+    departments_list = []
+    options = departments.find_all("option")[1::]
+    for option in options:
+        departments_list.append(option.text)
+
+    return departments_list
+
+
+def get_user_input(text, list):
+    if (text == "Term"):
+
+        dep = ""
+    elif (text == "Department"):
+        department_short_name = departments_list(i)
+        dep = f"{department_short_name} | "
+
+    for i in range(len(list)):
+        print(f"[{i + 1}] {dep}{list[i]}")
+
+    user_input = input("[*] - Enter number: ")
+
+    if (len(i) > 0 and len(i) >= int(user_input)):
+        if (i == terms_list):
+            term = user_input
+        else:
+            department = departments_list(int(user_input) - 1)
+    else:
+        print("You can't choose a number out of range!")
+        return False
+
+    return term, department
+    return user_input
+
+
+    #  elif (text == "Search"):
+    #     for i in range(len(list)):
+    #         print(f"[{i + 1}] {list[i]}")
+    #     user_input = input("[*] - Enter number: ")
+    #     search = inter_search(int(user_input) - 1)
+    #     return search
+    # elif (text == "Time"):
+    #     for i in range(len(list)):
+    #         print(f"[{i + 1}] {list[i]}")
+    #     user_input = input("[*] - Enter number: ")
+    #     time = list[int(user_input) - 1]
+    #     return time
+    # elif (text == "Status"):
+    #     for i in range(len(list)):
+    #         print(f"[{i + 1}] {list[i]}")
+    #     user_input = input("[*] - Enter number: ")
+    #     status = list[int(user_input) - 1]
+    #     return status
+
+
+
+def get_search_input():
+    print("[1] Section\n[2] Activity\n[3] CRN\n[4] Course Name\n[5] Instructor\n[6] Day\n[7] Time\n[8] Location\n[9] Status\n[10]")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def user_input():
+#    print("[1] Check for sections\n[2] Check for activities\n[3] Check for CRNs\n[4] Check for courses names\n[5] Check for instructors\n[6] Check for days\n[7] Check for times\n[8] Check for locations\n[9] Check for statuses\n[10] Check for")
+#
+#
+#    soup = BeautifulSoup(request.content, "html.parser")
+#    table = soup.find(id="course_offering_table")
+#    rows = table.find_all("tr")
+#    rows = rows[1::]
 
 
 def get_registrar():
@@ -41,7 +256,7 @@ def get_terms_and_departments(terms, departments):
           return
      print
 
-def get_deps_list(i):
+def departments_list(i):
      deps_code = ["ACFN", "AE", "ARE", "ARC", "CE", "CEM", "CHE", "CHEM", "COE", "CPG", "CRP", "ERTH", "EE", "ELI", "ELD", "ISOM", "GS", "IAS", "ICS", "LS", "MATH", "MBA", "ME", "MGT", "PE", "PETE", "PYHS", "PSE", "SE", "CIE", "MSE"]
 
      return deps_code[i]
@@ -57,7 +272,7 @@ def get_registrar_input(terms_list, departments_list):
                if (i == terms_list):
                     term = user_input
                else:
-                    department = get_deps_list(int(user_input) - 1)
+                    department = departments_list(int(user_input) - 1)
           else:
                print("You can't choose a number out of range!")
                return False
@@ -127,15 +342,6 @@ def get_search_input():
 
 
 
-
-
-
-
-
-
-
-
-get_registrar()
 
 
 def hi():
