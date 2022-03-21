@@ -4,11 +4,11 @@
 
 ## Installation
 
-1. First clone the repo: ```git clone https://github.com/Yokozuna59/c4c_kfupm```
-2. Create a virtual environment: ```python3 -m venv enviromentName```
+1. First clone the repo: ```git clone https://github.com/Yokozuna59/auto-registrar.git```
+<!-- 2. Create a virtual environment: ```python3 -m venv enviromentName```
 3. Activate the virtual environment: ```source enviromentName/bin/activate```
-4. Install the requirements: ```pip install -r requirements.txt```
-5. run the app: ```python3 pyanime.py```
+4. Install the requirements: ```pip install -r requirements.txt``` -->
+2. run the app: ```python3 main.py```
 
 ## Usage
 
