@@ -6,15 +6,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-import sys
-sys.setrecursionlimit(2000)
 
+_exhausted = object()
 dpart = ["AE", "AE", "ARE", "ARC", "MBA", "CHE", "CHEM", "CRP", "CE", "COE", "CEM", "CIE", "EE", "ELD", "ELI", "ERTH", "GS", "SE", "ICS", "ISOM", "IAS", "LS", "MGT", "MSE", "MATH", "ME", "CPG", "PETE", "PE", "PHYS", "PSE"]
 dparts = {}
 PATH = "C:\Program Files (x86)\chromedriver.exe"
 terms = {}
 courses = {}
-driver = webdriver.Chrome(PATH)
 
 
 for i in dpart:
@@ -36,41 +34,37 @@ for i in dpart:
 
 def registrar_requests(crn, username, password):
     # Requesting the API
-    request = requests.get(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code={terms[crn]}&department_code={dparts[crn]}")
+    request = requests.get(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code={terms[crn[0]]}&department_code={dparts[crn[0]]}")
     # Checking if the API is working
     if request.status_code != 200:
-        not200(crn, username, password)
+        not200()
     elif request.status_code == 200:
         check_for_change(crn, request, username, password)
     else:
-        down(crn, username, password)
+        down()
 
 
-def not200(crn, username, password):
+def not200():
     print("The API isn't working for the time being, the script will check every 60s.")
     time.sleep(40)
-    registrar_requests(crn, username, password)
 
 
-def down(crn, username, password):
+def down():
     print("The site is down for maintenance for the time being, the code will check every 60s.")
     time.sleep(40)
-    registrar_requests(crn, username, password)
 
 
 def check_for_change(crn, request, username, password):
     check_ = json.loads(request.content)
     checks = check_["data"]
-    for x in checks:
-        if x["crn"] == crn:
-            if x['available_seats'] and x['waiting_list_count']:
-                register(crn, username, password)
-            else:
-                time.sleep(5)
-                registrar_requests(crn, username, password)
+    z = filter(lambda j: j["crn"] in crn, checks)
+    for x in z:
+        if x['available_seats'] and x['waiting_list_count']:
+            print(f"crn {x['crn']} is available")
 
 
 def register(crn, username, password):
+    driver = webdriver.Chrome(PATH)
     driver.get("https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/term/termSelection?mode=registration")
     try:
         term = WebDriverWait(driver, 10).until(
@@ -122,4 +116,5 @@ def register(crn, username, password):
         register(crn, username, password)
 
 
-registrar_requests(crn="", username="", password="")
+while True:
+    registrar_requests(crn=["10545", "12723", "11873"], username="00", password="00")
