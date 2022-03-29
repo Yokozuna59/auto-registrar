@@ -1,430 +1,179 @@
 import requests
 from bs4 import BeautifulSoup
-import time
+from delay import *
 import json
+from color_terminal import *
+from search import *
 
+def get_registrar_requests():
+    registrar_request = requests.get("https://registrar.kfupm.edu.sa/courses-classes/course-offering/")
+    status = registrar_request.status_code
 
-def registrar_requests():
-    # Requesting the API
-    request = requests.get("https://registrar.kfupm.edu.sa/courses-classes/course-offering/")
-
-    # Checking if the API is working
-    if (request.status_code != 200):
-        not200()
-    elif (request.status_code == 200):
-        get_user_input(get_terms("Term", request.content))
-        get_user_input(get_departments("Department", request.content))
+    if (status != 200):
+        request_not_200()
     else:
-        down()
+        return registrar_request.content
 
 
-def not200():
-    print("The API isn't working for the time being, the script will check every 60s.")
-    time.sleep(40)
-    registrar_requests()
+def request_not_200():
+    color_print("[!] - The website isn't working for the time being, the script will check every 60s..", tcolor.LIGHT_RED)
+    delay(60)
+    get_registrar_requests()
     return True
 
 
-def down():
-    print("The site is down for maintenance for the time being, the code will check every 60s.")
-    time.sleep(40)
-    registrar_requests()
-    return True
-
-
-def get_terms(content):
+def get_elements(text, content):
     soup = BeautifulSoup(content, "html.parser")
-    terms = soup.find(id="course_term_code")
-
-    terms_list = []
-    options = terms.find_all("option")[1::]
-    for option in options:
-        terms_list.append(option.text)
-
-    return terms_list
-
-
-def departments_list(i):
-    deps_code = ["ACFN", "AE", "ARE", "ARC", "CE", "CEM", "CHE", "CHEM", "COE", "CPG", "CRP", "ERTH", "EE", "ELI", "ELD", "ISOM", "GS", "IAS", "ICS", "LS", "MATH", "MBA", "ME", "MGT", "PE", "PETE", "PYHS", "PSE", "SE", "CIE", "MSE"]
-
-    return deps_code[i]
-
-
-def get_departments(content):
-    soup = BeautifulSoup(content, "html.parser")
-    departments = soup.find(id="course_dept_code")
-
-    departments_list = []
-    options = departments.find_all("option")[1::]
-    for option in options:
-        departments_list.append(option.text)
-
-    return departments_list
-
-
-def get_user_input(text, list):
     if (text == "Term"):
+        element_id = "course_term_code"
+    else:
+        element_id = "course_dept_code"
 
-        dep = ""
-    elif (text == "Department"):
-        department_short_name = departments_list(i)
-        dep = f"{department_short_name} | "
+    element = soup.find(id=element_id)
+    options = element.find_all("option")[1::]
 
-    for i in range(len(list)):
-        print(f"[{i + 1}] {dep}{list[i]}")
+    elements_list = []
+    for option in options:
+        elements_list.append(option.text)
 
-    user_input = input("[*] - Enter number: ")
+    show_choices(elements_list, text, tcolor.LIGHT_BLUE, tcolor.CYAN)
 
-    if (len(i) > 0 and len(i) >= int(user_input)):
-        if (i == terms_list):
-            term = user_input
+    term = get_user_input(text, elements_list)
+
+    return term
+
+
+def show_choices(elements, text, color1, color2):
+    if (text == "Department"):
+        departments_short_name = departments_list()
+
+    for index, element in enumerate(elements):
+        if index % 2 == 0:
+            if (text == "Term" or text == None):
+                color_print(f"[{index + 1}] {element}", color1)
+            elif (text == "Department"):
+                print(f"\033[94m[{index + 1}]\033[0m \033[93m{departments_short_name[index]}\033[0m | \033[94m{element}\033[0m")
         else:
-            department = departments_list(int(user_input) - 1)
+            if (text == "Term" or text == None):
+                color_print(f"[{index + 1}] {element}", color2)
+            elif (text == "Department"):
+                print(f"\033[96m[{index + 1}]\033[0m \033[95m{departments_short_name[index]}\033[0m | \033[96m{element}\033[0m")
+
+
+def departments_list():
+    deps_code = ["ACFN", "AE", "ARE", "ARC", "MBA", "CHE", "CHEM", "CPR", "CE", "COE", "CEM", "CIE", "EE", "ELD", "ELI", "ERTH", "GS", "SE", "ICS", "ISOM", "IAS", "LS", "MGT", "MSE", "MATH", "ME", "CPG", "PETE", "PE", "PHYS", "PSE"]
+
+    return deps_code
+
+
+def get_user_input(text, lists):
+    user_input = color_input("[*] - Enter number: ", tcolor.LIGHT_GREEN)
+
+    if (len(lists) > 0 and len(lists) >= int(user_input)):
+        if (text == "Term"):
+            list_element = lists[int(user_input) - 1].replace("Term ", "")
+        elif (text == "Department"):
+            list_element = departments_list()[int(user_input) - 1]
+        elif (text == None):
+            pass
     else:
         print("You can't choose a number out of range!")
         return False
 
-    return term, department
-    return user_input
-
-
-    #  elif (text == "Search"):
-    #     for i in range(len(list)):
-    #         print(f"[{i + 1}] {list[i]}")
-    #     user_input = input("[*] - Enter number: ")
-    #     search = inter_search(int(user_input) - 1)
-    #     return search
-    # elif (text == "Time"):
-    #     for i in range(len(list)):
-    #         print(f"[{i + 1}] {list[i]}")
-    #     user_input = input("[*] - Enter number: ")
-    #     time = list[int(user_input) - 1]
-    #     return time
-    # elif (text == "Status"):
-    #     for i in range(len(list)):
-    #         print(f"[{i + 1}] {list[i]}")
-    #     user_input = input("[*] - Enter number: ")
-    #     status = list[int(user_input) - 1]
-    #     return status
-
-
-
-def get_search_input():
-    print("[1] Section\n[2] Activity\n[3] CRN\n[4] Course Name\n[5] Instructor\n[6] Day\n[7] Time\n[8] Location\n[9] Status\n[10]")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def user_input():
-#    print("[1] Check for sections\n[2] Check for activities\n[3] Check for CRNs\n[4] Check for courses names\n[5] Check for instructors\n[6] Check for days\n[7] Check for times\n[8] Check for locations\n[9] Check for statuses\n[10] Check for")
-#
-#
-#    soup = BeautifulSoup(request.content, "html.parser")
-#    table = soup.find(id="course_offering_table")
-#    rows = table.find_all("tr")
-#    rows = rows[1::]
-
-
-def get_registrar():
-     request = requests.get("https://registrar.kfupm.edu.sa/courses-classes/course-offering/").content
-     soup = BeautifulSoup(request, "html.parser")
-     terms = soup.find(id="course_term_code")
-     departments = soup.find(id="course_dept_code")
-
-     get_terms_and_departments(terms, departments)
-
-
-def get_terms_and_departments(terms, departments):
-     terms_list = []
-     departments_list = []
-
-     for i in (terms, departments):
-          if (i == terms):
-               lists = terms_list
-          else:
-               lists = departments_list
-
-          options = i.find_all("option")[1::]
-          for option in options:
-               lists.append(option.text)
-
-     registrar_input = get_registrar_input(terms_list, departments_list)
-     if (registrar_input == False):
-          return
-
-     time_input = get_time_input()
-     if (time_input == False):
-          return
-
-     search_input = get_search_input()
-     if (search_input == False):
-          return
-     print
-
-def departments_list(i):
-     deps_code = ["ACFN", "AE", "ARE", "ARC", "CE", "CEM", "CHE", "CHEM", "COE", "CPG", "CRP", "ERTH", "EE", "ELI", "ELD", "ISOM", "GS", "IAS", "ICS", "LS", "MATH", "MBA", "ME", "MGT", "PE", "PETE", "PYHS", "PSE", "SE", "CIE", "MSE"]
-
-     return deps_code[i]
-
-
-def get_registrar_input(terms_list, departments_list):
-     for i in (terms_list, departments_list):
-          for j in range(len(i)):
-               print(f"[{j + 1}] {i[j]}")
-          user_input = input("[*] - Enter number: ")
-
-          if (len(i) > 0 and len(i) >= int(user_input)):
-               if (i == terms_list):
-                    term = user_input
-               else:
-                    department = departments_list(int(user_input) - 1)
-          else:
-               print("You can't choose a number out of range!")
-               return False
-
-     return term, department
+    return list_element
 
 
 def get_time_input():
-     print("[1] 10s\n[2] 20s\n[3] 30s\n[4] 60s")
-     reload_every = int(input("[*] - Check every (enter number): "))
+    elements_list = ["10s","20s", "30s", "60s"]
 
-     if (reload_every > 0 and reload_every <= 4):
-          if (reload_every == 4):
-               reload_every *= 15
-          else:
-               reload_every *= 10
-     else:
-          print("You can't choose a number out of range!")
-          return False
+    show_choices(elements_list, None, tcolor.LIGHT_BLUE, tcolor.CYAN)
+    user_input = int(color_input("[*] - Check every (enter number): ", tcolor.LIGHT_GREEN))
 
-     return reload_every
+    if (user_input > 0 and user_input <= 4):
+        if (user_input == 4):
+            user_input *= 15
+        else:
+            user_input *= 10
+    else:
+        print("You can't choose a number out of range!")
+        return False
 
-
-def inter_search(i):
-     search_list = ["Section", "Activity", "CRN",  "Course Name", "Instructor", "Day", "Time", "Location", "Status", "Gender"]
-     search_list_plural = ["/Sections", "/Activities", "/CRNs",  "/Courses Names", "/Instructors", "/Days", "", "/Locations", "", ""]
-
-     return search_list[i], search_list_plural[i]
+    return user_input
 
 
-def get_example(i):
-     time = ("e.g. 1000-1050")
-     status = ("[1] Open\n[2] Wait list")
-     gender = ("[1] Male\n[2] Female\n[3] Any")
+def get_api_requests(term, department):
+    api_request = requests.get(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code=20{term}0&department_code={department}")
+    status = api_request.status_code
 
-     if (i == 7):
-          element = time
-     elif (i == 9):
-          element = status
-     else:
-          element = gender
+    if (api_request.status_code != 200):
+        request_not_200()
+    else:
+        data = json.loads(api_request.text)
 
-     return element
-
-
-def get_search_input():
-     filters = int(input("[*] - How many fliters you want to check each time: "))
-     filter_dictionary = {}
-
-     for i in range(filters):
-          print("[1] Section\n[2] Activity\n[3] CRN\n[4] Course Name\n[5] Instructor\n[6] Day\n[7] Time\n[8] Location\n[9] Status\n[10] Gender")
-          fliter_list = []
-          search_by = int(input("[*] - Search by: "))
-
-          if (search_by > 0 and search_by <= 10):
-               search_type = inter_search(search_by - 1)[0]
-               if (search_by == 7 or search_by == 9 or search_by == 10):
-                    print(get_example(search_by))
-               user_input = input(f"[*] - Enter {search_type}{inter_search(search_by - 1 )[1]}: ")
-               fliter_list.extend(user_input.split(" "))
-               filter_dictionary[search_type] = fliter_list
-          else:
-               print("You can't choose a number out of range!")
-               return False
-
-     return filter_dictionary
+        if (data["data"] == None):
+            color_print("The API isn't working for the time being, the code will check for sections every 60s..", tcolor.LIGHT_RED)
+            delay(60)
+            get_api_requests(term, department)
+            return True
+        else:
+            return data["data"]
 
 
+def check_courses(data, refreash_time, search_input):
+    for course in data:
+        # if_statement(course, search_input)
+        if (search_input != None):
+            if (course["status"] == "Open"):
+                color_print(f"[+] - {course['course_code']} is open!", tcolor.LIGHT_GREEN)
+            else:
+                color_print(f"[-] - {course['course_code']} is closed!", tcolor.LIGHT_RED)
+        else:
+            course_name = course["course_number"]
+            section = course["section_number"]
+            class_type = course["class_type"]
+            crn = course["crn"]
+            available_seats = course["available_seats"]
+            waiting_list_count = course["waiting_list_count"]
+
+            if ("F" in section):
+                continue
+            elif (course_name != "ICS 104"):
+                continue
+
+            if (available_seats > 0):
+                color_print(f"[+] - {course_name}-{section},\033[0m \033Type: {class_type},\033[0m Available Seats: {available_seats}, Waiting List: {waiting_list_count}, {crn}", tcolor.LIGHT_GREEN)
+            elif (waiting_list_count > 0)   :
+                color_print(f"[-] - {course_name}-{section}, Type: {class_type}, Available Seats: {available_seats}, Waiting List: {waiting_list_count}, {crn}", tcolor.LIGHT_YELLOW)
+
+    delay(refreash_time)
+    print()
+    return True
 
 
-
-def hi():
-     for i in range(10000):
-          req = requests.get("https://registrar.kfupm.edu.sa/api/course-offering?term_code=202120&department_code=ICS")
-          status = req.status_code
-
-          if (status != 200):
-               not200()
-          else:
-               text = req.text
-               if (text.find("The site is down")):
-                    down()
-                    return
-
-               data = json.loads(req.text)
-               if (data["data"] == None):
-                    print("The API isn't working for the time being, the code will check for sections every 60s.")
-                    time.sleep(40)
-                    hi()
-                    return
-               itis200(data, i)
-          print("\n\n")
-          time.sleep(20)
+# def if_statement(course, search_input):
+#     print(search_input.keys())
+#     if ():
+#         pass
 
 
+def main():
+    content = get_registrar_requests()
+    term = get_elements("Term", content)
+    if (term == False):
+        return False
+    department = get_elements("Department", content)
+    if (department == False):
+        return False
+    refreash_time = get_time_input()
+    if (refreash_time == False):
+        return False
+    search_input = get_search_input()
+    if (search_input == False):
+        return False
 
-def not200():
-     print("The API isn't working for the time being, the code will check for sections every 60s.")
-     time.sleep(40)
-     hi()
-     return
+    while True:
+        data = get_api_requests(term, department)
+        check_courses(data, refreash_time, search_input)
 
-
-def down():
-     print("The site is down for maintenance for the time being, the code will check every 60s.")
-     time.sleep(40)
-     hi()
-     return
-
-
-def itis200(data, index):
-     datas = data["data"]
-     print(index + 1)
-
-     for i in range(44):
-          course = datas[i]
-          course_number = course["course_number"]
-          section = course["section_number"]
-
-          if (section.find("F") != -1):
-               continue
-
-          class_type = course["class_type"]
-          crn = course["crn"]
-          available_seats = course["available_seats"]
-          waiting_list_count = course["waiting_list_count"]
-
-          if ((available_seats != 0) or (waiting_list_count != 0)):
-               print(f"{course_number}-{section} , Type: {class_type} , AS: {available_seats} - WL: {waiting_list_count} , {crn}")
-               if ((section == "55") or (section == "56") or (section == "73") or (section == "97")):
-                    print(f"\n\n\n\n\n {section} \n\n\n\n\n")
-
-
-# def tt():
-#      driver = webdriver.Chrome()
-#      driver.get("https://registrar.kfupm.edu.sa/api/course-offering?term_code=202120&department_code=ICS")
-
-#      for i in range(10000):
-#           source = driver.page_source
-#           soup = BeautifulSoup(source, "html.parser").text
-#           soup_json = json.loads(soup)
-#           for j in (12, 20):
-#                course = soup_json["data"][j]
-#                crn = course["crn"]
-#                available_seats = course["available_seats"]
-#                waiting_list_count = course["waiting_list_count"]
-#                print("crn: " + str(crn), end=", ")
-#                print("AS: " + str(available_seats), end=", ")
-#                print("WL: " + str(waiting_list_count), end=f"         {i}")
-#                if (available_seats != 0 or waiting_list_count != 0):
-#                     print("\n\n\n\n\n")
-#                else:
-#                     print("")
-#           time.sleep(10)
-#           driver.refresh()
+if __name__ == "__main__":
+    main()
