@@ -13,15 +13,18 @@ dparts = {}
 PATH = "C:\Program Files (x86)\chromedriver.exe"
 terms = {}
 courses = {}
+a = time.time()
 
 
 for i in dpart:
     page = requests.get(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code=202210&department_code={i}")
     data = json.loads(page.text)
     datas = data["data"]
+    print(time.time() - a)
     for course in datas:
         dparts[course["crn"]] = i
         terms[course["crn"]] = "202210"
+    print(time.time() - a)
 
 for i in dpart:
     page = requests.get(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code=202130&department_code={i}")
@@ -60,7 +63,7 @@ def check_for_change(crn, request, username, password):
     z = filter(lambda j: j["crn"] in crn, checks)
     for x in z:
         if x['available_seats'] and x['waiting_list_count']:
-            print(f"crn {x['crn']} is available")
+            register(crn, username, password)
 
 
 def register(crn, username, password):
@@ -117,4 +120,4 @@ def register(crn, username, password):
 
 
 while True:
-    registrar_requests(crn=["10545", "12723", "11873"], username="00", password="00")
+    registrar_requests(crn=["10123", "10126", "10126"], username="00", password="00")
