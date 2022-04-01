@@ -2,7 +2,7 @@
 from os import path
 
 # import loads to load the json data
-from json import loads
+from json import loads, dump
 
 # import colorful_terminal.py file to use tcolor Class and color_print, color_input and color_choices Functions
 from colorful_terminal import *
@@ -24,12 +24,15 @@ def check_config():
                 user_input = int(color_input("[*] - Please choose: ", tcolor.OKGREEN))
                 if (user_input == 1 or user_input == 2):
                     if user_input == "1":
-                        configurations = config()
+                        configurations = config(configurations)
                 else:
                     number_out_of_range()
             return configurations
     else:
         no_config_file()
 
-def config():
-    pass
+def config(configurations):
+    configurations["configuration"] = "configed"
+
+    with open("config.json", "w") as f:
+        dump(configurations, f)
