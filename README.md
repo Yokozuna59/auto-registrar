@@ -13,6 +13,7 @@ git clone https://github.com/Yokozuna59/auto-registrar.git
 ### Linux & Mac
 
 ```bash
+cd auto-registrar
 chmod +x install.sh
 ./install.sh
 ```
@@ -20,6 +21,7 @@ chmod +x install.sh
 ### Windows
 
 ```bash
+cd auto-registrar
 wsl --install
 wsl.exe
 chmod +x install.sh
@@ -29,6 +31,5 @@ chmod +x install.sh
 ## Run the App
 
 ```bash
-cd auto-registrar
 python3 main.py
 ```
