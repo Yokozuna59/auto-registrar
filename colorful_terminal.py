@@ -36,15 +36,15 @@ def color_choices(questions, color1 = tcolor.OKBLUE, color2 = tcolor.OKCYAN):
     if (type(questions) == dict):
         dict_keys = list(questions.keys())
 
-        if (not dict_keys[0].isdigit()):
+        if (not list(questions.values())[0].isdigit()):
             index = 0
             for key, value in questions.items():
                 if (index % 2 == 0):
-                    color_print('{:<4}'.format(index+1), color1, ' ')
+                    color_print('[{:}] '.format(index+1), color1, ' ' if index < 9 else '')
                     color_print('{:<4}'.format(value), tcolor.WARNING, ' ')
                     color_print('{:}'.format(key), color1)
                 else:
-                    color_print('{:<4}'.format(index+1), color2, ' ')
+                    color_print('[{:}] '.format(index+1), color2, ' ' if index < 9 else '')
                     color_print('{:<4}'.format(value), tcolor.HEADER, ' ')
                     color_print('{:}'.format(key), color2)
                 index+=1
