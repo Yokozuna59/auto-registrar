@@ -29,5 +29,6 @@ chmod +x install.sh
 ## Run the App
 
 ```bash
+cd auto-registrar
 python3 main.py
 ```
