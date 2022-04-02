@@ -22,7 +22,7 @@ function check_operating_system() {
 # check if python3 installed on the system
 function check_python_installation() {
     if [[ "$OS" == "Mac" ]]; then
-        check_brew_installation()
+        check_brew_installation
 
         if [ ! python --version 2>&1 ]; then
             brew install python3 -y
@@ -30,7 +30,7 @@ function check_python_installation() {
             brew update && brew upgrade python
         fi
     elif [[ "$OS" == "Linux" ]]; then
-        linux_insallation()
+        linux_insallation
     fi
 }
 
@@ -71,10 +71,10 @@ function create_json() {
 }
 
 function main() {
-    check_operating_system()
-    check_python_installation()
-    download_requirements()
-    create_json()
+    check_operating_system
+    check_python_installation
+    download_requirements
+    create_json
 }
 
-main()
+main
