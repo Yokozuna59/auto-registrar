@@ -66,7 +66,7 @@ function download_requirements() {
 }
 
 function create_json() {
-    json='{"configuration": null, "alarm": "mixkit-facility-alarm-sound-999.wav", "username": null,"passcode": null,"browser": "chrome","delay": "30"}'
+    json='{"configuration": null, "alarm": "mixkit-facility-alarm-sound-999.wav", "username": null,"passcode": null,"browser": "chrome","delay": 30}'
     echo "$json" > config.json
 }
 
