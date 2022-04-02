@@ -1,20 +1,24 @@
-# import color_print function from colorful_terminal.py file to print colored text
+# import color_print function to print colored text
 from colorful_terminal import color_print
 
-# import delay function from delay.py file to make the script wait
+# import delay function to make the script wait
 from delay import time_delay
 
 # import main function from real_main.py file to run the script
 from old_main import *
 
-# import get_requests function from registrar_requests.py file to get the content of the url
+# import get_requests function to get the content of the url
 from registrar_requests import get_requests
 
-def didnt_config():
+def not_configured():
     color_print("[!] - You haven't configured yet. Please configure first.", tcolor.FAIL)
 
 def number_out_of_range():
     color_print("[!] - You can't choose a number out of range!", tcolor.FAIL)
+    exit()
+
+def input_not_int(user_input):
+    color_print(f"[!] - {user_input} is not a digit, please choose a digit.", tcolor.FAIL)
     exit()
 
 def no_config_file():
