@@ -1,14 +1,14 @@
 # import path to check if user has runed the program before
 from os import path
 
-# import loads to load the json data
+# import loads and dump to load and dump the json data
 from json import loads, dump
 
-# import colorful_terminal.py file to use tcolor Class and color_print, color_input and color_choices Functions
-from colorful_terminal import *
+# import tcolor class and color_input and color_choices functions to print colored text
+from colorful_terminal import tcolor, color_choices, color_input
 
-# import didnt_config function, number_out_of_range and no_config_file from errors.py file to show the error messages
-from errors import didnt_config, number_out_of_range, no_config_file
+# import not_configured, number_out_of_range, no_config_file and input_not_digit functions to show the error messages
+from errors import not_configured, number_out_of_range, no_config_file, input_not_digit
 
 def check_config():
     # check if the config file exists
@@ -18,15 +18,18 @@ def check_config():
             configurations = loads(f.read())
 
             if configurations['configuration'] == None:
-                didnt_config()
+                not_configured()
                 color_choices(["Configurate Now (just 6 questions).", "Configurate Later (use defult configuration)."])
 
-                user_input = int(color_input("[*] - Please choose: ", tcolor.OKGREEN))
-                if (user_input == 1 or user_input == 2):
-                    if user_input == "1":
-                        configurations = config(configurations)
+                user_input = color_input("[*] - Please choose: ", tcolor.OKGREEN)
+                if (user_input.isdigit()):
+                    if (user_input == 1 or user_input == 2):
+                        if user_input == "1":
+                            configurations = config(configurations)
+                    else:
+                        number_out_of_range()
                 else:
-                    number_out_of_range()
+                    input_not_digit(user_input)
             return configurations
     else:
         no_config_file()
