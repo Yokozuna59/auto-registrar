@@ -8,7 +8,7 @@ from json import loads, dump
 from colorful_terminal import tcolor, color_choices, color_input
 
 # import not_configured, number_out_of_range, no_config_file and input_not_digit functions to show the error messages
-from errors import not_configured, number_out_of_range, no_config_file, input_not_digit
+from errors import not_configured, number_out_of_range, no_config_file, input_not_int
 
 def check_config():
     # check if the config file exists
@@ -29,7 +29,7 @@ def check_config():
                     else:
                         number_out_of_range()
                 else:
-                    input_not_digit(user_input)
+                    input_not_int(user_input)
             return configurations
     else:
         no_config_file()
