@@ -1,5 +1,5 @@
 # import color_print function to print colored text
-from colorful_terminal import color_print
+from colorful_terminal import tcolor, color_print
 
 # import delay function to make the script wait
 from delay import time_delay
@@ -34,8 +34,3 @@ def request_not_200(url):
     color_print("[!] - The website isn't working for the time being, the script will check every 60s..", tcolor.FAIL)
     time_delay(60)
     return get_requests(url)
-
-def data_is_none(term, department):
-    color_print("[!] - The API isn't working for the time being, the script will check for sections every 60s..", tcolor.FAIL)
-    time_delay(60)
-    return get_api_requests(term, department)
