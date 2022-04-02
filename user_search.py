@@ -82,13 +82,13 @@ def get_filters(filters):
             elif (search_by == 9 or search_by == 10):
                 if (user_input.isdigit()):
                     if (int(user_input) > 0 and int(user_input) <= len(choices)):
-                        fliters_list.append(choices[int(user_input) - 1].lower())
+                        fliters_list = choices[int(user_input) - 1].lower()
                     else:
                         number_out_of_range()
                 else:
                     input_not_int(user_input)
         else:
             number_out_of_range()
-        filter_dictionary[search_type.split("/")[0]] = fliters_list
+        filter_dictionary[search_type.split("/")[0].lower()] = fliters_list
 
     return filter_dictionary
