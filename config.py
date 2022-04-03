@@ -23,7 +23,7 @@ def check_config():
 
                 user_input = color_input("[*] - Please choose: ", tcolor.OKGREEN)
                 if (user_input.isdigit()):
-                    if (user_input == 1 or user_input == 2):
+                    if (user_input == "1" or user_input == "2"):
                         if user_input == "1":
                             configurations = config(configurations)
                     else:
