@@ -9,8 +9,6 @@ from selenium.webdriver.common.keys import Keys
 
 _exhausted = object()
 
-
-def registrar_requests(crn, username, password, term, department):
     # Requesting the API
     request = requests.get(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code={term}&department_code={department}")
     # Checking if the API is working
@@ -42,8 +40,6 @@ def check_for_change(crn, request, username, password):
     for x in z:
         if x['available_seats'] and x['waiting_list_count']:
             register(crn, username, password)
-            return False
-    return True
 
 
 def register(crn, username, password):
@@ -98,8 +94,3 @@ def register(crn, username, password):
         driver.quit()
         register(crn, username, password)
 
-
-repeat = True
-
-while repeat:
-    repeat = registrar_requests(crn="", username="", password="", term="", department="")
