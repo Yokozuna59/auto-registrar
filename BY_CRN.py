@@ -102,4 +102,4 @@ def register(crn, username, password):
 repeat = True
 
 while repeat:
-    repeat = registrar_requests(crn=["10123", "10126", "10126"], username="00", password="00")
+    repeat = registrar_requests(crn="", username="", password="", term="", department="")
