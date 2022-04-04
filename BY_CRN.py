@@ -8,50 +8,31 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 _exhausted = object()
-dpart = ["AE", "AE", "ARE", "ARC", "MBA", "CHE", "CHEM", "CRP", "CE", "COE", "CEM", "CIE", "EE", "ELD", "ELI", "ERTH", "GS", "SE", "ICS", "ISOM", "IAS", "LS", "MGT", "MSE", "MATH", "ME", "CPG", "PETE", "PE", "PHYS", "PSE"]
-dparts = {}
-PATH = "C:\Program Files (x86)\chromedriver.exe"
-terms = {}
-courses = {}
 
 
-for i in dpart:
-    page = requests.get(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code=202210&department_code={i}")
-    data = json.loads(page.text)
-    datas = data["data"]
-    for course in datas:
-        dparts[course["crn"]] = i
-        terms[course["crn"]] = "202210"
-
-for i in dpart:
-    page = requests.get(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code=202130&department_code={i}")
-    data = json.loads(page.text)
-    datas = data["data"]
-    for course in datas:
-        dparts[course["crn"]] = i
-        terms[course["crn"]] = "202130"
-
-
-def registrar_requests(crn, username, password):
+def registrar_requests(crn, username, password, term, department):
     # Requesting the API
-    request = requests.get(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code={terms[crn[0]]}&department_code={dparts[crn[0]]}")
+    request = requests.get(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code={term}&department_code={department}")
     # Checking if the API is working
     if request.status_code != 200:
-        not200()
+        repeat = not200()
     elif request.status_code == 200:
-        check_for_change(crn, request, username, password)
+        repeat = check_for_change(crn, request, username, password)
     else:
-        down()
+        repeat = down()
+    return repeat
 
 
 def not200():
     print("The API isn't working for the time being, the script will check every 60s.")
     time.sleep(40)
+    return True
 
 
 def down():
     print("The site is down for maintenance for the time being, the code will check every 60s.")
     time.sleep(40)
+    return True
 
 
 def check_for_change(crn, request, username, password):
@@ -60,7 +41,9 @@ def check_for_change(crn, request, username, password):
     z = filter(lambda j: j["crn"] in crn, checks)
     for x in z:
         if x['available_seats'] and x['waiting_list_count']:
-            print(f"crn {x['crn']} is available")
+            register(crn, username, password)
+            return False
+    return True
 
 
 def register(crn, username, password):
@@ -116,5 +99,7 @@ def register(crn, username, password):
         register(crn, username, password)
 
 
-while True:
-    registrar_requests(crn=["10545", "12723", "11873"], username="00", password="00")
+repeat = True
+
+while repeat:
+    repeat = registrar_requests(crn=["10123", "10126", "10126"], username="00", password="00")
