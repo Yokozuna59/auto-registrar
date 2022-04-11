@@ -32,7 +32,7 @@ def main():
         z = filter(lambda j: j["crn"] in crn, checks)
         for x in z:
             if x['available_seats'] and x['waiting_list_count']:
-                register(crn, username, password)
+                primt("available seats in ", x["crn"])
                 break
         time_delay(configurations["delay"])
 
