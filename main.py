@@ -27,6 +27,13 @@ def main():
     while True:
         content = get_requests(f"https://registrar.kfupm.edu.sa/api/course-offering?term_code={registrar_user_input[0]}&department_code={registrar_user_input[1]}")
         print(content)
+        check_ = json.loads(request.content)
+        checks = check_["data"]
+        z = filter(lambda j: j["crn"] in crn, checks)
+        for x in z:
+            if x['available_seats'] and x['waiting_list_count']:
+                register(crn, username, password)
+                break
         time_delay(configurations["delay"])
 
 if __name__ == "__main__":
