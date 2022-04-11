@@ -6,9 +6,9 @@ from errors import input_not_int, number_out_of_range
 
 def search_choices(i):
     if (i == 2):
-        questions = ["LEC","LAB","COP","PRJ","SEM","THS","STD","LLB","RES","SLB","MR","DIS","IND","ST","FLD", "Any"]
+        questions = ("LEC","LAB","COP","PRJ","SEM","THS","STD","LLB","RES","SLB","MR","DIS","IND","ST","FLD", "Any")
     elif (i == 9):
-        questions = ["Open","Wait list", "Any"]
+        questions = ("Open","Wait list", "Any")
     elif (i == 10):
         questions = ("Male","Female","Any")
 
@@ -28,7 +28,7 @@ def get_filters(filters):
     filter_dictionary = {}
 
     for i in range(filters):
-        element_list = ["Section/Sections","Activity/Activities","CRN/CRNs","Course/Courses Name","Instructor/Instructors","Day/Days","Time/Times","Building/Buildings","Status/Statuses","Gender","All Department Courses"]
+        element_list = ("Section/Sections","Activity/Activities","CRN/CRNs","Course/Courses Name","Instructor/Instructors","Day/Days","Time/Times","Building/Buildings","Status/Statuses","Gender","All Department Courses")
         color_choices(element_list)
 
         search_by = color_input("[*] - Search by: ", tcolor.OKGREEN)
