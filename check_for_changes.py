@@ -20,22 +20,15 @@ def check_for_change(content, search_user_input):
             # one or more CRNs are not in the department and term specified
             pass
     else:
-        for i in content_json:
-            crn = i["crn"]
-            course_name = i["course_number"]
-            section = i["section_number"]
-            available_seats = i["available_seats"]
-            waiting_list_count = i["waiting_list_count"]
-            class_type = i["class_type"]
-
-
-            if (available_seats > 0):
-                color_print(f"[+] - {course_name}-{section},", tcolor.OKGREEN, " ")
-                color_print(f"Type: {class_type}", tcolor.LEC if class_type == "LEC" else tcolor.LAB if class_type == "LAB" else tcolor.RES, ", ")
-                color_print(f"Available Seats: {available_seats}, Waiting List: {waiting_list_count}", tcolor.OKGREEN, ", ")
-                color_print(f"CRN: {crn}", tcolor.HEADER)
-            elif (waiting_list_count > 0)   :
-                color_print(f"[-] - {course_name}-{section},", tcolor.WARNING, " ")
-                color_print(f"Type: {class_type}",  tcolor.LEC if class_type == "LEC" else tcolor.LAB if class_type == "LAB" else tcolor.RES, ", ")
-                color_print(f"Available Seats: {available_seats}, Waiting List: {waiting_list_count}", tcolor.WARNING, ", ")
-                color_print(f"CRN: {crn}", tcolor.HEADER)
+        available_seats = filter(lambda element: (element["available_seats"] > 0) and (element["waiting_list_count"] > 0),  content_json)
+        waiting_sets = filter(lambda element: not (element["available_seats"] > 0) and (element["waiting_list_count"] > 0),  content_json)
+        for available_seat in available_seats:
+            color_print(f"[+] - {available_seat["course_number"]}-{available_seat["section_number"]},", tcolor.OKGREEN, " ")
+            color_print(f"Type: {available_seat['class_type']}", tcolor.LEC if available_seat['class_type'] == "LEC" else tcolor.LAB if available_seat['class_type'] == "LAB" else tcolor.RES, ", ")
+            color_print(f"Available Seats: {available_seat['available_seats']}, Waiting List: {available_seat['waiting_list_count']}", tcolor.OKGREEN, ", ")
+            color_print(f"CRN: {available_seat['crn']}", tcolor.HEADER)
+        for available_seat in waiting_sets:
+            color_print(f"[+] - {available_seat["course_number"]}-{available_seat["section_number"]},", tcolor.OKGREEN, " ")
+            color_print(f"Type: {available_seat['class_type']}", tcolor.LEC if class_type == "LEC" else tcolor.LAB if class_type == "LAB" else tcolor.RES, ", ")
+            color_print(f"Available Seats: {available_seat['available_seats']}, Waiting List: {available_seat['waiting_list_count']}", tcolor.OKGREEN, ", ")
+            color_print(f"CRN: {available_seat['crn']}", tcolor.HEADER)
