@@ -4,9 +4,6 @@ from colorful_terminal import tcolor, color_print
 # import delay function to make the script wait
 from delay import time_delay
 
-# import main function from real_main.py file to run the script
-from old_main import *
-
 # import get_requests function to get the content of the url
 from registrar_requests import get_requests
 
