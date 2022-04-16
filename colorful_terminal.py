@@ -27,18 +27,16 @@ class tcolor:
 def color_print(text, color, ends_with = '\n'):
     print(color + text + tcolor.ENDC, end = ends_with)
 
-def color_input(text, color = tcolor.OKGREEN):
+def color_input(text = "[*] - Please enter number: ", color = tcolor.OKGREEN):
     print(color + text + tcolor.ENDC, end = "")
-    user_input = input()
-    return user_input
+    return input()
 
 def color_choices(questions, color1 = tcolor.OKBLUE, color2 = tcolor.OKCYAN):
     if (type(questions) == dict):
         dict_keys = list(questions.keys())
 
         if (not list(questions.values())[0].isdigit()):
-            index = 0
-            for key, value in questions.items():
+            for index, (key, value) in (enumerate(questions.items())):
                 if (index % 2 == 0):
                     color_print('[{:}] '.format(index+1), color1, ' ' if index < 9 else '')
                     color_print('{:<4}'.format(value), tcolor.WARNING, ' ')
@@ -47,8 +45,7 @@ def color_choices(questions, color1 = tcolor.OKBLUE, color2 = tcolor.OKCYAN):
                     color_print('[{:}] '.format(index+1), color2, ' ' if index < 9 else '')
                     color_print('{:<4}'.format(value), tcolor.HEADER, ' ')
                     color_print('{:}'.format(key), color2)
-                index+=1
-            return
+            return True
         else:
             questions = dict_keys
 
