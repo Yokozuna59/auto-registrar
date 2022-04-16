@@ -3,7 +3,7 @@ from json import loads
 
 from colorful_terminal import color_print, tcolor
 
-def check_for_change(content, search_user_input):
+def check_for_change(content, search_user_input, driver_path):
     content_json = loads(str(content))["data"]
 
     if (search_user_input != None):
@@ -27,7 +27,6 @@ def check_for_change(content, search_user_input):
             available_seats = i["available_seats"]
             waiting_list_count = i["waiting_list_count"]
             class_type = i["class_type"]
-
 
             if (available_seats > 0):
                 color_print(f"[+] - {course_name}-{section},", tcolor.OKGREEN, " ")
