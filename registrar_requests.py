@@ -5,9 +5,9 @@ from requests import get
 from bs4 import BeautifulSoup
 
 # import color_choices and color_input functions to print colored text
-from colorful_terminal import color_choices, color_input, tcolor
+from colorful_terminal import color_choices, color_input
 
-# import no_internet_connection, request_not_200, input_not_digit and number_out_of_range functions to show the error messages
+# import no_internet_connection, request_not_200 and check_user_input functions to show the error messages
 import errors
 
 def get_requests(url):
@@ -36,14 +36,8 @@ def get_elements(content):
             elements_dict[option.text] = option["value"]
 
         color_choices(elements_dict)
-        user_input = color_input("[*] - Enter number: ", tcolor.OKGREEN)
-
-        if (user_input.isdigit()):
-            if (not len(elements_dict) > 0 and not len(elements_dict) >= int(user_input)):
-                errors.number_out_of_range()
-
-            user_inputs.append(list(elements_dict.values())[int(user_input) - 1])
-        else:
-            errors.input_not_int(user_input)
+        user_input = color_input()
+        user_input = errors.check_user_input(user_input, len(elements_dict))
+        user_inputs.append(list(elements_dict.values())[user_input - 1])
 
     return user_inputs
