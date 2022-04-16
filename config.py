@@ -8,28 +8,23 @@ from json import loads, dump
 from colorful_terminal import color_choices, color_input
 
 # import not_configured, number_out_of_range, no_config_file and input_not_digit functions to show the error messages
-from errors import not_configured, number_out_of_range, no_config_file, input_not_int
+from errors import check_user_input, not_configured, no_config_file
 
 def check_config():
     # check if the config file exists
-    if path.exists("config.json"):
-        # check if user has configured yet or not
+    if (path.exists("config.json")):
         with open('config.json', 'r') as f:
             configurations = loads(f.read())
 
-            if configurations['configuration'] == None:
+            # check if user has configured yet or not
+            if (configurations['configuration'] == None):
                 not_configured()
                 color_choices(["Configurate Now (just 5 questions).", "Configurate Later (use defult configuration)."])
 
-                user_input = color_input("[*] - Please choose: ")
-                if (user_input.isdigit()):
-                    if (user_input == "1" or user_input == "2"):
-                        if user_input == "1":
-                            configurations = do_config(configurations)
-                    else:
-                        number_out_of_range()
-                else:
-                    input_not_int(user_input)
+                user_input = color_input()
+                user_input = check_user_input(user_input, 2)
+                if (user_input == 1):
+                    configurations = do_config(configurations)
             return configurations
     else:
         no_config_file()
@@ -42,31 +37,20 @@ def do_config(configurations):
     configurations["passcode"] = passcode
 
     color_choices(["Chrome", "Firefox"])
-    user_input = color_input("[*] - Please choose: ")
-    if (user_input.isdigit()):
-        if (user_input == "1"):
-            configurations["browser"] = "chrome"
-        elif (user_input == "2"):
-            configurations["browser"] = "firefox"
-        else:
-            number_out_of_range()
+    user_input = color_input()
+    user_input = check_user_input(user_input, 2)
+    if (user_input == 1):
+        configurations["browser"] = "chrome"
     else:
-        input_not_int(user_input)
+        configurations["browser"] = "firefox"
 
     color_choices(["10s","20s", "30s", "60s"])
-    user_input = color_input("[*] - Please choose: ")
-    if (user_input.isdigit()):
-        user_input = int(user_input)
-
-        if (user_input >= 1 and user_input <= 4):
-            if (user_input == 4):
-                user_input *= 15
-            else:
-                user_input *= 10
-        else:
-            number_out_of_range()
+    user_input = color_input()
+    user_input = check_user_input(user_input, 4)
+    if (user_input != 4):
+        user_input *= 10
     else:
-        input_not_int(user_input)
+        user_input *= 15
     configurations["delay"] = user_input
 
     # banner: 8 or 9
@@ -75,3 +59,5 @@ def do_config(configurations):
 
     with open("config.json", "w") as f:
         dump(configurations, f)
+
+    return configurations
