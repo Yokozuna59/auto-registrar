@@ -8,7 +8,7 @@ from platform import system
 from sys import maxsize
 
 
-def check_platform(browser):
+def check_platform(browser:str):
     get_system = system()
     driver_ = "chromedriver" if browser == "chrome" else "geckodriver"
 
