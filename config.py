@@ -1,63 +1,77 @@
 # import path to check if user has runed the program before
-from os import path
+from os.path import exists
 
 # import loads and dump to load and dump the json data
 from json import loads, dump
 
 # import tcolor class and color_input and color_choices functions to print colored text
-from colorful_terminal import color_choices, color_input
+from cli import Questions, Color_cli
 
-# import not_configured, number_out_of_range, no_config_file and input_not_digit functions to show the error messages
-from errors import check_user_input, not_configured, no_config_file
+def check_configuration() -> dict:
+    """
+    This function will check if has ran the `install.sh` file yet or not,\n
+    if exists and had configured it,\n
+    return it as dict type.
+    """
 
-def check_config():
-    # check if the config file exists
-    if (path.exists("config.json")):
-        with open('config.json', 'r') as f:
-            configurations = loads(f.read())
+    # check if the install.sh file exists
+    if (exists("install.sh")):
+        # check if the user_pass.json file exists
+        if (exists(".config/user_pass.json")):
+            # open config file
+            with open('.config/config.json', 'r') as f:
+                # read and loads config file
+                config_file = loads(f.read())
 
-            # check if user has configured yet or not
-            if (configurations['configuration'] == None):
-                not_configured()
-                color_choices(["Configurate Now (just 5 questions).", "Configurate Later (use defult configuration)."])
+                # check if user has configured yet or not
+                if (config_file['configuration'] == None):
+                    # print error messege
+                    Color_cli.colorful_print(text="! You haven't configured yet.", text_color=Color_cli.BRIGHT_RED)
 
-                user_input = color_input()
-                user_input = check_user_input(user_input, 2)
-                if (user_input == 1):
-                    configurations = do_config(configurations)
-            return configurations
+                    # print chioces with differnt colors
+                    bool_answer = Questions.bool_question(question="Want to configurate now")
+
+                    if (bool_answer == True):
+                        config_file = configuring(config_file)
+                return config_file
+        else:
+            # print error messege and stop the script
+            Color_cli.colorful_print(text="! You have run the `install.sh` program yet!", text_color=Color_cli.BRIGHT_RED)
+            exit()
     else:
-        no_config_file()
+        # print error messege and stop the script
+        Color_cli.colorful_print(text="! You are in the wrong directory.", text_color=Color_cli.BRIGHT_RED)
+        exit()
 
-def do_config(configurations):
-    username = color_input("Enter your portal email: ")
-    configurations["username"] = username
+def configuring(config_file:str) -> dict:
+    """
+    Ask the user 5 diffrent questinos to do configuration.
+    """
 
-    passcode = color_input("Enter your portal passcode: ")
-    configurations["passcode"] = passcode
+    with open('.config/user_pass.json', 'r') as f:
+        user_pass_file = loads(f.read())
 
-    color_choices(["Chrome", "Firefox"])
-    user_input = color_input()
-    user_input = check_user_input(user_input, 2)
-    if (user_input == 1):
-        configurations["browser"] = "chrome"
-    else:
-        configurations["browser"] = "firefox"
+    username = Questions.str_questoin(question="Enter your student ID with `S`")
+    user_pass_file["username"] = username
 
-    color_choices(["10s","20s", "30s", "60s"])
-    user_input = color_input()
-    user_input = check_user_input(user_input, 4)
-    if (user_input != 4):
-        user_input *= 10
-    else:
-        user_input *= 15
-    configurations["delay"] = user_input
+    passcode = Questions.passcode_question(question="Enter your portal passcode")
+    user_pass_file["passcode"] = passcode
 
-    # banner: 8 or 9
+    with open(".config/user_pass.json", "w") as f:
+        dump(user_pass_file, f)
 
-    configurations["configuration"] = "configed"
+    browser = Questions.dict_question(question="Select default browser", choices={"Chrome":"chrome", "Firefox":"firefox"})
+    config_file["browser"] = browser
 
-    with open("config.json", "w") as f:
-        dump(configurations, f)
+    time_delay = Questions.dict_question(question="Select default time delay between refreshes", choices={"10 second":10, "20 Second":20, "30 Second":30, "60 Second":60})
+    config_file["delay"] = time_delay
 
-    return configurations
+    banner = Questions.dict_question(question="Select default banner for registration", choices={"Banner 8":8, "Banner 9":9})
+    config_file["banner"] = banner
+
+    config_file["configuration"] = "configured"
+
+    with open(".config/config.json", "w") as f:
+        dump(config_file, f)
+
+    return config_file

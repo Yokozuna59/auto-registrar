@@ -4,40 +4,51 @@ from requests import get
 # import BeautifulSoup to parse the content of the url
 from bs4 import BeautifulSoup
 
-# import color_choices and color_input functions to print colored text
-from colorful_terminal import color_choices, color_input
+# import Color_cli and Questions classes to print colorful text and ask user for input
+from cli import Color_cli, Questions
 
-# import no_internet_connection, request_not_200 and check_user_input functions to show the error messages
-import errors
+# import time_delay to make the script wait
+from delay import time_delay
 
-def get_requests(url):
-    try:
-        registrar_request = get(url)
-    except:
-        return get_elements(errors.no_internet_connection(url))
+def get_requests(url:str) -> dict:
+    """
+    This function do a get request by `url` and return value as dict
+    """
+
+    while True:
+        try:
+            registrar_request = get(url)
+            break
+        except:
+            Color_cli.colorful_print(text="\n! You don't have internet connection, the script will check for sections every 10s..", text_color=Color_cli.BRIGHT_RED)
+            time_delay(10)
 
     if (registrar_request.status_code != 200):
-        errors.request_not_200(url)
+        Color_cli.colorful_print(text="! The website isn't working for the time being, the script will check every 60s..", text_color=Color_cli.BRIGHT_RED)
+        time_delay(60)
+        return get_requests(url)
     else:
         return get_elements(registrar_request.content)
 
-def get_elements(content):
+def get_elements(content) -> list:
+    """
+    This function get terms and departments of the request
+    """
+
     soup = BeautifulSoup(content, "html.parser")
 
     user_inputs = []
-    for i in ("course_term_code", "course_dept_code"):
-        element = soup.find(id=i)
-        if (element is None):
+    for index, elements in enumerate(["course_term_code", "course_dept_code"]):
+        i = soup.find(id=elements)
+        if (i is None):
             return soup
-        options = element.find_all("option")[1::]
+        options = i.find_all("option")[1::]
 
-        elements_dict = {}
+        dict_elements = {}
         for option in options:
-            elements_dict[option.text] = option["value"]
+            dict_elements[option.text] = option["value"]
+        dict_answer = Questions.dict_question(question=("Select the term has/have the course/courses" if index==0 else "Select the department has/have the course/courses"), choices=dict_elements)
 
-        color_choices(elements_dict)
-        user_input = color_input()
-        user_input = errors.check_user_input(user_input, len(elements_dict))
-        user_inputs.append(list(elements_dict.values())[user_input - 1])
+        user_inputs.append(dict_answer)
 
     return user_inputs
