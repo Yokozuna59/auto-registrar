@@ -1,50 +1,33 @@
 #!/bin/bash
 
-# exit command exits with a non-zero status.
 set -e
 
-# chack what OS is running
 function check_operating_system() {
-    if [[ "$(uname)" == "Linux" ]]; then
-        OS="Linux"
-    elif [[ "$(uname)" == "Darwin" ]]; then
-        OS="Mac"
-    elif [[ "$(uname)" == "MINGW32_NT" || "$(uname)" == "MINGW64_NT" ]]; then
-        wsl --install
-        wsl.exe
-        OS="Linux"
-    else
-        echo "Unknown system"
-        exit 1
-    fi
+    case "$OSTYPE" in
+        "linux"*)
+            : "Linux"
+        ;;
+        "darwin"*)
+            : "MacOS"
+        ;;
+        "cygwin"* | "msys"* | "win32")
+            : "Windows"
+        ;;
+        "bsd"* | "dragonfly" | "bitrig")
+            : "BSD"
+        ;;
+        "solaris"* | "oracle"*)
+            : "Solaris"
+        ;;
+        *)
+            echo "Unknown OS detected, aborting..."
+            exit 1
+        ;;
+    esac
+
+    os="$_"
 }
 
-# check if python3 installed on the system
-function check_python_installation() {
-    if [[ "$OS" == "Mac" ]]; then
-        check_brew_installation
-
-        if [ ! python --version 2>&1 ]; then
-            brew install python3 -y
-        else
-            brew update && brew upgrade python
-        fi
-    elif [[ "$OS" == "Linux" ]]; then
-        linux_insallation
-    fi
-}
-
-# install brew on mac
-function check_brew_installation() {
-	which -s brew
-	if [[ $? != 0 ]] ; then
-		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" -y && brew install git -y
-	else
-		brew update -y
-	fi
-}
-
-# install git on linux
 function linux_insallation() {
     declare -Ag osInfo;
 	osInfo[/etc/alpine-release]=apk
@@ -52,13 +35,53 @@ function linux_insallation() {
 	osInfo[/etc/gentoo-release]=emerge
 	osInfo[/etc/arch-release]=pacman
 	osInfo[/etc/redhat-release]=yum
-	osInfo[/etc/SuSE-release]=zypp
+	osInfo[/etc/SuSE-release]=zypper
+
 	for f in ${!osInfo[@]}; do
 		if [[ -f $f ]];then
-			sudo "${osInfo[$f]}" update -y
-            sudo "${osInfo[$f]}" install python3-pip -y
+            distro="${osInfo[$f]}"
+            if [[ "$f" == "/etc/alpine-release" ]]; then
+                sudo $distro update
+                sudo $distro add py3-pip
+            elif [[ "$f" == "/etc/debian_version" ]]; then
+                sudo $distro update
+                sudo $distro install python3-pip
+            elif [[ "$f" == "/etc/gentoo-release" ]]; then
+                sudo $distro --sync
+                sudo $distro -u python3
+            elif [[ "$f" == "/etc/arch-release" ]]; then
+                sudo $distro -Syu
+                sudo $distro -S python-pip
+            elif [[ "$f" == "/etc/redhat-release" ]]; then
+                sudo $distro update
+                sudo $distro install python3-pip
+            elif [[ "$f" == "/etc/SuSE-release" ]]; then
+                sudo $distro update
+                sudo $distro install python3-pip
+            fi
 		fi
 	done
+}
+
+function mac_installation() {
+	which -s brew
+	if [[ $? != 0 ]]; then
+		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	else
+		brew update
+	fi
+    brew install python3
+}
+
+function windows_installation() {
+    if ! (python -V | grep -q "Python"); then
+        if [[ "$(uname -m)" == "x86_64" ]]; then
+            curl https://www.python.org/ftp/python/3.10.4/python-3.10.4-amd64.exe -o python-3.10.4.exe
+        else
+            curl https://www.python.org/ftp/python/3.10.4/python-3.10.4.exe -o python-3.10.4.exe
+        fi
+        python-3.10.4.exe
+    fi
 }
 
 function download_requirements() {
@@ -66,13 +89,29 @@ function download_requirements() {
 }
 
 function create_json() {
-    json='{"configuration": null, "alarm": "alarms/classic-alarm-sound.mp3", "username": null,"passcode": null,"browser": "chrome","delay": 30, "banner": 9}'
-    echo "$json" > config.json
+    json='{
+    "username": null,
+    "password": null
+    }'
+    echo "$json" > .config/user_pass.json
 }
 
 function main() {
     check_operating_system
-    check_python_installation
+
+    if [[ "$os" == "Linux" ]]; then
+        if uname -r | grep -q "microsoft"; then
+	        if ls | grep -q "not recognized"; then
+	            windows_installation
+		        exit 0
+            fi
+        fi
+        linux_insallation
+    elif [[ "$OS" == "Mac" ]]; then
+        mac_installation
+    elif [[ "$OS" == "Windows" ]]; then
+        windows_installation
+    fi
     download_requirements
     create_json
 }
