@@ -89,10 +89,7 @@ function download_requirements() {
 }
 
 function create_json() {
-    json='{
-    "username": null,
-    "password": null
-    }'
+    json='{"username": null, "passcode": null}'
     echo "$json" > .config/user_pass.json
 }
 
