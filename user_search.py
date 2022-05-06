@@ -1,70 +1,71 @@
-# import tcolor class and color_input and color_choices functions to print colored text
-from colorful_terminal import *
+from cli import Questions, Color_cli
 
-# import input_not_int and number_out_of_range function to show the error messages
-from errors import check_user_input
+from sys import stdout
 
-def search_choices(i):
-    if (i == 2):
-        questions = ("LEC","LAB","COP","PRJ","SEM","THS","STD","LLB","RES","SLB","MR","DIS","IND","ST","FLD", "Any")
-    elif (i == 9):
-        questions = ("Open","Wait list", "Any")
-    elif (i == 10):
-        questions = ("Male","Female","Any")
-
-    color_choices(questions)
-    return questions
+from PyInquirer import prompt
 
 def get_search_input():
-    filters = color_input("[*] - How many fliters you want to check each time: ", tcolor.OKGREEN)
-    filters = check_user_input(filters, 99)
-    return get_filters(filters)
+    while True:
+        str_answer = Questions.str_questoin("How many filters you want to chech each refresh")
+        if (str_answer.isdigit()):
+            str_answer = int(str_answer)
+            return get_filters(str_answer)
+        else:
+            stdout.write("\x1b[91m! Sorry, your reply was invalid: '\x1b[0m\x1b[1m{}\x1b[0m\x1b[91m' is not a valid answer, please try again\n".format(str_answer))
+            continue
 
 def get_filters(filters):
     filter_dictionary = {}
 
     for i in range(filters):
-        element_list = ("Section/Sections","Activity/Activities","CRN/CRNs","Course/Courses Name","Instructor/Instructors","Day/Days","Time/Times","Building/Buildings","Status/Statuses","Gender","All Department Courses")
-        color_choices(element_list)
-
-        search_by = color_input("[*] - Search by: ")
-        search_by = check_user_input(search_by, 11)
-
         fliters_list = []
-        search_type = element_list[search_by - 1]
 
-        if (search_by == 2 or search_by == 9 or search_by == 10):
-            choices = search_choices(search_by)
-        elif (search_by == 7):
-            color_print("e.g. 1000-1050 1300-1350", tcolor.OKBLUE)
-
-        if (search_by != 11):
-            user_input = color_input(f"[*] - Enter {search_type}: ", tcolor.OKGREEN)
-        else:
+        search_by = Questions.list_question(question="Search by", choices=["Section/Sections", "Activity/Activities", "Course/Courses Name", "Instructor/Instructors", "Day/Days", "Time/Times","Building/Buildings", "Status/Statuses", "Gender", "All Department Courses"])
+        if (search_by == "All Department Courses"):
             return None
+        elif (search_by == "Section/Sections"):
+            while True:
+                str_answer = Questions.str_questoin("Enter {} you want to chech each refresh".format(search_by))
+                for i in str_answer.strip().split(" "):
+                    if (i.isdigit()):
+                        fliters_list.append(i if int(i) > 9 else f"0{i}" if len(i) == 1 else f"{i}")
+                    else:
+                        stdout.write("\x1b[91m! Sorry, your reply was invalid: '\x1b[0m\x1b[1m{}\x1b[0m\x1b[91m' is not a valid answer, please try again\n".format(i))
+                        continue
+        elif (search_by == "Activity/Activities"):
+            section_answer=list((prompt(questions={'type': 'checkbox', 'qmark': '?', "name": "Activity", 'message': 'Select type of activity?', "choices":[{"name":"COP"}, {"name":"DIS"}, {"name":"FLD"}, {"name":"IND"}, {"name":"LAB"}, {"name":"LLB"}, {"name":"LEC"}, {"name":"MR"}, {"name":"PRJ"}, {"name":"RES"}, {"name":"SEM"}, {"name":"SLB"},  {"name":"ST"}, {"name":"STD"}, {"name":"THS"}]})).values())
+            fliters_list = section_answer
+            """activity = Questions.list_question(question="Select type of activity", choices=["COP", "DIS", "FLD", "IND", "LAB", "LLB", "LEC", "MR", "PRJ", "RES", "SEM", "SLB", "ST", "STD", "THS", "All"])
+            fliters_list.append(activity if activity != "All" else None)"""
+        elif (search_by == "Course/Courses Name"):
+            str_answer = Questions.str_questoin("Enter {} you want to chech each refresh".format(search_by))
+            fliters_list = str_answer.split(" ")
+        elif (search_by == "Instructor/Instructors"):
+            str_answer = Questions.str_questoin("Enter {} you want to chech each refresh".format(search_by))
+            fliters_list = str_answer.split(" ")
+        elif (search_by == "Day/Days"):
+            section_answer=list((prompt(questions={'type': 'checkbox', 'qmark': '?', "name": "day", 'message': 'Select days of course/courses occurs?', "choices":[{"name":"U"}, {"name":"M"}, {"name":"T"}, {"name":"W"}, {"name":"T"}]})).values())
+            fliters_list = "".join(section_answer)
+        elif (search_by == "Time/Times"):
+            Color_cli.colorful_print(text="e.g. 1000-1050 1300-1350", text_color=Color_cli.BRIGHT_CYAN)
+            str_answer = Questions.str_questoin("Enter {} you want to chech each refresh".format(search_by))
+            fliters_list = str_answer.split(" ")
+        elif (search_by == "Building/Buildings"):
+            while True:
+                str_answer = Questions.str_questoin("Enter {} you want to chech each refresh".format(search_by))
+                for i in str_answer.strip().split(" "):
+                    if (i.isdigit()):
+                        fliters_list.append(i)
+                    else:
+                        stdout.write("\x1b[91m! Sorry, your reply was invalid: '\x1b[0m\x1b[1m{}\x1b[0m\x1b[91m' is not a valid answer, please try again\n".format(i))
+                        continue
+        elif (search_by == "Status/Statuses"):
+            dict_answer = Questions.dict_question(question="Select status of course/courses", choices={"Open":"open","Wait list":"wait_list", "Any":None})
+            fliters_list = dict_answer
+        elif (search_by == "Gender"):
+            dict_answer = Questions.dict_question(question="Select status of course/courses", choices={"Male":"male","Female":"female","Any":None})
+            fliters_list = dict_answer
 
-        if (search_by == 1):
-            for i in user_input.split(" "):
-                check_user_input(i, 999)
-                fliters_list.append(i if int(i) > 9 else f"0{i}" if len(i) == 1 else f"{i}")
-        elif (search_by == 2):
-            user_input = check_user_input(user_input, len(choices))
-            fliters_list.append(choices[user_input - 1])
-        elif (search_by == 3 or search_by == 7):
-            fliters_list = user_input.split(" ")
-        elif (search_by == 4):
-            fliters_list.append(user_input.replace(" ", ""))
-        elif (search_by == 5):
-            fliters_list.append(user_input)
-        elif (search_by == 6):
-            fliters_list.append(user_input.upper())
-        elif (search_by == 8):
-            for i in user_input.split(" "):
-                check_user_input(i, 99)
-                fliters_list.append(i)
-        elif (search_by == 9 or search_by == 10):
-            user_input = check_user_input(user_input, len(choices))
-            fliters_list = choices[user_input - 1].lower()
-        filter_dictionary[search_type.split("/")[0].lower()] = fliters_list
+        filter_dictionary[search_by.split("/")[0].lower()] = fliters_list
 
     return filter_dictionary
