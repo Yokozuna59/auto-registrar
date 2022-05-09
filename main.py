@@ -31,14 +31,14 @@ def main() -> None:
     configuration = check_configuration()
 
     # get term and department as list
-    registrar_user_input = get_requests(url="https://registrar.kfupm.edu.sa/courses-classes/course-offering/")
+    registrar_user_input = get_requests(request_url="https://registrar.kfupm.edu.sa/courses-classes/course-offering/")
 
     search_user_input = get_search_input()
 
     driver_path = check_platform(browser=configuration["browser"])
 
     while True:
-        content = get_requests(url="https://registrar.kfupm.edu.sa/api/course-offering?term_code={}&department_code={}".format(registrar_user_input[0], registrar_user_input[1]))
+        content = get_requests(request_url="https://registrar.kfupm.edu.sa/api/course-offering?term_code={}&department_code={}".format(registrar_user_input[0], registrar_user_input[1]))
         check_for_change(content, search_user_input, driver_path)
         time_delay(refresh_time=configuration["delay"])
 
