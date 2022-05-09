@@ -4,17 +4,16 @@ from os.path import exists
 # import loads and dump to load and dump the json data
 from json import loads, dump
 
-# import tcolor class and color_input and color_choices functions to print colored text
-from cli import Questions, Color_cli
+# import cli_colors ans Questions classes to print colorful text and ask user for input
+from cli import cli_colors, Questions
 
 def check_configuration() -> dict:
     """
-    This function will check if has ran the `install.sh` file yet or not,\n
-    if exists and had configured it,\n
-    return it as dict type.
+    Checks if user has installed and configured his default configuration.\n
+    If he did, return it as `dict` type.
     """
 
-    # check if the install.sh file exists
+    # check if the `install.sh`` file exists
     if (exists("install.sh")):
         # check if the user_pass.json file exists
         if (exists(".config/user_pass.json")):
@@ -26,39 +25,42 @@ def check_configuration() -> dict:
                 # check if user has configured yet or not
                 if (config_file['configuration'] == None):
                     # print error messege
-                    Color_cli.colorful_print(text="! You haven't configured yet.", text_color=Color_cli.BRIGHT_RED)
+                    cli_colors.colorful_print(text_string="! Sorry, you haven't configured yet.", text_color=cli_colors.BRIGHT_RED)
 
-                    # print chioces with differnt colors
-                    bool_answer = Questions.bool_question(question="Want to configurate now")
+                    # Ask user if he wants to config now or not
+                    bool_answer = Questions.bool_question(question="Do you want to configurate now")
 
+                    # if True ask 5 question and config the file
                     if (bool_answer == True):
-                        config_file = configuring(config_file)
+                        config_file = configuring(config_file=config_file)
                 return config_file
         else:
             # print error messege and stop the script
-            Color_cli.colorful_print(text="! You have run the `install.sh` program yet!", text_color=Color_cli.BRIGHT_RED)
+            cli_colors.colorful_print(text_string="! You have run the `install.sh` program yet!", text_color=cli_colors.BRIGHT_RED)
             exit()
     else:
         # print error messege and stop the script
-        Color_cli.colorful_print(text="! You are in the wrong directory.", text_color=Color_cli.BRIGHT_RED)
+        cli_colors.colorful_print(text_string="! Sorry, you are in the wrong directory.", text_color=cli_colors.BRIGHT_RED)
+        cli_colors.colorful_print(text_string="Use `cd` command to change directory.", text_color=cli_colors.BRIGHT_CYAN)
         exit()
 
-def configuring(config_file:str) -> dict:
+def configuring(config_file: str) -> dict:
     """
-    Ask the user 5 diffrent questinos to do configuration.
+    Ask user 5 diffrent questinos to do configuration.\n
+    If he answered them, return them as `dict` type.
     """
 
     with open('.config/user_pass.json', 'r') as f:
         user_pass_file = loads(f.read())
 
-    username = Questions.str_questoin(question="Enter your student ID with `S`")
-    user_pass_file["username"] = username
+        username = Questions.str_questoin(question="Enter your student ID with `S`")
+        user_pass_file["username"] = username
 
-    passcode = Questions.passcode_question(question="Enter your portal passcode")
-    user_pass_file["passcode"] = passcode
+        passcode = Questions.passcode_question(question="Enter your portal passcode")
+        user_pass_file["passcode"] = passcode
 
-    with open(".config/user_pass.json", "w") as f:
-        dump(user_pass_file, f)
+        with open(".config/user_pass.json", "w") as f:
+            dump(user_pass_file, f)
 
     browser = Questions.dict_question(question="Select default browser", choices={"Chrome":"chrome", "Firefox":"firefox"})
     config_file["browser"] = browser
