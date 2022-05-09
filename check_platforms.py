@@ -8,7 +8,12 @@ from platform import system
 from sys import maxsize
 
 
-def check_platform(browser:str):
+def check_platform(browser:str) -> str:
+    """
+    This function gets the system and the driver's path.\n
+    return path as `str` type.
+    """
+
     get_system = system()
     driver_ = "chromedriver" if browser == "chrome" else "geckodriver"
 
