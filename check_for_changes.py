@@ -1,9 +1,15 @@
 # import loads to load the json data
 from json import loads
 
+# import stdout to write colorful text
 from sys import stdout
 
-def check_for_change(content, search_user_input, driver_path):
+def check_for_change(content, search_user_input, driver_path) -> None:
+    """
+    Checks if theere is available seats in courses.\n
+    after checking, return `None`.
+    """
+
     content_json = loads(str(content))["data"]
     all_colors = {"COP":"\x1b[48;2;92;148;13m",
                   "DIS":"\x1b[48;2;201;42;42m",
@@ -41,11 +47,14 @@ def check_for_change(content, search_user_input, driver_path):
         found_elements = filter(lambda i: int(i["available_seats"]) > 0 or int(i["waiting_list_count"]) > 0,  content_json)
         for index, element in enumerate(found_elements):
             crn                 = element["crn"]
-            course_name         = element["course_number"]
+            course_name         = element["course_number"].replace(" ", "")
             section             = element["section_number"]
             available_seats     = element["available_seats"]
             waiting_list_count  = element["waiting_list_count"]
             class_type          = element["class_type"]
+            building            = element["building"]
+            instructor          = element["instructor_name"]
+            class_time          = "{}-{}".format(element["start_time"], element["end_time"])
 
             if (available_seats > 0):
                 colors = "92"
@@ -53,7 +62,8 @@ def check_for_change(content, search_user_input, driver_path):
             elif (waiting_list_count > 0):
                 colors = "93"
                 signs = "-"
-            stdout.write("\x1b[{}m[{}] - {}-{}, ".format(colors, signs, course_name, section))
-            stdout.write("Type:\x1b[0m {}{}\x1b[0m\x1b[{}m, ".format(all_colors[class_type], class_type, colors))
-            stdout.write("Available Seats: {}, Waiting List: {} ".format(available_seats, waiting_list_count))
+            stdout.write(f"\x1b[{colors}m[{signs}] - {course_name}-{section}, ")
+            stdout.write(f"Type:\x1b[0m {all_colors[class_type]}{class_type}\x1b[0m\x1b[{colors}m, ")
+            stdout.write(f"Available Seats: {available_seats}, Waiting List: {waiting_list_count} ")
             stdout.write("CRN:\x1b[0m \x1b[{}m{}\n".format("94" if index%2==0 else "95", crn))
+    return
