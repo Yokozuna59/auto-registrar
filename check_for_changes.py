@@ -4,8 +4,6 @@ from json import loads
 # import stdout to write colorful text
 from sys import stdout
 
-from regex import W
-
 def check_for_change(content, search_user_input, driver_path) -> None:
     """
     Checks if theere is available seats in courses.\n
@@ -96,6 +94,7 @@ def check_for_change(content, search_user_input, driver_path) -> None:
             elif (waiting_list_count > 0):
                 colors = "93"
                 signs = "-"
+
             try:
                 stdout.write(f"\x1b[{colors}m[{signs}] - {course_name}-{section}, ")
                 stdout.write(f"Type:\x1b[0m {all_colors[class_type]}{class_type}\x1b[0m\x1b[{colors}m, ")
