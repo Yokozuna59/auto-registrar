@@ -13,16 +13,16 @@ def get_search_input() -> dict:
     filter_dictionary = {}
     search_by = Questions.mcq_list_question(question="What filters you wany to check each refresh", choices=["Check `ALL` courses of the department", "Section/Sections", "Activity/Activities", "CRN/CRNs", "Course/Courses Name", "Instructor/Instructors", "Day/Days", "Time/Times","Building/Buildings", "Status/Statuses", "Gender"])
 
-    if ("Check ALL courses of the department" in search_by):
+    if ("Check `ALL` courses of the department" in search_by):
         return None
     else:
         for i in search_by:
             if (i == "Section/Sections"):
-                sections_list = []
                 while True:
-                    activities_list = Questions.str_questoin("Enter Section/Sections you want to check each refresh")
+                    sections_list = []
+                    activities_list_str = Questions.str_questoin("Enter Section/Sections you want to check each refresh")
                     ans = True
-                    for i in activities_list.strip().split(" "):
+                    for i in activities_list_str.strip().split(" "):
                         if (i.isdigit()):
                             sections_list.append(i if int(i) > 9 else f"0{i}" if len(i) == 1 else f"{i}")
                         else:
@@ -32,23 +32,22 @@ def get_search_input() -> dict:
                             break
 
                     if (ans == False):
-                        sections_list = []
                         continue
                     else:
                         break
                 filter_dictionary["section"] = sections_list
             elif (i == "Activity/Activities"):
-                activities_list = Questions.mcq_list_question(question="Select type of activity you want to check each refresh", choices=["COP", "DIS", "FLD", "IND", "LAB", "LLB", "LEC", "MR", "PRJ", "RES", "SEM", "SLB", "ST", "STD", "THS"])
-                if (len(activities_list) == 15):
+                activities_list_str = Questions.mcq_list_question(question="Select type of activity you want to check each refresh", choices=["COP", "DIS", "FLD", "IND", "LAB", "LLB", "LEC", "MR", "PRJ", "RES", "SEM", "SLB", "ST", "STD", "THS"])
+                if (len(activities_list_str) == 15):
                     pass
                 else:
-                    filter_dictionary["activity"] = activities_list
+                    filter_dictionary["activity"] = activities_list_str
             elif (i == "CRN/CRNs"):
-                crns_list = []
                 while True:
                     ans = True
-                    activities_list = Questions.str_questoin("Enter CRN/CRNs you want to check each refresh")
-                    for i in activities_list.strip().split(" "):
+                    crns_list = []
+                    crns_str = Questions.str_questoin("Enter CRN/CRNs you want to check each refresh")
+                    for i in crns_str.strip().split(" "):
                         if (i.isdigit()):
                             crns_list.append(i if int(i) > 9 else f"0{i}" if len(i) == 1 else f"{i}")
                             ans = True
@@ -58,16 +57,15 @@ def get_search_input() -> dict:
                             break
 
                     if (ans == False):
-                        crns_list = []
                         continue
                     else:
                         break
-                filter_dictionary["section"] = crns_list
+                filter_dictionary["crn"] = crns_list
             elif (i == "Course/Courses Name"):
-                course_names_list = []
                 while True:
                     index = 0
                     ans = True
+                    course_names_list = []
                     courses_names_str = Questions.str_questoin(question="Enter Course/Courses Name you want to check each refresh")
                     for element in courses_names_str.split(" "):
                         if (element.isalpha()):
@@ -100,7 +98,7 @@ def get_search_input() -> dict:
                 filter_dictionary["name"] = course_names_list
             elif (i == "Instructor/Instructors"):
                 instructors_list = Questions.str_questoin("Enter Instructor/Instructor you want to check each refresh")
-                filter_list = instructors_list
+                filter_dictionary["instructor"] = instructors_list
             elif (i == "Day/Days"):
                 days_list = Questions.mcq_dict_question(question="Select the Day/Days Course/Courses occurs", choices={"U, Sunday":"U", "M, Monday":"M", "T, Tuesday":"T", "W, Wednesday":"W", "R, Thursday":"R", "F, Friday":"F", "S, Saturday":"S"})
                 if (len(days_list) == 7):
@@ -109,13 +107,13 @@ def get_search_input() -> dict:
                     filter_dictionary["day"] = days_list
             elif (i == "Time/Times"):
                 cli_colors.colorful_print(text_string="e.g. 1000-1050 1300-1350", text_color=cli_colors.BRIGHT_CYAN)
-                str_answer = Questions.str_questoin("Enter Time/Times you want to check each refresh")
-                filter_dictionary["time"] = str_answer.split(" ")
+                times_str = Questions.str_questoin("Enter Time/Times you want to check each refresh")
+                filter_dictionary["time"] = times_str.split(" ")
             elif (i == "Building/Buildings"):
-                buildings_list = []
                 while True:
-                    activities_list = Questions.str_questoin("Enter Building/Buildings you want to check each refresh")
-                    for i in activities_list.strip().split(" "):
+                    buildings_list = []
+                    buildings_str = Questions.str_questoin("Enter Building/Buildings you want to check each refresh")
+                    for i in buildings_str.strip().split(" "):
                         if (i.isdigit()):
                             buildings_list.append(i)
                             ans = True
@@ -125,7 +123,6 @@ def get_search_input() -> dict:
                             break
 
                     if (ans == False):
-                        crns_list = []
                         continue
                     else:
                         break
