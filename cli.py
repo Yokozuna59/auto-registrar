@@ -356,19 +356,16 @@ class Questions:
                     answer.append(choices[index - 1])
             elif (letter == "a"):
                 current_index = index
-                for i in range(len(choices)):
-                    stdout.write("\x1b[1E")
-                    stdout.write("\x1b[2K")
-                stdout.write("\x1b[u")
-
                 for index, choice in enumerate(choices):
                     stdout.write("\x1b[1E")
+                    stdout.write("\x1b[2K")
                     if (current_index== index+1):
                         stdout.write("\x1b[94m>\x1b[0m \x1b[1m{}\x1b[0m \x1b[94m{}\x1b[0m".format("○" if len(answer) == len(choices) else "●", choice))
                     else:
                         stdout.write("  \x1b[1m{} {}\x1b[0m".format("○" if len(answer) == len(choices) else "●", choice))
-                answer = [] if len(answer) == len(choices) else choices
+                answer = [] if len(answer) == len(choices) else choices.copy()
                 index = current_index
+                stdout.write("\x1b[u")
 
     def mcq_dict_question(question: str, choices: dict) -> list:
         """
