@@ -38,8 +38,8 @@ def main() -> None:
     driver_path = check_platform(browser=configuration["browser"])
 
     while True:
-        content = get_requests(request_url="https://registrar.kfupm.edu.sa/api/course-offering?term_code={}&department_code={}".format(registrar_user_input[0], registrar_user_input[1]))
-        check_for_change(content, search_user_input, driver_path)
+        request_content = get_requests(request_url="https://registrar.kfupm.edu.sa/api/course-offering?term_code={}&department_code={}".format(registrar_user_input[0], registrar_user_input[1]))
+        check_for_change(content=request_content, search_input=search_user_input, driver_path=driver_path)
         time_delay(refresh_time=configuration["delay"])
 
 if __name__ == "__main__":
