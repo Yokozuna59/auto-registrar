@@ -12,3 +12,6 @@ venv.bak/
 
 # Json
 *.json
+
+# Drivers
+drivers/
