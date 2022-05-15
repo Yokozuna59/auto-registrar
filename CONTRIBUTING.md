@@ -46,7 +46,7 @@
 7. Push your commits to your GitHub Fork:
 
     ```sh
-    git push origin <branch_name>
+    git push --set-upstream origin <branch_name>
     ```
 
 8. Submit a [pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) ([Click to pull request](https://github.com/Yokozuna59/auto-registrar/pulls)).
