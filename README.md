@@ -8,7 +8,7 @@ To run this script you need to have:
 
 - [Git](https://git-scm.com/downloads/)
     <details>
-    <summary><strong>Note for Windows users</strong> (Not WSL)</summary>
+    <summary><strong>Note for Windows users</strong></summary>
 
     if you are using windows (without [`WSL`](https://docs.microsoft.com/en-us/windows/wsl/install)) you need to select this option while installing Git:
     ![windows git cmd](assets/win-git-cmd.png)
@@ -16,7 +16,7 @@ To run this script you need to have:
 
 - [Python3.7+](https://www.python.org/downloads/)
     <details close>
-    <summary><strong>Note for Windows users</strong> (Not WSL)</summary>
+    <summary><strong>Note for Windows users</strong></summary>
 
     if you are using windows (without [`WSL`](https://docs.microsoft.com/en-us/windows/wsl/install)) you need to select this option while installing Python:
     ![windows python path](assets/win-py-path.png)
