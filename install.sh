@@ -66,12 +66,14 @@ function configuration() {
                 esac
             done
         done
+    else
+        force_flag=true
+    fi
 	if [[ $force_flag == true ]]; then
-	     echo $configurations > .config.json
-        else
-	     echo -e "Error: .config.json already exists.\n\nUse --force to overwrite it."
-             exit 1
-        fi
+        echo $configurations > .config.json
+    else
+        echo -e "Error: .config.json already exists.\n\nUse --force to overwrite it."
+        exit 1
     fi
 }
 
@@ -110,18 +112,11 @@ function check_os_cpu() {
         *"microsoft"*)
             os="windows"
         ;;
-        *)
-            :
-        ;;
     esac
 }
 
 function download_requirements() {
-    if [[ "$os" == "linux" ]]; then
-        pip3 install -r requirements.txt
-    else
-        pip install -r requirements.txt
-    fi
+    pip install -r requirements.txt --quiet
 }
 
 function download_drivers() {
@@ -205,7 +200,7 @@ function download_drivers() {
 function main() {
     configuration
     check_os_cpu
-    # download_requirements
+    download_requirements
     download_drivers
 }
 
