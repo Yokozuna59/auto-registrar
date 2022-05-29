@@ -1,11 +1,6 @@
-# import get from requests to get the content of the url
 from requests import get
-
-# import BeautifulSoup to parse the content of the url
 from bs4 import BeautifulSoup
-
-# import cli_colors and Questions classes to print colorful text and ask user for input
-from cli import ColorfulText, Questions, time_delay
+from cli import AnsiEscapeCodes, Questions, progress_bar, colorful_text
 
 def get_requests(request_url: str, interface_config :str):
     """
@@ -19,13 +14,13 @@ def get_requests(request_url: str, interface_config :str):
             break
         except:
             if (interface_config == "cli"):
-                ColorfulText.colorful_print(text_string="\n! Sorry, you currently don't have internet connection! the script will check in 10 seconds.", text_color=ColorfulText.BRIGHT_RED)
-                time_delay(10)
+                colorful_text(text_string="\n! Sorry, you currently don't have internet connection! the script will check in 10 seconds.", text_color=AnsiEscapeCodes.RED)
+                progress_bar(10)
 
     if (registrar_request.status_code != 200):
         if (interface_config == "cli"):
-            ColorfulText.colorful_print(text_string="! Sorry, the website isn't working currently! the script will check in 60 seconds", text_color=ColorfulText.BRIGHT_RED)
-            time_delay(60)
+            colorful_text(text_string="! Sorry, the website isn't working currently! the script will check in 60 seconds", text_color=AnsiEscapeCodes.RED)
+            progress_bar(60)
         return get_requests(request_url=request_url)
     else:
         return get_elements(content=registrar_request.content, interface_config=interface_config)

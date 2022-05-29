@@ -1,12 +1,10 @@
-# import loads to load the json data
 from json import loads
-
-# import stdout to write colorful text
 from sys import stdout
+from cli import AnsiEscapeCodes
 
 def check_for_changes(content: dict, search_input: dict, configurations: str) -> None:
     """
-    Checks if theere is available seats in courses.\n
+    Checks if there is available seats in courses.\n
     after checking, return `None`.
     """
 
@@ -42,18 +40,18 @@ def check_for_changes(content: dict, search_input: dict, configurations: str) ->
                 class_type          = element["class_type"]
 
                 if (available_seats > 0):
-                    colors = "92"
+                    colors = AnsiEscapeCodes.LIGHT_GREEN
                     signs = "+"
                 elif (waiting_list_count > 0):
-                    colors = "93"
+                    colors = AnsiEscapeCodes.LIGHT_YELLOW
                     signs = "-"
                 else:
                     continue
 
-                stdout.write(f"\x1b[{colors}m[{signs}] - {course_name}-{section}, ")
-                stdout.write(f"Type:\x1b[0m {all_colors[class_type]}{class_type}\x1b[0m\x1b[{colors}m, ")
+                stdout.write(f"{colors}[{signs}] - {course_name}-{section}, ")
+                stdout.write(f"Type:{AnsiEscapeCodes.RESET} {all_colors[class_type]}{class_type}{AnsiEscapeCodes.RESET}{colors}, ")
                 stdout.write(f"Available Seats: {available_seats}, Waiting List: {waiting_list_count} ")
-                stdout.write("CRN:\x1b[0m \x1b[{}m{}\n".format("94" if index%2==0 else "95", crn))
+                stdout.write("CRN:{} {}{}\n".format(AnsiEscapeCodes.RESET, AnsiEscapeCodes.LIGHT_BLUE if index%2==0 else AnsiEscapeCodes.LIGHT_MAGENTA, crn))
     else:
         found_elements = filter(lambda x: int(x["available_seats"]) > 0 or int(x["waiting_list_count"]) > 0,  content_json)
         if (configurations["interface"] == "cli"):
@@ -91,19 +89,19 @@ def check_for_changes(content: dict, search_input: dict, configurations: str) ->
                 class_type          = element["class_type"]
 
                 if (available_seats > 0):
-                    colors = "92"
+                    colors = AnsiEscapeCodes.LIGHT_GREEN
                     signs = "+"
                 elif (waiting_list_count > 0):
-                    colors = "93"
+                    colors = AnsiEscapeCodes.LIGHT_YELLOW
                     signs = "-"
                 else:
                     continue
 
                 try:
-                    stdout.write(f"\x1b[{colors}m[{signs}] - {course_name}-{section}, ")
-                    stdout.write(f"Type:\x1b[0m {all_colors[class_type]}{class_type}\x1b[0m\x1b[{colors}m, ")
+                    stdout.write(f"{colors}[{signs}] - {course_name}-{section}, ")
+                    stdout.write(f"Type:{AnsiEscapeCodes.RESET} {all_colors[class_type]}{class_type}{AnsiEscapeCodes.RESET}{colors}, ")
                     stdout.write(f"Available Seats: {available_seats}, Waiting List: {waiting_list_count} ")
-                    stdout.write("CRN:\x1b[0m \x1b[{}m{}\n".format("94" if index%2==0 else "95", crn))
+                    stdout.write("CRN:{} {}{}\n".format(AnsiEscapeCodes.RESET, AnsiEscapeCodes.LIGHT_BLUE if index%2==0 else AnsiEscapeCodes.LIGHT_MAGENTA, crn))
                 except:
                     continue
-    return
+    return None

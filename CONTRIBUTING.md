@@ -1,4 +1,4 @@
-# Contributing
+# Contributing to Auto Registrar
 
 1. [Fork](https://help.github.com/articles/fork-a-repo/) the [auto-registrar](https://github.com/Yokozuna59/auto-registrar) repository ([Click to fork](https://github.com/Yokozuna59/auto-registrar/fork)).
 

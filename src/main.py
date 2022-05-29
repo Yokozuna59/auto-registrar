@@ -1,20 +1,9 @@
-# import setrecursionlimit to set the recursion limit to 100000
 from sys import setrecursionlimit
-
-# import check_configuration to check if user has configurated yet or not
 from config import check_configurations
-
-# import get_requests to get the content of the url
 from registrar_requests import get_requests
-
-# import get_search_input function to get the user input for the search
 from user_search import get_search_input
-
-# import check_for_change to check if sections has changed
 from c4c import check_for_changes
-
-# import time_delay to make the script wait
-from cli import time_delay
+from cli import progress_bar
 
 def main() -> None:
     """
@@ -32,7 +21,7 @@ def main() -> None:
     term_dep_input = get_requests(request_url="https://registrar.kfupm.edu.sa/courses-classes/course-offering/", interface_config=configurations["interface"])
 
     # get the user input for the search
-    search_input = get_search_input(interface_config=configurations["interface"])
+    search_input = get_search_input(config_file=configurations)
 
     while True:
         # get content of the request
@@ -42,7 +31,7 @@ def main() -> None:
         check_for_changes(content=request_content, search_input=search_input, configurations=configurations)
 
         # wait for configured time
-        time_delay(refresh_time=configurations["delay"])
+        progress_bar(total_time=configurations["delay"])
 
 if __name__ == "__main__":
     # run the main function
