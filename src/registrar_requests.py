@@ -1,3 +1,4 @@
+from __future__ import barry_as_FLUFL
 from requests import get
 from bs4 import BeautifulSoup
 from cli import AnsiEscapeCodes, Questions, progress_bar, colorful_text
@@ -11,10 +12,14 @@ def get_requests(request_url: str, interface_config :str):
     while True:
         try:
             registrar_request = get(url=request_url)
-            break
+            if (not "Under Maintenance!" in registrar_request.text):
+                break
+            if (interface_config == "cli"):
+                colorful_text(text_string="! Sorry, the currently is under maintenance! the script will check in 60 seconds.", text_color=AnsiEscapeCodes.RED)
+                progress_bar(60)
         except:
             if (interface_config == "cli"):
-                colorful_text(text_string="\n! Sorry, you currently don't have internet connection! the script will check in 10 seconds.", text_color=AnsiEscapeCodes.RED)
+                colorful_text(text_string="! Sorry, you currently don't have internet connection! the script will check in 10 seconds.", text_color=AnsiEscapeCodes.RED)
                 progress_bar(10)
 
     if (registrar_request.status_code != 200):
@@ -33,11 +38,11 @@ def get_elements(content: str, interface_config: str) -> list:
 
     user_inputs = []
     soup = BeautifulSoup(content, "html.parser")
-    for index, elements in enumerate(["course_term_code", "course_dept_code"]):
+    for index, elements in enumerate(["ddlTerm", "ddlDept"]):
         i = soup.find(id=elements)
         if (i is None):
             return soup
-        options = i.find_all("option")[1::]
+        options = i.find_all("option") if elements != "ddlDept" else i.find_all("option")[1::]
 
         dict_elements = {}
         for option in options:
