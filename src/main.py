@@ -12,13 +12,13 @@ def main() -> None:
     """
 
     # set recursion limit to 1000000
-    setrecursionlimit(100)
+    setrecursionlimit(1000000)
 
     # get config file as dict type
     configurations = check_configurations()
 
     # get term and department as list
-    term_dep_input = get_requests(request_url="https://registrar.kfupm.edu.sa/courses-classes/course-offering/", interface_config=configurations["interface"])
+    term_dep_input = get_requests(request_url="https://reg-serviceapp.kfupm.edu.sa/course-offering/", interface_config=configurations["interface"])
 
     # get the user input for the search
     search_input = get_search_input(config_file=configurations)
