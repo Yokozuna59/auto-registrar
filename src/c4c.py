@@ -51,7 +51,7 @@ def check_for_changes(content: dict, search_input: dict, configurations: str) ->
                 stdout.write(f"{colors}[{signs}] - {course_name}-{section}, ")
                 stdout.write(f"Type:{AnsiEscapeCodes.RESET} {all_colors[class_type]}{class_type}{AnsiEscapeCodes.RESET}{colors}, ")
                 stdout.write(f"Available Seats: {available_seats}, Waiting List: {waiting_list_count} ")
-                stdout.write("CRN:{} {}{}\n".format(AnsiEscapeCodes.RESET, AnsiEscapeCodes.LIGHT_BLUE if index%2==0 else AnsiEscapeCodes.LIGHT_MAGENTA, crn))
+                stdout.write("CRN:{} {}{}{}\n".format(AnsiEscapeCodes.RESET, AnsiEscapeCodes.LIGHT_BLUE if index%2==0 else AnsiEscapeCodes.LIGHT_MAGENTA, crn, AnsiEscapeCodes.RESET))
     else:
         found_elements = filter(lambda x: int(x["available_seats"]) > 0 or int(x["waiting_list_count"]) > 0,  content_json)
         if (configurations["interface"] == "cli"):
@@ -101,7 +101,7 @@ def check_for_changes(content: dict, search_input: dict, configurations: str) ->
                     stdout.write(f"{colors}[{signs}] - {course_name}-{section}, ")
                     stdout.write(f"Type:{AnsiEscapeCodes.RESET} {all_colors[class_type]}{class_type}{AnsiEscapeCodes.RESET}{colors}, ")
                     stdout.write(f"Available Seats: {available_seats}, Waiting List: {waiting_list_count} ")
-                    stdout.write("CRN:{} {}{}\n".format(AnsiEscapeCodes.RESET, AnsiEscapeCodes.LIGHT_BLUE if index%2==0 else AnsiEscapeCodes.LIGHT_MAGENTA, crn))
+                    stdout.write("CRN:{} {}{}{}\n".format(AnsiEscapeCodes.RESET, AnsiEscapeCodes.LIGHT_BLUE if index%2==0 else AnsiEscapeCodes.LIGHT_MAGENTA, crn, AnsiEscapeCodes.RESET))
                 except:
                     continue
     return None

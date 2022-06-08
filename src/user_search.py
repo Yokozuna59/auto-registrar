@@ -137,11 +137,11 @@ def get_search_input(config_file: str) -> dict:
                         if (ans != False):
                             break
                     filter_dictionary["building"] = buildings_list
-                elif (crn == "Status/Statuses"):
+                elif (i == "Status/Statuses"):
                     status_list = Questions.mcq_list_question(question="Select status of course/courses", choices=["Open", "Wait list"])
                     if (status_list != 2):
                         filter_dictionary["status"] = status_list[0]
-                elif (crn == "Gender"):
+                elif (i == "Gender"):
                     genders_list = Questions.mcq_dict_question(question="Select the gender of course/courses meant to have", choices={"Male":"M", "Female":"F"})
                     if (genders_list != 2):
                         filter_dictionary["gender"] = genders_list[0]
