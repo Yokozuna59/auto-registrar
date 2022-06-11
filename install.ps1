@@ -54,7 +54,7 @@ function install_firefox_driver {
     } elseif ($firefox_local_version -ge 62) {
         $firefox_url=$geckodriver_versions[8]
     } else {
-        Write-Host "Your Firefox version in not supported, so the script won't download the driver for you." -ForegroundColor Red
+        Write-Host "Your Firefox version is not supported, so the script won't download the driver for you." -ForegroundColor Red
         return 0
     }
     New-Item "$(Get-Location).Path/drivers" -itemType Directory -Force
@@ -64,10 +64,41 @@ function install_firefox_driver {
     Write-Host "Firefox driver installed successfully." -ForegroundColor Green
 }
 
+function python_install {
+    Try {
+        $python_local_version=(((python --version).split(" ")[1]).split(".")[0,1] -join ".")
+    } Catch {
+        Write-Host "You don't have Python or you didn't click the PATH button, you have to install python or click the PATH button" -ForegroundColor Yellow
+        exit 1
+    }
+    if ([int](($python_local_version)[0] -lt 3)) {
+        Write-Host "Your Python version is not supported, you have to install newer version of python (at least 3.7)." -ForegroundColor Yellow
+        exit 1
+    } else {
+        if ([int](($python_local_version)[1] -lt 7)) {
+            Write-Host "Your Python version is not supported, you have to install newer version of python (at least 3.7)." -ForegroundColor Yellow
+            exit 1
+        }
+    }
+}
+
+function python_venv {
+    if (-Not (Test-Path -Path ".venv")) {
+        python -m pip install --user virtualenv -q
+        python -m venv .venv
+    }
+    .venv/Scripts/activate.ps1
+    pip install -r requirements.txt -q or pip3 install -r requirements.txt -q
+    deactivate
+    Write-Host "Python virtual environment created and packages installed." -ForegroundColor Green
+}
+
 function main {
     get_processor
     install_chrome_driver
     install_firefox_driver
+    python_install
+    python_venv
 }
 
 main

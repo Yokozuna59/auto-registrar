@@ -1,4 +1,3 @@
-from json import loads
 from sys import stdout
 from cli import AnsiEscapeCodes
 
@@ -8,7 +7,7 @@ def check_for_changes(content: dict, search_input: dict, configurations: str) ->
     after checking, return `None`.
     """
 
-    content_json = list(loads(str(content))["data"])
+    content_json = content["data"]
     all_colors = {"COP":"\x1b[48;2;92;148;13m",
                   "DIS":"\x1b[48;2;201;42;42m",
                   "FLD":"\x1b[48;2;33;37;41m",
