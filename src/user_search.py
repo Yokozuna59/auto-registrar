@@ -1,15 +1,15 @@
-from cli import Questions, AnsiEscapeCodes, colorful_text
+from cli import Questions, AnsiEscapeCodes, print_colorful_text
 from sys import stdout
 
-def get_search_input(config_file: str) -> dict:
+def get_search_input(configs_file: str) -> dict:
     """
     Ask user for what he want to search by each refresh.\n
     return answer as `dict` type.
     """
 
     filter_dictionary = {}
-    if (config_file["interface"] == "cli"):
-        if (config_file["browser"] != None):
+    if (configs_file["interface"] == "cli"):
+        if (configs_file["browser"] != None):
             registrar_answer = Questions.bool_question(question="Do you want to registrar course/courses", default=False)
             if (registrar_answer == True):
                 while True:
@@ -106,8 +106,9 @@ def get_search_input(config_file: str) -> dict:
                             break
                     filter_dictionary["course_number"] = course_names_list
                 elif (i == "Instructor/Instructors"):
-                    colorful_text(text_string="Currently the instructors filter is not supported!", text_color=AnsiEscapeCodes.RED)
+                    print_colorful_text(text_string="Currently the instructors filter is not supported!", text_color=AnsiEscapeCodes.RED)
                     continue
+                # TODO edit instructor chioce
                 #     colorful_text(text_string="e.g. ABDULRAHMAN AL-ARFAJ; MOHAMMAD SIDDIQUI", text_color=AnsiEscapeCodes.BRIGHT_CYAN)
                 #     instructors_list = Questions.str_questoin("Enter Instructor/Instructor you want to check each refresh (type the full name of instructor, each instructor separate with ;)")
                 #     filter_dictionary["instructor_name"] = instructors_list.split(";")
@@ -116,8 +117,9 @@ def get_search_input(config_file: str) -> dict:
                     if (len(days_list) != 7):
                         filter_dictionary["class_days"] = days_list
                 elif (i == "Time/Times"):
-                    colorful_text(text_string="Currently the instructors filter is not supported!", text_color=AnsiEscapeCodes.RED)
+                    print_colorful_text(text_string="Currently the instructors filter is not supported!", text_color=AnsiEscapeCodes.RED)
                     continue
+                # TODO edit time chioce
                 #     colorful_text(text_string="e.g. 0800-1050 1300-1350", text_color=cli_colors.BRIGHT_CYAN)
                 #     times_str = Questions.str_questoin("Enter Time/Times you want to check each refresh")
                 #     filter_dictionary["course_number"] = times_str.split(" ")
