@@ -6,44 +6,44 @@ from time import sleep
 
 class AnsiEscapeCodes:
     # Modes
-    RESET                       = "\x1B[0m"
-    BOLD                        = "\x1B[1m"
-    FAINT                       = "\x1B[2m"
-    ITALIC_TEXT                 = "\x1B[3m"
-    UNDERSCORE                  = "\x1B[4m"
-    BLINK                       = "\x1B[5m"
+    RESET                       = "\u001B[0m"
+    BOLD                        = "\u001B[1m"
+    FAINT                       = "\u001B[2m"
+    ITALIC_TEXT                 = "\u001B[3m"
+    UNDERSCORE                  = "\u001B[4m"
+    BLINK                       = "\u001B[5m"
 
     # Colors
-    RED                         = "\x1B[31m"
-    GREEN                       = "\x1B[32m"
-    YELLOW                      = "\x1B[33m"
-    BLUE                        = "\x1B[34m"
-    MAGENTA                     = "\x1B[35m"
-    CYAN                        = "\x1B[36m"
-    LIGHT_GRAY                  = "\x1B[90m"
-    LIGHT_RED                   = "\x1B[91m"
-    LIGHT_GREEN                 = "\x1B[92m"
-    LIGHT_YELLOW                = "\x1B[93m"
-    LIGHT_BLUE                  = "\x1B[94m"
-    LIGHT_MAGENTA               = "\x1B[95m"
-    LIGHT_CYAN                  = "\x1B[96m"
+    RED                         = "\u001B[31m"
+    GREEN                       = "\u001B[32m"
+    YELLOW                      = "\u001B[33m"
+    BLUE                        = "\u001B[34m"
+    MAGENTA                     = "\u001B[35m"
+    CYAN                        = "\u001B[36m"
+    LIGHT_GRAY                  = "\u001B[90m"
+    LIGHT_RED                   = "\u001B[91m"
+    LIGHT_GREEN                 = "\u001B[92m"
+    LIGHT_YELLOW                = "\u001B[93m"
+    LIGHT_BLUE                  = "\u001B[94m"
+    LIGHT_MAGENTA               = "\u001B[95m"
+    LIGHT_CYAN                  = "\u001B[96m"
 
     # Cursor Control
-    HIDE_CURSOR                 = "\x1B[?25l"
-    SHOW_CURSOR                 = "\x1B[?25h"
-    SAVE_POSITION               = "\x1B7\x1B[s"
-    RESTORE_POSITION            = "\x1B8\x1B[u"
+    HIDE_CURSOR                 = "\u001B[?25l"
+    SHOW_CURSOR                 = "\u001B[?25h"
+    SAVE_POSITION               = "\u001B7\u001B[s"
+    RESTORE_POSITION            = "\u001B8\u001B[u"
 
     # Cursor Movement
-    MOVE_UP                     = "\x1B[1A"
-    MOVE_DOWN                   = "\x1B[1B"
-    MOVE_LEFT                   = "\x1B[1D"
-    MOVE_RIGHT                  = "\x1B[1C"
-    MOVE_TO_BEGIN_OF_NEXT_LINE  = "\x1B[1E"
+    MOVE_UP                     = "\u001B[1A"
+    MOVE_DOWN                   = "\u001B[1B"
+    MOVE_LEFT                   = "\u001B[1D"
+    MOVE_RIGHT                  = "\u001B[1C"
+    MOVE_TO_BEGIN_OF_NEXT_LINE  = "\u001B[1E"
 
     # Erase
-    ERASE_TO_END_OF_LINE        = "\x1B[0K"
-    ERASE_ENTIRE_LINE           = "\x1B[2K"
+    ERASE_TO_END_OF_LINE        = "\u001B[0K"
+    ERASE_ENTIRE_LINE           = "\u001B[2K"
 
 class Questions:
     def bool_question(question: str = "", default: bool = True) -> bool:
@@ -389,10 +389,19 @@ class Questions:
             answers_value.append(choices[i])
         return answers_value
 
-def colorful_text(text_string: str, text_color: str, end_with = "\n") -> str:
+def print_colorful_text(text_string: str, text_color: str, end_with = "\n") -> str:
     """
     Print colorful text.\n
     Return `None` after that.
+    """
+
+    stdout.write(f"{text_color}{text_string}{AnsiEscapeCodes.RESET}{end_with}")
+    return None
+
+def print_colorful_text(text_string: str, text_color: str, end_with = "\n") -> str:
+    """
+    Print colorful text.\n
+    Return `None` after printing.
     """
 
     stdout.write(f"{text_color}{text_string}{AnsiEscapeCodes.RESET}{end_with}")
