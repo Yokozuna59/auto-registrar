@@ -42,7 +42,7 @@ def get_search_input(configs_file: str) -> dict:
                         sections_str = Questions.str_questoin("Enter Section/Sections you want to check each refresh")
                         for section in sections_str.strip().split(" "):
                             if (section.isdigit()):
-                                sections_list.append(section if int(section) > 9 else f"0{section}" if len(section) == 1 else f"{section}")
+                                sections_list.append("%02d" %int(section))
                             else:
                                 stdout.write(f"{AnsiEscapeCodes.RED}! Sorry, your reply was invalid:{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\"{section}\"{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}is not a valid answer, please try again.{AnsiEscapeCodes.RESET}\n")
                                 stdout.flush()
@@ -117,7 +117,7 @@ def get_search_input(configs_file: str) -> dict:
                     if (len(days_list) != 7):
                         filter_dictionary["class_days"] = days_list
                 elif (i == "Time/Times"):
-                    print_colorful_text(text_string="Currently the instructors filter is not supported!", text_color=AnsiEscapeCodes.RED)
+                    print_colorful_text(text_string="Currently the time filter is not supported!", text_color=AnsiEscapeCodes.RED)
                     continue
                 # TODO edit time chioce
                 #     colorful_text(text_string="e.g. 0800-1050 1300-1350", text_color=cli_colors.BRIGHT_CYAN)
