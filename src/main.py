@@ -1,8 +1,19 @@
+# import setrecursionlimit to set the recursion limit to 100000
 from sys import setrecursionlimit
-from config import check_configurations
-from registrar_requests import get_requests
+
+# import check_configs to check if user has configurated yet or not
+from config import check_configs
+
+# import get_term_and_department and get_course_offering_data to request and get data
+from registrar_requests import get_term_and_department, get_course_offering_data
+
+# import get_search_input to get user input/s for search
 from user_search import get_search_input
+
+# import check_for_changes to check if section/s is/are open
 from c4c import check_for_changes
+
+# import progress_bar to print a progress bar
 from cli import progress_bar
 
 def main() -> None:
@@ -12,26 +23,26 @@ def main() -> None:
     """
 
     # set recursion limit to 1000000
-    setrecursionlimit(1000000)
+    setrecursionlimit(100000)
 
-    # get config file as dict type
-    configurations = check_configurations()
+    # get config file
+    configs = check_configs()
 
-    # get term and department as list
-    term_dep_input = get_requests(request_url="https://reg-serviceapp.kfupm.edu.sa/course-offering/", interface_config=configurations["interface"])
+    # get term and department
+    term_and_department_input = get_term_and_department(request_url="https://reg-serviceapp.kfupm.edu.sa/course-offering/", interface_config=configs["interface"])
 
-    # get the user input for the search
-    search_input = get_search_input(config_file=configurations)
+    # get user input/s for search
+    search_input = get_search_input(configs_file=configs)
 
     while True:
-        # get content of the request
-        request_content = get_requests(request_url="https://registrar.kfupm.edu.sa/api/course-offering?term_code={}&department_code={}".format(term_dep_input[0], term_dep_input[1]), interface_config=configurations["interface"])
+        # request and get courses from course offering
+        courses_requested = get_course_offering_data(term=term_and_department_input[0], department=term_and_department_input[1], interface_config=configs["interface"], user_search=search_input)
 
-        # check if sections has changed
-        check_for_changes(content=request_content, search_input=search_input, configurations=configurations)
+        # check if section/s is/are open
+        check_for_changes(content=courses_requested, search_input=search_input, configurations=configs)
 
-        # wait for configured time
-        progress_bar(total_time=configurations["delay"])
+        # print a progress bar
+        progress_bar(total_time=configs["delay"])
 
 if __name__ == "__main__":
     # run the main function
