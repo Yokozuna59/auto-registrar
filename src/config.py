@@ -1,22 +1,21 @@
-# import exists to check if file exists
+# import functions from modules
 from os.path import exists
-
-# import dumps and loads to dumps and loads the json data
 from json import dumps, loads
+from cryptography.fernet import Fernet, InvalidToken
 
-# import print_colorful_text, Questions, AnsiEscapeCodes to print colorful text and ask user for input
+# import functions from local files
 from cli import print_colorful_text, Questions, AnsiEscapeCodes
 
-def check_configs() -> dict:
+SLASH_PATH = "/" if "/" in __file__ else "\\"
+PROJECT_PATH =  SLASH_PATH.join(__file__.split(SLASH_PATH)[:-2])
+CONFIGS_PATH = f"{PROJECT_PATH}{SLASH_PATH}.config.json"
+DRIVERS_PATH = f"{PROJECT_PATH}{SLASH_PATH}drivers"
+
+def get_configs() -> dict:
     """
     Checks if user has installed and configured his default configuration.\n
     If he did, return configs as `dict` type.
     """
-
-    SLASH_PATH = "/" if "/" in __file__ else "\\"
-    PROJECT_PATH =  __file__.replace(f"{SLASH_PATH}src{SLASH_PATH}config.py", "")
-    CONFIGS_PATH = f"{PROJECT_PATH}{SLASH_PATH}.config.json"
-    DRIVERS_PATH = f"{PROJECT_PATH}{SLASH_PATH}drivers"
 
     if (not (exists(CONFIGS_PATH))):
         defualt_configs = {
@@ -37,23 +36,25 @@ def check_configs() -> dict:
         configs = loads(f.read())
 
     if (configs['configuration'] == None):
-        print_colorful_text(text_string="! Sorry, you haven't configured yet!", text_color=AnsiEscapeCodes.LIGHT_RED, end_with="\n")
+        print_colorful_text(text_string="! Sorry, you haven't configured yet!", text_color=AnsiEscapeCodes.LIGHT_RED)
         bool_answer = Questions.bool_question(question="Do you want to configurate now")
 
         if (bool_answer):
-            configs = do_config(configs_path=CONFIGS_PATH, configs_file=configs)
+            configs = do_configs(configs_file=configs)
+    else:
+        configs["passcode"] = decode_passcode(passcode=configs["passcode"], configs_file=configs)
 
-        if (configs["browser"] != None):
-            configs["browser"] = "{}{}{}".format(DRIVERS_PATH, SLASH_PATH, "chromedriver" if configs["browser"] == "chrome" else "geckodriver")
-
-    if (not (exists(DRIVERS_PATH))):
-        print_colorful_text(text_string="! Sorry, you don't have drivers folder yet, which means the script can't open any WebDrivers to registrar courses!", text_color=AnsiEscapeCodes.LIGHT_RED, end_with="\n")
-        print_colorful_text(text_string="Run `install.sh` or `install.ps1` file, please read the `README.md` file for more information.", text_color=AnsiEscapeCodes.LIGHT_YELLOW, end_with="\n")
+    if (exists(DRIVERS_PATH)):
+        # TODO: check if drivers are installed
+        configs["browser"] = f"{DRIVERS_PATH}{SLASH_PATH}{configs['browser']}"
+    else:
+        print_colorful_text(text_string="! Sorry, you don't have drivers folder yet, which means the script can't open any WebDrivers to registrar courses!", text_color=AnsiEscapeCodes.LIGHT_RED)
+        print_colorful_text(text_string="Run `install.sh` or `install.ps1` file, please read the `README.md` file for more information.", text_color=AnsiEscapeCodes.LIGHT_YELLOW)
         configs["browser"] = None
 
     return configs
 
-def do_config(configs_path: str, configs_file: str) -> dict:
+def do_configs(configs_file: str) -> dict:
     """
     Ask user 5 diffrent questinos to configurate.\n
     If he answered the question, return them as `dict` type.
@@ -65,8 +66,8 @@ def do_config(configs_path: str, configs_file: str) -> dict:
             "Banner 9": 9
         },
         "browser": {
-            "Chrome": "chrome",
-            "Firefox": "firefox"
+            "Chrome": "chromedriver",
+            "Firefox": "geckodriver"
         },
         "delay": {
             "10 second": 10,
@@ -79,6 +80,7 @@ def do_config(configs_path: str, configs_file: str) -> dict:
             "Graphical user interface (GUI)": "gui"
         }
     }
+
     default_banner = Questions.dict_question(question="Select default banner for registration", choices=mcq_choices["banner"])
     configs_file["banner"] = default_banner
 
@@ -94,13 +96,63 @@ def do_config(configs_path: str, configs_file: str) -> dict:
     username = Questions.str_questoin(question="Enter your student ID with `S`")
     configs_file["username"] = username
 
-    passcode = Questions.passcode_question(question="Enter your portal passcode")
+    passcode = ask_for_passcode(configs_file=configs_file)
     configs_file["passcode"] = passcode
 
     configs_file["configuration"] = "configured"
-
-    json_objects = dumps(obj=configs_file, indent=4)
-    with open(configs_path, "w") as f:
-        f.write(json_objects)
+    write_configs_file(configs_file=configs_file)
 
     return configs_file
+
+def ask_for_passcode(configs_file) -> dict:
+    """
+    Ask user to enter the passcode,\n
+    Return the passcode as `str` type.
+    """
+
+    passcode = Questions.passcode_question(question="Enter your portal passcode")
+
+    key = Fernet.generate_key()
+    with open(f"{PROJECT_PATH}{SLASH_PATH}.key", "wb") as fernet:
+        fernet.write(key)
+    fernet = Fernet(key)
+    passcode_encrypted = fernet.encrypt(passcode.encode()).decode()
+    configs_file["passcode"] = passcode_encrypted
+    write_configs_file(configs_file=configs_file)
+
+    return passcode
+
+def decode_passcode(passcode, configs_file) -> str:
+    """
+    Decrypts the passcode with Fernet,\n
+    Return the decrypted passcode as `str` type.
+    """
+
+    if (not (exists(f"{PROJECT_PATH}{SLASH_PATH}.key"))):
+        print_colorful_text(text_string="! Sorry, you have deleted your key file, which means the script can't decrypt your passcode!", text_color=AnsiEscapeCodes.LIGHT_RED)
+        print_colorful_text(text_string="Please reenter your passcode again.", text_color=AnsiEscapeCodes.LIGHT_YELLOW)
+
+        passcode = ask_for_passcode(configs_file=configs_file)
+        configs_file["passcode"] = passcode
+
+    with open(f"{PROJECT_PATH}{SLASH_PATH}.key", "rb") as fernet:
+        key = fernet.read()
+    fernet = Fernet(key)
+    try:
+        passcode_decrypted = fernet.decrypt(passcode.encode()).decode()
+    except InvalidToken:
+        print_colorful_text(text_string="! Sorry, you have edited your key file, which means the script can't decrypt your passcode!", text_color=AnsiEscapeCodes.LIGHT_RED)
+        print_colorful_text(text_string="Please reenter your passcode again.", text_color=AnsiEscapeCodes.LIGHT_YELLOW)
+        passcode_decrypted = ask_for_passcode(configs_file=configs_file)
+    return passcode_decrypted
+
+def write_configs_file(configs_file) -> None:
+    """
+    Write the configs file as `json` type.
+    Returns `None` type.
+    """
+
+    json_objects = dumps(obj=configs_file, indent=4)
+    with open(CONFIGS_PATH, "w") as f:
+        f.write(json_objects)
+    return None
