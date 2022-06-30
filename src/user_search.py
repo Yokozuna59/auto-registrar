@@ -1,5 +1,8 @@
-from cli import Questions, AnsiEscapeCodes, print_colorful_text
+# import functions from modules
 from sys import stdout
+
+# import functions from local files
+from cli import Questions, AnsiEscapeCodes, print_colorful_text
 
 def get_search_input(configs_file: str) -> dict:
     """
@@ -12,20 +15,17 @@ def get_search_input(configs_file: str) -> dict:
         if (configs_file["browser"] != None):
             registrar_answer = Questions.bool_question(question="Do you want to registrar course/courses", default=False)
             if (registrar_answer == True):
-                while True:
+                finished = False
+                while not finished:
                     crns_list = []
                     crns_str = Questions.str_questoin("Enter CRN/CRNs you want to registrar")
                     for crn in crns_str.strip().split(" "):
                         if (crn.isdigit()):
                             crns_list.append(crn)
-                            ans = True
+                            finished = True
                         else:
                             stdout.write(f"{AnsiEscapeCodes.RED}! Sorry, your reply was invalid:{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\"{crn}\"{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}is not a valid answer, please try again.{AnsiEscapeCodes.RESET}\n")
-                            ans = False
-                            break
 
-                    if (ans != False):
-                        break
                 filter_dictionary["registrar"] = True
                 filter_dictionary["crn"] = crns_list
                 return filter_dictionary
@@ -36,45 +36,37 @@ def get_search_input(configs_file: str) -> dict:
         else:
             for i in search_by:
                 if (i == "Section/Sections"):
-                    while True:
-                        ans = True
+                    finished = False
+                    while not finished:
                         sections_list = []
                         sections_str = Questions.str_questoin("Enter Section/Sections you want to check each refresh")
                         for section in sections_str.strip().split(" "):
                             if (section.isdigit()):
                                 sections_list.append("%02d" %int(section))
+                                finished = True
                             else:
                                 stdout.write(f"{AnsiEscapeCodes.RED}! Sorry, your reply was invalid:{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\"{section}\"{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}is not a valid answer, please try again.{AnsiEscapeCodes.RESET}\n")
                                 stdout.flush()
-                                ans = False
-                                break
-
-                        if (ans != False):
-                            break
                     filter_dictionary["section"] = sections_list
                 elif (i == "Activity/Activities"):
                     activities_str = Questions.mcq_list_question(question="Select type of activity you want to check each refresh", choices=["COP", "DIS", "FLD", "IND", "LAB", "LLB", "LEC", "MR", "PRJ", "RES", "SEM", "SLB", "ST", "STD", "THS"])
                     if (len(activities_str) != 15):
                         filter_dictionary["activity"] = activities_str
                 elif (i == "CRN/CRNs"):
-                    while True:
+                    finished = False
+                    while not finished:
                         crns_list = []
                         crns_str = Questions.str_questoin("Enter CRN/CRNs you want to check each refresh")
                         for crn in crns_str.strip().split(" "):
                             if (crn.isdigit()):
                                 crns_list.append(crn)
-                                ans = True
+                                finished = True
                             else:
                                 stdout.write(f"{AnsiEscapeCodes.RED}! Sorry, your reply was invalid:{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\"{crn}\"{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}is not a valid answer, please try again.{AnsiEscapeCodes.RESET}\n")
-                                ans = False
-                                break
-
-                        if (ans != False):
-                            break
                     filter_dictionary["crn"] = crns_list
                 elif (i == "Course/Courses Name"):
                     while True:
-                        ans = True
+                        answer = True
                         course_names_list = []
                         courses_names_str = Questions.str_questoin(question="Enter Course/Courses Name you want to check each refresh")
                         for index, element in enumerate(courses_names_str.split(" ")):
@@ -82,7 +74,7 @@ def get_search_input(configs_file: str) -> dict:
                                 if (index%2 == 1):
                                     stdout.write(f"{AnsiEscapeCodes.RED}! Sorry, your reply was invalid:{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\"{crn}\"{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}is not a valid answer, please try again.{AnsiEscapeCodes.RESET}\n")
                                     stdout.flush()
-                                    ans = False
+                                    answer = False
                                     break
                                 course = element
                                 index += 1
@@ -90,7 +82,7 @@ def get_search_input(configs_file: str) -> dict:
                                 if (index%2 == 0):
                                     stdout.write(f"{AnsiEscapeCodes.RED}! Sorry, your reply was invalid:{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\"{crn}\"{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}is not a valid answer, please try again.{AnsiEscapeCodes.RESET}\n")
                                     stdout.flush()
-                                    ans = False
+                                    answer = False
                                     break
                                 course += element
                                 course_names_list.append(course.upper())
@@ -99,7 +91,7 @@ def get_search_input(configs_file: str) -> dict:
                                 course_names_list.append(element.upper())
                                 index += 2
 
-                        if (ans != False):
+                        if (answer != False):
                             stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
                             stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
                             stdout.write("{}{}{}\n".format(AnsiEscapeCodes.LIGHT_BLUE, " ".join(course_names_list).upper(), AnsiEscapeCodes.RESET))
@@ -130,13 +122,13 @@ def get_search_input(configs_file: str) -> dict:
                         for building in buildings_str.strip().split(" "):
                             if (building.isdigit()):
                                 buildings_list.append(building)
-                                ans = True
+                                answer = True
                             else:
                                 stdout.write(f"{AnsiEscapeCodes.RED}! Sorry, your reply was invalid:{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\"{building}\"{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}is not a valid answer, please try again.{AnsiEscapeCodes.RESET}\n")
-                                ans = False
+                                answer = False
                                 break
 
-                        if (ans != False):
+                        if (answer != False):
                             break
                     filter_dictionary["building"] = buildings_list
                 elif (i == "Status/Statuses"):
