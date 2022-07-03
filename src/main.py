@@ -4,7 +4,7 @@ from registrar_requests import get_term_and_department, get_banner9_requests
 from user_search import get_search_input
 # from registrar_courses import StartBroswer
 from c4c import check_for_changes
-from cli import AnsiEscapeCodes, print_colorful_text, progress_bar
+from cli import AnsiEscapeCodes, print_colorful_text, progress_bar, time_program_execution
 from time import time
 
 def main() -> int:
@@ -40,4 +40,5 @@ if __name__ == "__main__":
     # run the main function
     start = time()
     end = main()
-    print_colorful_text(text_string="The program has finished in {} seconds.".format(end - start), color=AnsiEscapeCodes.GREEN)
+    number_of_seconds = time_program_execution(userSeconds=int(end - start))
+    print_colorful_text(text_string="The program has finished in {} seconds.".format(number_of_seconds), color=AnsiEscapeCodes.GREEN)
