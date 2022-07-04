@@ -231,6 +231,8 @@ class Questions:
         stdout.write(AnsiEscapeCodes.SHOW_CURSOR)
         return answer
 
+        return answer
+
     def list_question(question: str, choices: list) -> str:
         """
         Ask user to select an answer.\n

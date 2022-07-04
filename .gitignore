@@ -10,11 +10,14 @@ ENV/
 env.bak/
 venv.bak/
 
-# Json
-*.json
-
 # Drivers
 drivers/
 
+# Json
+*.json
+
 # Keys
 *.key
+
+# Logs
+*.log
