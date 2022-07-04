@@ -1,10 +1,17 @@
-from sys import stdout
+# import functions from modules
+from sys import stdout, exit
 from readchar import readchar
 from os import get_terminal_size
 from math import ceil, floor
 from time import sleep
 
 class AnsiEscapeCodes:
+    NEW_LINE                    = "\n"
+    CNTL_C                      = "\x03"
+    ENTER                       = "\r"
+    DELETE                      = "\x7f"
+    ESCAPE                      = "\x1b"
+
     # Modes
     RESET                       = "\x1B[0m"
     BOLD                        = "\x1B[1m"
@@ -52,50 +59,55 @@ class Questions:
         Return the answer as `bool` type if he answered correctly.
         """
 
-        while True:
+        correct_answer = False
+        while not correct_answer:
             default_answer = "[Y/n]" if default == True else "[y/N]"
             stdout.write(f"{AnsiEscapeCodes.GREEN}?{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}{question}?{AnsiEscapeCodes.RESET} {default_answer} ")
             stdout.write(AnsiEscapeCodes.SAVE_POSITION)
             answer = input().lower()
 
-            if (len(answer) == 0):
+            if (answer == ""):
                 answer = default
+                correct_answer = True
             else:
                 if (answer == "y" or answer == "yes"):
                     answer = True
+                    correct_answer = True
                 elif (answer == "n" or answer == "no"):
                     answer = False
+                    correct_answer = True
                 else:
-                    stdout.write(f"{AnsiEscapeCodes.RED}! Sorry, your reply was invalid:{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\"{answer}\"{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}is not a valid answer, please try again.{AnsiEscapeCodes.RESET}\n")
-                    continue
+                    stdout.write(f"{AnsiEscapeCodes.RED}! Sorry, your reply was invalid:{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\"{answer}\"{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}is not a valid answer, please try again.{AnsiEscapeCodes.RESET}{AnsiEscapeCodes.NEW_LINE}")
 
-            stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
-            stdout.write(AnsiEscapeCodes.MOVE_LEFT * 6)
-            stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
-            stdout.write("{}{}{}\n".format(AnsiEscapeCodes.BLUE, "Yes" if answer == True else "No", AnsiEscapeCodes.RESET))
-            stdout.flush()
-            return answer
+        stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
+        stdout.write(AnsiEscapeCodes.MOVE_LEFT * 6)
+        stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
+        stdout.write("{}{}{}{}".format(AnsiEscapeCodes.BLUE, "Yes" if answer == True else "No", AnsiEscapeCodes.RESET, AnsiEscapeCodes.NEW_LINE))
+        stdout.flush()
+        return answer
 
     def str_questoin(question: str) -> str:
         """
         Ask user a string question.\n
-        return the answer as `str` type.
+        Return the answer as `str` type.
         """
 
         stdout.write(f"{AnsiEscapeCodes.GREEN}?{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}{question}?{AnsiEscapeCodes.RESET} ")
         stdout.write(AnsiEscapeCodes.SAVE_POSITION)
 
-        while True:
+        flag = True
+        while flag:
             answer = input()
             if (answer == ""):
                 stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
-                continue
             else:
-                stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
-                stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
-                stdout.write(f"{AnsiEscapeCodes.BLUE}{answer}{AnsiEscapeCodes.RESET}\n")
-                stdout.flush()
-                return answer
+                flag = False
+
+        stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
+        stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
+        stdout.write(f"{AnsiEscapeCodes.BLUE}{answer}{AnsiEscapeCodes.RESET}{AnsiEscapeCodes.NEW_LINE}")
+        stdout.flush()
+        return answer
 
     def passcode_question(question: str) -> str:
         """
@@ -105,33 +117,42 @@ class Questions:
 
         answer = ""
         letter = ""
-        stdout.write(f"{AnsiEscapeCodes.GREEN}?{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}{question}?{AnsiEscapeCodes.RESET} ")
+        stdout.write(f"{AnsiEscapeCodes.GREEN}?{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}{question}?{AnsiEscapeCodes.RESET} (Press Esc to make passcode visible) ")
         stdout.write(AnsiEscapeCodes.SAVE_POSITION)
 
-        while True:
+        visibility = False
+        correct_answer = False
+        while not correct_answer:
             stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
             stdout.flush()
-            letter = readchar()
 
-            if (letter == '\r'):
-                if (answer == 0):
-                    continue
-                stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
-                stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
-                stdout.write("{}{}{}\n".format(AnsiEscapeCodes.BLUE, "*" * len(answer), AnsiEscapeCodes.RESET))
-                stdout.flush()
-                return answer
-            elif (letter == "\x03"):
+            letter = readchar()
+            if (letter == AnsiEscapeCodes.ENTER):
+                if (answer != 0):
+                    stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
+                    stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
+                    stdout.write("{}{}{}{}".format(AnsiEscapeCodes.BLUE, "*" * len(answer), AnsiEscapeCodes.RESET, AnsiEscapeCodes.NEW_LINE))
+                    stdout.flush()
+                    correct_answer = True
+            elif (letter == AnsiEscapeCodes.CNTL_C):
                 stdout.write(AnsiEscapeCodes.MOVE_LEFT * (len(question) + 5))
                 stdout.write(AnsiEscapeCodes.ERASE_ENTIRE_LINE)
-                stdout.write(f"{AnsiEscapeCodes.FAINT}?{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\x1b[38;2;175;175;175m{question}?{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}Cancelled by user{AnsiEscapeCodes.RESET}\n")
+                stdout.write(f"{AnsiEscapeCodes.FAINT}?{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\x1b[38;2;175;175;175m{question}?{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}Cancelled by user{AnsiEscapeCodes.RESET}{AnsiEscapeCodes.NEW_LINE}")
                 stdout.flush()
                 exit()
+            elif (letter == AnsiEscapeCodes.ESCAPE):
+                stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
+                stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
+
+                if not visibility:
+                    stdout.write(f"{answer}")
+                    visibility = True
+                else:
+                    stdout.write("*" * len(answer))
+                    visibility = False
             else:
-                if (letter == "\x7f"):
-                    if (len(answer) == 0):
-                        pass
-                    else:
+                if (letter == AnsiEscapeCodes.DELETE):
+                    if (answer != ""):
                         stdout.write(AnsiEscapeCodes.MOVE_LEFT)
                         answer = answer[:-1]
                 else:
@@ -139,6 +160,8 @@ class Questions:
                 stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
                 stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
                 stdout.write("*" * len(answer))
+
+        return answer
 
     def list_question(question: str, choices: list) -> str:
         """
@@ -269,7 +292,8 @@ class Questions:
         """
 
         answer = Questions.list_question(question=question, choices=list(choices.keys()))
-        return choices[answer]
+        choice_value = choices[answer]
+        return choice_value
 
     def mcq_list_question(question: str, choices: list) -> list:
         """
@@ -389,10 +413,10 @@ class Questions:
             answers_value.append(choices[i])
         return answers_value
 
-def colorful_text(text_string: str, text_color: str, end_with = "\n") -> str:
+def print_colorful_text(text_string: str, text_color: str, end_with = AnsiEscapeCodes.NEW_LINE) -> str:
     """
     Print colorful text.\n
-    Return `None` after that.
+    Return `None` after printing.
     """
 
     stdout.write(f"{text_color}{text_string}{AnsiEscapeCodes.RESET}{end_with}")
@@ -407,16 +431,15 @@ def progress_bar(total_time: int) -> None:
     stdout.write(AnsiEscapeCodes.HIDE_CURSOR)
     stdout.write(AnsiEscapeCodes.SAVE_POSITION)
 
+    columns = list(get_terminal_size())[0]-15
+    current_columns = columns
+
     for i in range(1, total_time+1):
-        columns = list(get_terminal_size())[0]-15
-        try:
-            if (current_columns != columns):
-                lines = ceil(current_columns/columns) if (current_columns > columns) else ceil(columns/current_columns)
-                for _ in range(lines):
-                    stdout.write(AnsiEscapeCodes.ERASE_ENTIRE_LINE)
-                    stdout.write(AnsiEscapeCodes.MOVE_TO_BEGIN_OF_NEXT_LINE)
-                current_columns = columns
-        except:
+        if (current_columns != columns):
+            lines = ceil(current_columns/columns) if (current_columns > columns) else ceil(columns/current_columns)
+            for _ in range(lines):
+                stdout.write(AnsiEscapeCodes.ERASE_ENTIRE_LINE)
+                stdout.write(AnsiEscapeCodes.MOVE_TO_BEGIN_OF_NEXT_LINE)
             current_columns = columns
         stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
         stdout.write(AnsiEscapeCodes.ERASE_ENTIRE_LINE)
@@ -428,5 +451,6 @@ def progress_bar(total_time: int) -> None:
             stdout.write("{}".format(" " * ceil(columns * (total_time-i)/total_time)) + "|" if (columns-i) !=0 else "|")
         stdout.flush()
         sleep(1)
-    stdout.write("\n")
+        columns = list(get_terminal_size())[0]-15
+    stdout.write(AnsiEscapeCodes.NEW_LINE)
     return None

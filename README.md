@@ -184,9 +184,31 @@ cd auto-registrar
 
 - Open Command Prompt or Terminal in project directory
 
+- It would be better to use Virtual Environment.
+
+    | Platform | Command |
+    |:----------------:|:-------------------------------|
+    | **Linux** | `python3 -m venv .venv && source .venv/bin/activate |
+    | **MacOS** | `python3 -m venv .venv && source .venv/bin/activate` |
+    | **WSL**   | `python3 -m venv .venv && source .venv/bin/activate` |
+    | **PowerShell** | `python -m venv .venv && .venv/Scripts/activate.ps1` |
+
+- Install requirements
+
+    ```bash
+    pip install -r requirements.txt
+    # or pip3 install -r requirements.txt
+    ```
+
 - Run the script:
 
     ```bash
     python src/main.py
     # or python3 src/main.py
+    ```
+
+- To deactivate the virtual environment:
+
+    ```bash
+    deactivate
     ```

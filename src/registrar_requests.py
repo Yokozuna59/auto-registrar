@@ -1,55 +1,99 @@
-from requests import get
-from bs4 import BeautifulSoup
-from cli import AnsiEscapeCodes, Questions, progress_bar, colorful_text
+# import functions from modules
+from requests import get, session, post
+from requests.exceptions import ConnectionError, RequestException
 from json import loads
+from sys import exit
+from bs4 import BeautifulSoup
 
-def get_requests(request_url: str, interface_config :str):
+# import functions from local files
+from cli import AnsiEscapeCodes, Questions, progress_bar, print_colorful_text
+
+def get_term_and_department(interface_config: str):
     """
-    Do a get request by `url`.\n
-    return it value as `dict` or `list` type.
+    Do a get request by `url` and ask user to select a term and department.\n
+    return the user answer as `list` type.
     """
 
-    while True:
-        try:
-            registrar_request = get(url=request_url)
-            if (not ("Under Maintenance!" in registrar_request.text)):
-                break
-            if (interface_config == "cli"):
-                colorful_text(text_string="! Sorry, the currently is under maintenance! the script will check in 60 seconds.", text_color=AnsiEscapeCodes.RED)
-                progress_bar(60)
-        except:
-            if (interface_config == "cli"):
-                colorful_text(text_string="! Sorry, you currently don't have internet connection! the script will check in 10 seconds.", text_color=AnsiEscapeCodes.RED)
-                progress_bar(10)
+    terms_and_departments_list = []
+    urls = [
+        "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/classSearch/getTerms?searchTerm=&offset=1&max=1000",
+        "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/classSearch/get_subject?searchTerm=&term=&offset=1&max=1000"
+    ]
 
-    if (registrar_request.status_code != 200):
+    for url_index, url in enumerate(urls):
+        request_done = False
+        while not request_done:
+            try:
+                response = get(url=(url if (len(terms_and_departments_list) == 0) else url.replace("term=", f"term={terms_and_departments_list[0]}"))).content
+                loaded_response = loads(response)
+
+                terms_or_departments_dict = {}
+                index = 0
+                term_or_department_numbers = 0
+                finished = False
+
+                while (not (finished)) and (index < len(loaded_response)-1):
+                    description = loaded_response[index]["description"]
+                    term_department = loaded_response[index]["code"]
+
+                    if (not ("(View Only)" in description)):
+                        terms_or_departments_dict[description.replace("amp;", "")] = term_department
+                        term_or_department_numbers += 1
+                    else:
+                        finished = True
+                    index += 1
+                if (term_or_department_numbers == 0):
+                    print_colorful_text(text_string="! Sorry, there is no terms or departments available for registration.", color=AnsiEscapeCodes.RED)
+                    exit()
+                request_done = True
+            except ConnectionError:
+                if (interface_config == "cli"):
+                    print_colorful_text(text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.", text_color=AnsiEscapeCodes.RED)
+                    progress_bar(10)
+            except RequestException:
+                if (interface_config == "cli"):
+                    print_colorful_text(text_string="! Sorry, the website isn't working currently! the script will recheck in 60 seconds", text_color=AnsiEscapeCodes.RED)
+                    progress_bar(60)
+
         if (interface_config == "cli"):
-            colorful_text(text_string="! Sorry, the website isn't working currently! the script will check in 60 seconds", text_color=AnsiEscapeCodes.RED)
-            progress_bar(60)
-        return get_requests(request_url=request_url)
-    else:
-        try:
-            return loads(registrar_request.content)
-        except:
-            return get_elements(content=registrar_request.content, interface_config=interface_config)
+            term_or_department_choice = Questions.dict_question(question=("Select the term has/have the course/courses" if url_index == 0 else "Select the department has/have the course/courses"), choices=terms_or_departments_dict)
+            terms_and_departments_list.append(term_or_department_choice)
+    return terms_and_departments_list
 
-def get_elements(content: str, interface_config: str) -> list:
+def get_banner9_requests(term: str, department: str) -> dict:
     """
-    Get terms and departments of the request.\n
-    return it as a `list` type.
+    Do a get and post requests to get content.\n
+    Return the content as a `dict` type.
     """
 
-    user_inputs = []
-    soup = BeautifulSoup(content, "html.parser")
-    for index, elements in enumerate(["ddlTerm", "ddlDept"]):
-        i = soup.find(id=elements)
-        options = i.find_all("option") if elements != "ddlDept" else i.find_all("option")[1::]
+    # create a session
+    session_client = session()
 
-        dict_elements = {}
-        for option in options:
-            dict_elements[option.text] = option["value"]
+    # get session id
+    request_cookies = session_client.get("https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/term/termSelection?mode=search")
+    session_id = dict(request_cookies.cookies)["JSESSIONID"]
 
-        if (interface_config == "cli"):
-            dict_answer = Questions.dict_question(question=("Select the term has/have the course/courses" if index==0 else "Select the department has/have the course/courses"), choices=dict_elements)
-        user_inputs.append(dict_answer)
-    return user_inputs
+    post("https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/term/search?mode=search",
+        cookies = {
+            "JSESSIONID": session_id
+        },
+        data = {
+            "term": term
+        }
+    )
+    response = get(f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_term={term}&txt_subject={department}&pageMaxSize=1000",
+        cookies = {
+            "JSESSIONID": session_id
+        }
+    )
+
+    courses = loads(response.text)["data"]
+    return courses
+
+def get_registraration_events():
+    res = get("https://registrar.kfupm.edu.sa/")
+    soup = BeautifulSoup(res.text, "html.parser")
+    tt = soup.find("a", {"class": "dropdown-item"})
+    print
+
+"""{'section': ['312', '012', '12', '01', ' 9'], 'activity': ['DIS', 'FLD', 'IND', 'LAB', 'LLB', 'LEC', 'MR', 'PRJ', 'RES', ...], 'crn': ['32131', '14141', '01424', '12424'], 'course_number': ['ICS104', 'ENGL101'], 'class_days': ['M', 'T', 'W', 'R', 'F', 'S'], 'building': ['31', '1', '41', '51'], 'status': 'Open', 'gender': 'M', 'registrar': False}"""

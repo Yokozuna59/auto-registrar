@@ -1,38 +1,43 @@
-from sys import setrecursionlimit
-from config import check_configurations
-from registrar_requests import get_requests
+# import functions from local files
+from config import get_configs
+from registrar_requests import get_term_and_department, get_banner9_requests
 from user_search import get_search_input
+# from registrar_courses import StartBroswer
 from c4c import check_for_changes
-from cli import progress_bar
+from cli import AnsiEscapeCodes, print_colorful_text, progress_bar
+from time import time
 
-def main() -> None:
+def main() -> int:
     """
     Main and start function of this project.\n
     After checking/registraring is done, return `None`.
     """
 
-    # set recursion limit to 1000000
-    setrecursionlimit(1000000)
+    # get config file
+    configs = get_configs()
+    interface = configs["interface"]
+    time_delay  = configs["delay"]
 
-    # get config file as dict type
-    configurations = check_configurations()
+    # get term and department
+    term_and_department_input = get_term_and_department(interface_config=interface)
+    term = term_and_department_input[0]
+    department = term_and_department_input[1]
 
-    # get term and department as list
-    term_dep_input = get_requests(request_url="https://reg-serviceapp.kfupm.edu.sa/course-offering/", interface_config=configurations["interface"])
+    # get user input/s for search
+    search_input = get_search_input(configs_file=configs)
 
-    # get the user input for the search
-    search_input = get_search_input(config_file=configurations)
+    # if (configs["registrar"]):
+    #     StartBroswer()
 
-    while True:
-        # get content of the request
-        request_content = get_requests(request_url="https://registrar.kfupm.edu.sa/api/course-offering?term_code={}&department_code={}".format(term_dep_input[0], term_dep_input[1]), interface_config=configurations["interface"])
-
-        # check if sections has changed
-        check_for_changes(content=request_content, search_input=search_input, configurations=configurations)
-
-        # wait for configured time
-        progress_bar(total_time=configurations["delay"])
+    registrared = False
+    while not registrared:
+        courses_requested = get_banner9_requests(term=term, department=department)
+        registrared = check_for_changes(content=courses_requested, search_input=search_input, configs_file=configs)
+        progress_bar(total_time=time_delay)
+    return time()
 
 if __name__ == "__main__":
     # run the main function
-    main()
+    start = time()
+    end = main()
+    print_colorful_text(text_string="The program has finished in {} seconds.".format(end - start), color=AnsiEscapeCodes.GREEN)
