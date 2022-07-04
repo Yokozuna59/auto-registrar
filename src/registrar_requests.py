@@ -3,7 +3,6 @@ from requests import get, session, post
 from requests.exceptions import ConnectionError, RequestException
 from json import loads
 from sys import exit
-from bs4 import BeautifulSoup
 
 # import functions from local files
 from cli import AnsiEscapeCodes, Questions, progress_bar, print_colorful_text
@@ -89,11 +88,5 @@ def get_banner9_requests(term: str, department: str) -> dict:
 
     courses = loads(response.text)["data"]
     return courses
-
-def get_registraration_events():
-    res = get("https://registrar.kfupm.edu.sa/")
-    soup = BeautifulSoup(res.text, "html.parser")
-    tt = soup.find("a", {"class": "dropdown-item"})
-    print
 
 """{'section': ['312', '012', '12', '01', ' 9'], 'activity': ['DIS', 'FLD', 'IND', 'LAB', 'LLB', 'LEC', 'MR', 'PRJ', 'RES', ...], 'crn': ['32131', '14141', '01424', '12424'], 'course_number': ['ICS104', 'ENGL101'], 'class_days': ['M', 'T', 'W', 'R', 'F', 'S'], 'building': ['31', '1', '41', '51'], 'status': 'Open', 'gender': 'M', 'registrar': False}"""
