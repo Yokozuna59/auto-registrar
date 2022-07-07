@@ -231,8 +231,6 @@ class Questions:
         stdout.write(AnsiEscapeCodes.SHOW_CURSOR)
         return answer
 
-        return answer
-
     def list_question(question: str, choices: list) -> str:
         """
         Ask user to select an answer.\n
@@ -248,6 +246,7 @@ class Questions:
 
         finished = False
         while not finished:
+            stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
             terminal_columns = get_terminal_size()[0]
             question_lines = (len(question)+41)-(terminal_columns)*floor((len(question)+41)/terminal_columns)+1
             line_gap = 0 if (question_lines == 1) else 0 if (question_lines > 36 and question_lines <= terminal_columns) else 1
@@ -319,7 +318,7 @@ class Questions:
                         stdout.write(AnsiEscapeCodes.MOVE_TO_BEGIN_OF_NEXT_LINE)
                         stdout.write(AnsiEscapeCodes.ERASE_ENTIRE_LINE)
                     stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
-                    stdout.write(AnsiEscapeCodes.HIDE_CURSOR)
+                    stdout.write(AnsiEscapeCodes.SHOW_CURSOR)
                     stdout.write(AnsiEscapeCodes.MOVE_TO_BEGIN_OF_NEXT_LINE)
                     stdout.flush()
                     finished = True
@@ -346,9 +345,9 @@ class Questions:
                 for _ in range(list_lenght+1):
                     stdout.write(AnsiEscapeCodes.MOVE_TO_BEGIN_OF_NEXT_LINE)
                     stdout.write(AnsiEscapeCodes.ERASE_ENTIRE_LINE)
-            stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
-            stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
-            stdout.write(word)
+                stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
+                stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
+                stdout.write(word)
         return answer
 
     def dict_question(question: str, choices: dict) -> str:
@@ -425,7 +424,7 @@ class Questions:
                         stdout.write(AnsiEscapeCodes.MOVE_TO_BEGIN_OF_NEXT_LINE)
                         stdout.write(AnsiEscapeCodes.ERASE_TO_END_OF_LINE)
                     stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
-                    stdout.write(AnsiEscapeCodes.HIDE_CURSOR)
+                    stdout.write(AnsiEscapeCodes.SHOW_CURSOR)
                     stdout.write(AnsiEscapeCodes.MOVE_TO_BEGIN_OF_NEXT_LINE)
                     stdout.flush()
                     finished = True

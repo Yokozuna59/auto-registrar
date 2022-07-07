@@ -16,10 +16,10 @@ def main() -> int:
     # get config file
     configs = get_configs()
     interface = configs["interface"]
-    time_delay  = configs["delay"]
+    time_delay = configs["delay"]
 
     # get term and department
-    term_and_department_input = get_term_and_department(interface_config=interface)
+    term_and_department_input = get_term_and_department(interface_config = interface)
     term = term_and_department_input[0]
     department = term_and_department_input[1]
 
