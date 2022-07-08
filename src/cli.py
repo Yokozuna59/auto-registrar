@@ -121,7 +121,6 @@ class Questions:
                 stdout.write(f"{AnsiEscapeCodes.FAINT}?{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.BOLD}\x1b[38;2;175;175;175m{question}?{AnsiEscapeCodes.RESET} {AnsiEscapeCodes.RED}Cancelled by user{AnsiEscapeCodes.RESET}{AnsiEscapeCodes.NEW_LINE}")
                 exit()
 
-            answer = input()
             if (answer == ""):
                 stdout.write(AnsiEscapeCodes.RESTORE_POSITION)
             else:
