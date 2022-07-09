@@ -1,6 +1,7 @@
 # import functions from modules
-from os.path import exists
+from os import path, system
 from json import dumps, loads
+from sys import platform
 from cryptography.fernet import Fernet, InvalidToken
 
 # import functions from local files
@@ -17,23 +18,18 @@ def get_configs() -> dict:
     If he did, return configs as `dict` type.
     """
 
-    if not exists(path=CONFIGS_PATH):
-        json_objects = dumps(
-            obj = {
-                "configuration": None,
-                "alarm": "alarms/default-alarm.mp3",
-                "banner": 9,
-                "browser": "chrome",
-                "delay": 60,
-                "interface": "cli",
-                "passcode": None,
-                "username": None
-            },
-            sort_keys = True,
-            indent = 4
-        )
-        with open(file=CONFIGS_PATH, mode='w') as f:
-            f.write(json_objects)
+    if not path.exists(path=CONFIGS_PATH):
+        json_objects = {
+            "configuration": None,
+            "alarm": "alarms/default-alarm.mp3",
+            "banner": 9,
+            "browser": "chrome",
+            "delay": 60,
+            "interface": "cli",
+            "passcode": None,
+            "username": None
+        }
+        write_configs_file(configs_file=json_objects)
 
     with open(file=CONFIGS_PATH, mode='r') as f:
         configs = loads(s=f.read())
@@ -47,7 +43,7 @@ def get_configs() -> dict:
     else:
         configs["passcode"] = decode_passcode(passcode=configs["passcode"], configs_file=configs)
 
-    if (exists(path=DRIVERS_PATH)):
+    if (path.exists(path=DRIVERS_PATH)):
         # TODO: check if drivers are installed
         configs["browser"] = f"{DRIVERS_PATH}{SLASH_PATH}{configs['browser']}"
     else:
@@ -110,10 +106,11 @@ def do_configs(configs_file: dict) -> dict:
     configs_file["username"] = username
 
     passcode = ask_for_passcode(configs_file=configs_file)
-    configs_file["passcode"] = passcode
 
     configs_file["configuration"] = "configured"
     write_configs_file(configs_file=configs_file)
+
+    configs_file["passcode"] = passcode
 
     return configs_file
 
@@ -128,6 +125,8 @@ def ask_for_passcode(configs_file: dict) -> dict:
     key = Fernet.generate_key()
     with open(file=f"{PROJECT_PATH}{SLASH_PATH}.key", mode="wb") as fernet:
         fernet.write(key)
+    if ((platform == "win32") or (platform == "cygwin")):
+        system("attrib +h " + fernet.name)
     fernet = Fernet(key=key)
     passcode_encrypted = fernet.encrypt(data=passcode.encode()).decode()
     configs_file["passcode"] = passcode_encrypted
@@ -141,7 +140,7 @@ def decode_passcode(passcode: str, configs_file: dict) -> str:
     Return the decrypted passcode as `str` type.
     """
 
-    if not exists(path=f"{PROJECT_PATH}{SLASH_PATH}.key"):
+    if not path.exists(path=f"{PROJECT_PATH}{SLASH_PATH}.key"):
         print_colorful_text(
             text_string = "! Sorry, you have deleted your key file, which means the script can't decrypt your passcode!",
             text_color = AnsiEscapeCodes.LIGHT_RED
@@ -174,4 +173,6 @@ def write_configs_file(configs_file: dict) -> None:
     json_objects = dumps(obj=configs_file, sort_keys=True, indent=4)
     with open(file=CONFIGS_PATH, mode="w") as f:
         f.write(json_objects)
+    if ((platform == "win32") or (platform == "cygwin")):
+        system("attrib +h " + f.name)
     return None

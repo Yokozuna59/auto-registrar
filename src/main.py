@@ -19,7 +19,7 @@ def main() -> int:
     time_delay = configs["delay"]
 
     # get term and department
-    term_and_department_input = get_term_and_department(interface_config = interface)
+    term_and_department_input = get_term_and_department(interface_config=interface)
     term = term_and_department_input[0]
     department = term_and_department_input[1]
 
