@@ -249,6 +249,7 @@ class Questions:
             terminal_columns = get_terminal_size()[0]
             question_lines = (len(question)+41)-(terminal_columns)*floor((len(question)+41)/terminal_columns)+1
             line_gap = 0 if (question_lines == 1) else 0 if (question_lines > 36 and question_lines <= terminal_columns) else 1
+            stdout.write(AnsiEscapeCodes.MOVE_RIGHT * len(word))
             stdout.write(f"{AnsiEscapeCodes.BLUE} [Use arrows to move, type to filter]{AnsiEscapeCodes.RESET}")
 
             if ((letter != AnsiEscapeCodes.MOVE_UP) and (letter != AnsiEscapeCodes.MOVE_DOWN)):
