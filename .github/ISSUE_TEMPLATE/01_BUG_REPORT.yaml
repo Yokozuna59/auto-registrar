@@ -1,0 +1,95 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior while using Auto Registrar
+labels:
+  - bug
+assignees:
+  - Yokozuna59
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Thanks for taking a minute to fill out this bug report!**
+        Verify that there aren't any open/closed issues for this topic [already reported on GitHub](../search?q=is%3Aissue&type=issues).
+        _Please fill out the form below with as many precise details as possible. Issues that do not follow this format are likely to stall._
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: |
+        Please provide a clear and concise description of what the bug is. Please test using the latest Auto Registrar release to make sure your issue has not already been fixed - https://github.com/Yokozuna59/auto-registrar/releases/latest
+    validations:
+      required: true
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Steps to reproduce
+      description: Provide a detailed list of steps that reproduce the issue.
+      placeholder: |
+        For example:
+        1. Chosen '...' answer
+        2. See error
+  - type: textarea
+    attributes:
+      label: Screenshots and recordings
+      description: |
+        If applicable, add screenshots to help explain your problem.
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source
+      description: auto-registrar installed from
+      options:
+        - Source Code
+        - Releases
+    validations:
+      required: true
+  - type: input
+    id: auto-registrar-version
+    attributes:
+      label: Auto Registrar Version
+      description: |
+        What python version does this appear on?
+        Run `python src/version.py -auv` in your terminal, copy and paste the results here.
+        **Note**:
+          1. You must be in the project dirctory.
+          2. Works with Auto Registrar 1.0.0 or higher.
+      placeholder: e.g., Auto Registrar 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      description: |
+        What python version does this appear on?
+        Run `python --version` in your terminal, copy and paste the results here.
+      placeholder: e.g., Python 3.10.0
+    validations:
+      required: true
+  - type: input
+    id: OS
+    attributes:
+      label: OS Platform or Distribution
+      description: |
+        What OS platform and distribution you are using?
+        Run `python src/version.py -os` in your terminal, copy and paste the results here.
+        **Note**:
+          1. You must be in the project dirctory.
+          2. Works with Auto Registrar 1.0.0 or higher.
+      placeholder: e.g., OS and Distro linux-x86_64 Ubuntu 22.04
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.
+  - type: checkboxes
+    attributes:
+      label: Code of Conduct
+      description: Read the [auto-registrar Code of Conduct](https://github.com/Yokozuna59/auto-registrar/blob/master/.github/CODE_OF_CONDUCT.md) first.
+      options:
+      - label: I agree to follow the Auto Registrar Code of Conduct
+        required: true
+
+# errors.log
