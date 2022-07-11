@@ -1,0 +1,37 @@
+name: ✨ Feature Request
+description: Request a new feature or enhancement
+labels:
+  - enhancement
+assignees:
+  - Yokozuna59
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Thanks for taking a minute to fill out this feature request report!**
+        Verify that there aren't any open/closed issues for this topic [already reported on GitHub](../search?q=is%3Aissue&type=issues).
+        _Please fill out the form below with as many precise details as possible. Issues that do not follow this format are likely to stall._
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Give us a brief description of the feature or enhancement you would like
+    validations:
+      required: true
+  - type: textarea
+    id: additional-information
+    attributes:
+      label: Additional Information
+      description: Give us some additional information on the feature request like proposed solutions, links, screenshots, etc.
+  - type: checkboxes
+    attributes:
+      label: Code of Conduct
+      description: Read the [auto-registrar Code of Conduct](https://github.com/Yokozuna59/auto-registrar/blob/master/.github/CODE_OF_CONDUCT.md) first.
+      options:
+      - label: I agree to follow the Auto Registrar Code of Conduct
+        required: true
+# If the feature request is approved, would you be willing to submit a PR?
+# _(Help can be provided if you need assistance submitting a PR)_
+
+# - [ ] Yes
+# - [ ] No
