@@ -188,7 +188,7 @@ cd auto-registrar
 
     | Platform | Command |
     |:----------------:|:-------------------------------|
-    | **Linux** | `python3 -m venv .venv && source .venv/bin/activate |
+    | **Linux** | `python3 -m venv .venv && source .venv/bin/activate` |
     | **MacOS** | `python3 -m venv .venv && source .venv/bin/activate` |
     | **WSL**   | `python3 -m venv .venv && source .venv/bin/activate` |
     | **PowerShell** | `python -m venv .venv && .venv/Scripts/activate.ps1` |
