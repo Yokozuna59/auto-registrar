@@ -27,7 +27,8 @@ def get_configs() -> dict:
             "delay": 60,
             "interface": "cli",
             "passcode": None,
-            "username": None
+            "username": None,
+            "version": "0.5.0"
         }
         write_configs_file(configs_file=json_objects)
 
