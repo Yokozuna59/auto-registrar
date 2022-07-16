@@ -1,15 +1,36 @@
 version: 2
 updates:
-  - package-ecosystem: pip
+  # Maintain dependencies for pip
+  - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+      day: "sunday"
       time: "00:00"
-      timezone: "Asia/Riyadh"
-    # update-types: ["version-update:semver-patch", "version-update:semver-minor"]
-  - package-ecosystem: github-actions
+      timezone: "03:00 UTC"
+    assignees:
+      - "Yokozuna59"
+    labels:
+      - "pip"
+      - "dependencies"
+      - "automation"
+    reviewers:
+      - "Yokozuna59"
+    target-branch: "master"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+      day: "sunday"
       time: "00:00"
-      timezone: "Asia/Riyadh"
+      timezone: "03:00 UTC"
+    assignees:
+      - "Yokozuna59"
+    labels:
+      - "github-actions"
+      - "dependencies"
+      - "automation"
+    reviewers:
+      - "Yokozuna59"

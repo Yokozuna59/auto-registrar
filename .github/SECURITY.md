@@ -1,11 +1,17 @@
-# Security Vulnerabilities
+# Security Policy
 
-**⚠️ Please do not file public GitHub issues for security
-vulnerabilities as they are open for everyone to see! ⚠️**
+## Reporting a Vulnerability
 
-Security issues are treated very seriously and will, by default, takes precedence over other considerations including usability, performance, etc...
-Best effort will be used to mitigate side effects of a security change, but Auto Registrar must be secure by default.
+If you find any security vulnerability in our code/website/system/whatever and
+want to report it, you **must** be report it to [u.yokozuna@gmail.com].
 
-## Reporting a security vulnerability
+## Supported Versions
 
-If you believe that there is a security vulnerability in Auto Registrar, it **must** be reported to [u.yokozuna@gmail.com](mailto:u.yokozuna@gmail.com).
+These versions of the project are being supported with security updates.
+
+| Version      | Supported |
+|:------------:|:---------:|
+| $\geq 1.0.0$ | ✅        |
+| $< 1.0.0$    | ❌        |
+
+[u.yokozuna@gmail.com]: mailto:u.yokozuna@gmail.com
