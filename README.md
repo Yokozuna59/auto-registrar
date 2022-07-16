@@ -1,6 +1,6 @@
 # Auto Course Checker/Registrar
 
-> A CLI/GUI script to check/registrar courses from KFUPM [Course Offering](https:/registrar.kfupm.edu.sa/courses-classes/course-offering/) and [Banner 8](https://banner8-ssb.kfupm.edu.sa/PROD9/twbksite.P_DispSiteMap?menu_name_in=bmenu.P_MainMnu&depth_in=2&columns_in=3) and [Banner 9](https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registration/registration).
+> A CLI/GUI script to check/register courses from KFUPM [Course Offering](https:/registrar.kfupm.edu.sa/courses-classes/course-offering/) and [Banner 8](https://banner8-ssb.kfupm.edu.sa/PROD9/twbksite.P_DispSiteMap?menu_name_in=bmenu.P_MainMnu&depth_in=2&columns_in=3) and [Banner 9](https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registration/registration).
 
 ## Prerequisites
 
