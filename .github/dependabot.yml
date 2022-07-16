@@ -7,7 +7,7 @@ updates:
       interval: "weekly"
       day: "sunday"
       time: "00:00"
-      timezone: "03:00 UTC"
+      timezone: "Asia/Riyadh"
     assignees:
       - "Yokozuna59"
     labels:
@@ -25,7 +25,7 @@ updates:
       interval: "weekly"
       day: "sunday"
       time: "00:00"
-      timezone: "03:00 UTC"
+      timezone: "Asia/Riyadh"
     assignees:
       - "Yokozuna59"
     labels:
