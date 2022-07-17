@@ -1,0 +1,25 @@
+{
+    "default": true,
+    "MD003": {"style": "atx"},
+    "MD013": {
+        "headings": false,
+        "headers": false,
+        "tables": false,
+        "stern": true,
+        "strict": true
+    },
+    "MD029": {"style": "ordered"},
+    "MD033": false,
+    "MD044": {
+        "names": [
+            "GitHub"
+        ]
+    },
+    "MD046": {"style": "fenced"},
+    "MD048": {"style": "backtick"},
+    "MD049": {"style": "underscore"},
+    "MD050": {"style": "asterisk"},
+    "MD051": true,
+    "MD052": true,
+    "MD053": true
+}

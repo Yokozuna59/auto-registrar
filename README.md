@@ -1,15 +1,22 @@
 # Auto Course Checker/Registrar
 
-> A CLI/GUI script to check/registrar courses from KFUPM [Course Offering](https:/registrar.kfupm.edu.sa/courses-classes/course-offering/) and [Banner 8](https://banner8-ssb.kfupm.edu.sa/PROD9/twbksite.P_DispSiteMap?menu_name_in=bmenu.P_MainMnu&depth_in=2&columns_in=3) and [Banner 9](https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registration/registration).
+> A CLI/GUI script to check/register courses from KFUPM [Course Offering] and
+> [Banner 8] and [Banner 9].
 
 ## Prerequisites
 
-You don't need to install any prerequisites, because [`install.sh`](install.sh) script (for MacOS & Linux & WSL) and [`install.ps1`](install.ps1) (for Windows) will install all the required dependencies for you ([go to Installation](#installation)), but you can install the dependencies manually if you want.
+You don't need to install any prerequisites, because [`install.sh`](install.sh)
+script (for MacOS & Linux & WSL) and [`install.ps1`](install.ps1) (for Windows)
+will install all the required dependencies for you
+([go to Installation](#installation)), but you can install the dependencies
+manually if you want.
 
 ### Minimal Manual Prerequisites
 
 1. [Python3.7+](https://www.python.org/downloads/)
-    **Note:** Make sure you install the correct version. You can check the version of Python you have installed by running `python --version` or `python3 --version` in the command prompt or terminal.
+    **Note:** Make sure you install the correct version. You can check the
+    version of Python you have installed by running `python --version` or
+    `python3 --version` in the command prompt or terminal.
 
     <details close>
     <summary>Linux</summary>
@@ -62,7 +69,11 @@ You don't need to install any prerequisites, because [`install.sh`](install.sh) 
         </tr>
         <tr>
             <td>Official Python Website</td>
-            <td><a href="https://www.python.org/downloads/macos">https://www.python.org/downloads/macos/</a></td>
+            <td>
+                <a href="https://www.python.org/downloads/macos">
+                    https://www.python.org/downloads/macos/
+                </a>
+            </td>
         </tr>
         <tr>
             <td>brew</td>
@@ -78,11 +89,19 @@ You don't need to install any prerequisites, because [`install.sh`](install.sh) 
     <details close>
     <summary>Windows</summary>
     <ul>
-        <li>From the official <a href="https://www.python.org/downloads/windows/">Python website</a>
-        <p><strong>Note:</strong> Make sure to select this option while installing from official website:<br>
-        <img src="assets/windows-python-path.png" alt="windows-python-path"></p></li>
-        <li>Using <a href="https://www.msys2.org/">MSYS2</a>: <code>pacman -S python3 python3-pip</code></li>
-        <li>Using <a href="https://docs.microsoft.com/en-us/windows/wsl/">WSL</a>
+        <li>From the official
+            <a href="https://www.python.org/downloads/windows/">
+            Python website</a>
+        <p><strong>Note:</strong> Make sure to select this option while
+        installing from official website:<br>
+        <img src="assets/windows-python-path.png" alt="windows-python-path"></p>
+        </li>
+        <li>
+            Using <a href="https://www.msys2.org/">MSYS2</a>: <code>pacman -S
+            python3 python3-pip</code>
+        </li>
+        <li>Using
+            <a href="https://docs.microsoft.com/en-us/windows/wsl/">WSL:</a>
             <table>
                 <tr>
                     <td><strong>Package Manager</strong></td>
@@ -93,12 +112,16 @@ You don't need to install any prerequisites, because [`install.sh`](install.sh) 
                 <tr>
                     <td>apk</td>
                     <td>Alpine Linux</td>
-                    <td><code>sudo apk add --no-cache python3 py3-pip</code></td>
+                    <td>
+                        <code>sudo apk add --no-cache python3 py3-pip</code>
+                    </td>
                 </tr>
                 <tr>
                     <td>apt-get</td>
                     <td>Debian, Ubuntu, Kali... etc</td>
-                    <td><code>sudo apt-get install python3 python3-pip</code></td>
+                    <td>
+                        <code>sudo apt-get install python3 python3-pip</code>
+                    </td>
                 </tr>
                 <tr>
                     <td>dnf</td>
@@ -118,31 +141,51 @@ You don't need to install any prerequisites, because [`install.sh`](install.sh) 
                 <tr>
                     <td>zypper</td>
                     <td>openSUSE, SUSE Linux... etc</td>
-                    <td><code>sudo zypper install python3 python3-pip</code></td>
+                    <td>
+                        <code>sudo zypper install python3 python3-pip</code>
+                    </td>
                 </tr>
             </table>
         </li>
     </ul>
     </details>
 
-2. Browser: [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
-    Currently, the script only supports Chrome and Firefox. If you want to use other browsers, you could open an issue on [GitHub](https://github.com/Yokozuna59/auto-registrar/issues).
+2. Browser: [Chrome] or [Firefox].
+    Currently, the script only supports Chrome and Firefox. If you want to use
+    other browsers, you could open an issue on [GitHub][GitHub Issue].
 
 3. Browser Drivers
-    **Note:** You have to create `drivers` folder and move the drivers to it then move the whole folder to the project.
-    e.g. `drivers/chromedriver.exe` and `drivers/geckodriver.exe`
+    **Note:** You have to create `drivers` folder and move the drivers to it
+    then move the whole folder to the project.<br>
+    e.g., `drivers/chromedriver.exe` and `drivers/geckodriver.exe`.
 
     <details close>
-    <summary>Chrome - (<a href="https://chromedriver.chromium.org/downloads">Download</a>)</summary>
-        <p><strong>Note:</strong> Make sure you install the correct version. You can find the version of your chrome browser by searching <code>chrome://settings/help</code> in your chrome browser.</p>
+    <summary>Chrome -
+    (<a href="https://chromedriver.chromium.org/downloads">Download</a>)
+    </summary>
+        <p><strong>Note:</strong> Make sure you install the correct version. You
+        can find the version of your chrome browser by searching
+        <code>chrome://settings/help</code> in your chrome browser.</p>
         <img src="assets/chrome-version.png" alt="chrome-version">
     </details>
 
+    <!-- markdownlint-disable MD013 -->
+
     <details close>
-    <summary>Firefox - (<a href="https://github.com/mozilla/geckodriver/releases/latest">Download</a>)</summary>
-        <p><strong>Note:</strong> Make sure you install the correct version. You can find the version of your firefox browser by searching <code>about:preferences#general</code> in your firefox browser and scroll down until you found <code>Firefox Updates</code>.</p>
+    <summary>Firefox -
+    (<a href="https://github.com/mozilla/geckodriver/releases/latest">Download</a>)
+    </summary>
+        <p><strong>Note:</strong> Make sure you install the correct version. You
+        can find the version of your firefox browser by searching
+        <code>about:preferences#general</code> in your firefox browser and
+        scroll down until you found <code>Firefox Updates</code>.</p>
         <img src="assets/firefox-version.png" alt="firefox-version"><br>
-        <p>You can check what version works with your firefox driver through this website: <a href="https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html">https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html</a></p>
+        <p>You can check what version works with your firefox driver through
+        this website:
+        <a href="https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html">
+        https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
+            </a>
+        </p>
     </details>
 
 ## Installation
@@ -161,9 +204,9 @@ You don't need to install any prerequisites, because [`install.sh`](install.sh) 
 
 #### Graphical User Interface (GUI)
 
-<img src="assets/click-code-button.png" alt="click-code-button">
+![click-code-button](assets/click-code-button.png)
 
-<img src="assets/click-download-button.png" alt="click-download-button">
+![click-download-button](assets/click-download-button.png)
 
 ### Requirements Installation
 
@@ -212,3 +255,12 @@ cd auto-registrar
     ```bash
     deactivate
     ```
+
+<!-- markdownlint-disable MD013 -->
+
+[Course Offering]: https:/registrar.kfupm.edu.sa/courses-classes/course-offering/
+[Banner 8]: https://banner8-ssb.kfupm.edu.sa/PROD9/twbksite.P_DispSiteMap?menu_name_in=bmenu.P_MainMnu&depth_in=2&columns_in=3
+[Banner 9]: https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registration/registration
+[Chrome]: https://www.google.com/chrome/
+[Firefox]: https://www.mozilla.org/en-US/firefox/new/
+[GitHub Issue]: https://github.com/Yokozuna59/auto-registrar/issues
