@@ -198,7 +198,7 @@ manually if you want.
 |:------:|:--------|
 | **cmd** | `curl.exe -SLfso auto-registrar.zip https://github.com/Yokozuna59/auto-registrar/archive/refs/heads/master.zip && compact /u auto-registrar.zip /Q && del auto-registrar.zip` |
 | **curl** | `curl -SLfso auto-registrar.zip https://github.com/Yokozuna59/auto-registrar/archive/refs/heads/master.zip && unzip auto-registrar.zip && rm auto-registrar.zip` |
-| **Git** | `git clone https://github.com/Yokozuna59/auto-registrar.git` |
+| **git** | `git clone https://github.com/Yokozuna59/auto-registrar.git` |
 | **powershell** | `Invoke-WebRequest -URI "https://github.com/Yokozuna59/auto-registrar/archive/refs/heads/master.zip" -OutFile "auto-registrar.zip" && Expand-Archive -Path "auto-registrar.zip" -DestinationPath (Get-Location).Path -Force && Remove-Item -Path "auto-registrar.zip" -Force` |
 | **wget** | `wget -O auto-registrar.zip https://github.com/Yokozuna59/auto-registrar/archive/refs/heads/master.zip --quiet && unzip auto-registrar.zip && rm auto-registrar.zip` |
 
