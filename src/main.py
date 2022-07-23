@@ -1,4 +1,5 @@
 # import functions from local files
+from os import system
 from config import get_configs
 from registrar_requests import get_term_and_department, get_banner9_requests
 from user_search import get_search_input
@@ -12,6 +13,9 @@ def main() -> int:
     Main and start function of this project.\n
     After checking/registraring is done, return `None`.
     """
+
+    # for better colorization
+    system("")
 
     # get config file
     configs = get_configs()
