@@ -2,6 +2,12 @@
 
 set -e
 
+# check if bash is exists
+if [ -z "${BASH_VERSION}" ]; then
+    red "Bash is required to interpret this script."
+    exit 1
+fi
+
 # print a red error message
 function red {
     echo -e "\x1B[31m✗ $@\x1B[0m" >&2
@@ -16,12 +22,6 @@ function yellow {
 function green {
     echo -e "\x1B[32m✓ $@\x1B[0m" >&2
 }
-
-# check if bash is exists
-if [ -z "${BASH_VERSION}" ]; then
-    red "Bash is required to interpret this script."
-    exit 1
-fi
 
 # check what operating system is running
 function get_os {
@@ -47,7 +47,6 @@ function get_os {
             exit 1
             ;;
     esac
-    green "$os operating system detected."
 }
 
 # check what processor is running
@@ -67,7 +66,6 @@ function get_processor {
             exit 1
             ;;
     esac
-    green "$processor procesoor detected."
 }
 
 # check what package manager is running
@@ -100,7 +98,6 @@ function get_package_manager {
             return 0
         fi
     fi
-    green "$package_manager package manager detected detected"
 }
 
 # update and upgrade packages
@@ -302,201 +299,12 @@ function check_cut {
     fi
 }
 
-# check if grep is installed
-function check_grep {
-    if ! grep --version > /dev/null 2>&1; then
-        if [[ "$updated" != true ]]; then
-            update_upgrade_packages
-        fi
-        yellow "The script needs \`grep\` to be able to continue!"
-        if [[ "$package_manager" == "apk" ]]; then
-            sudo apk install grep -q
-        elif [[ "$package_manager" == "apt-get" ]]; then
-            sudo apt-get install grep -qq
-        elif [[ "$package_manager" == "yum" ]]; then
-            sudo yum install grep -q
-        elif [[ "$package_manager" == "emerge" ]]; then
-            sudo emerge grep -q
-        elif [[ "$package_manager" == "pacman" ]]; then
-            sudo pacman -S grep -q
-        elif [[ "$package_manager" == "zypper" ]]; then
-            sudo zypper install grep -q
-        elif [[ "$package_manager" == "brew" ]]; then
-            brew isntall grep
-        elif [[ "$package_manager" == "port" ]]; then
-            sudo port install grep
-        fi
-        green "Grep installed successfully."
-    fi
-}
-
-# check if zip installed
-function check_tar {
-    if ! tar --version > /dev/null 2>&1; then
-        if [[ "$updated" != true ]]; then
-            update_upgrade_packages
-        fi
-        yellow "The script needs \`tar\` to be able to continue!"
-        if [[ "$package_manager" == "apk" ]]; then
-            sudo apk install tar -q
-        elif [[ "$package_manager" == "apt-get" ]]; then
-            sudo apt-get install tar -qq
-        elif [[ "$package_manager" == "yum" ]]; then
-            sudo yum install tar -q
-        elif [[ "$package_manager" == "emerge" ]]; then
-            sudo emerge tar -q
-        elif [[ "$package_manager" == "pacman" ]]; then
-            sudo pacman -S tar -q
-        elif [[ "$package_manager" == "zypper" ]]; then
-            sudo zypper install tar -q
-        elif [[ "$package_manager" == "brew" ]]; then
-            brew isntall tar
-        elif [[ "$package_manager" == "port" ]]; then
-            sudo port install tar
-        fi
-        green "Tar installed successfully."
-    fi
-}
-
-# check if zip installed
-function check_zip {
-    if ! zip --version > /dev/null 2>&1; then
-        if [[ "$updated" != true ]]; then
-            update_upgrade_packages
-        fi
-        yellow "The script needs \`zip\` to be able to continue!"
-        if [[ "$package_manager" == "apk" ]]; then
-            sudo apk install zip -q
-        elif [[ "$package_manager" == "apt-get" ]]; then
-            sudo apt-get install zip -qq
-        elif [[ "$package_manager" == "yum" ]]; then
-            sudo yum install zip -q
-        elif [[ "$package_manager" == "emerge" ]]; then
-            sudo emerge zip -q
-        elif [[ "$package_manager" == "pacman" ]]; then
-            sudo pacman -S zip -q
-        elif [[ "$package_manager" == "zypper" ]]; then
-            sudo zypper install zip -q
-        elif [[ "$package_manager" == "brew" ]]; then
-            brew isntall zip
-        elif [[ "$package_manager" == "port" ]]; then
-            sudo port install zip
-        fi
-        green "Zip installed successfully."
-    fi
-}
-
-# install chromedriver
-function chrome_driver_install {
-    if [[ "$os" == "linux" ]]; then
-        if google-chrome --version > /dev/null 2>&1; then
-            chrome_local_version=$(google-chrome --version | cut -d " " -f 3)
-        elif chromium-browser --version > /dev/null 2>&1; then
-            chrome_local_version=$(chromium-browser --version | cut -d " " -f 2)
-        fi
-    elif [[ "$os" == "mac" ]]; then
-        if /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version > /dev/null 2>&1; then
-            chrome_local_version=$(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version | cut -d " " -f 3)
-        elif /Applications/Chromium.app/Contents/MacOS/Chromium --version > /dev/null 2>&1; then
-            chrome_local_version=$(/Applications/Chromium.app/Contents/MacOS/Chromium --version | cut -d " " -f 2)
-        fi
-    elif [[ "$os" == "windows" ]]; then
-        if [[ "$processor" == "64-bit" ]]; then
-            chrome_path="/mnt/c/Program Files/Google/Chrome/Application"
-        elif [[ "$processor" == "32-bit" ]]; then
-            chrome_path="/mnt/c/Program Files (x86)/Google/Chrome/Application"
-        fi
-        if [[ -d "$chrome_path" ]]; then
-	        chrome_local_version=`ls "$chrome_path" | head -1`
-        fi
-    fi
-    if [[ "$chrome_local_version" == "" ]] && [[ "$os" != "windows" ]]; then
-        yellow "You don't have Chrome nor Chromium installed, so the script won't download the driver for you."
-        return 0
-    elif [[ "$chrome_local_version" == "" ]] && [[ "$os" == "windows" ]]; then
-        yellow "You don't have Chrome installed, so the script won't download the driver for you."
-        return 0
-    fi
-    latest_chrome_version=`curl -fsSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$(echo $chrome_local_version | cut -d "." -f 1)`
-    if [[ $os == "linux" ]]; then
-        if [[ $processor == "64-bit" ]]; then
-            chrome_url="https://chromedriver.storage.googleapis.com/$latest_chrome_version/chromedriver_linux64.zip"
-        elif [[ $processor == "32-bit" ]]; then
-            chrome_url="https://chromedriver.storage.googleapis.com/$latest_chrome_version/chromedriver_linux32.zip"
-        fi
-    elif [[ $os == "mac" ]]; then
-        if [[ $processor == "64-bit" ]]; then
-            chrome_url="https://chromedriver.storage.googleapis.com/$latest_chrome_version/chromedriver_mac64.zip"
-        elif [[ $processor == "32-bit" ]]; then
-            chrome_url="https://chromedriver.storage.googleapis.com/$latest_chrome_version/chromedriver_mac32.zip"
-        elif [[ $processor == "M1" ]]; then
-            chrome_url="https://chromedriver.storage.googleapis.com/$latest_chrome_version/chromedriver_mac64_m1.zip"
-        fi
-    elif [[ $os == "windows" ]]; then
-        chrome_url="https://chromedriver.storage.googleapis.com/$latest_chrome_version/chromedriver_win32.zip"
-    fi
-    if curl -fsSL -o chromedriver.zip "$chrome_url" > /dev/null 2>&1; then
-        unzip -qq -o chromedriver.zip -d "drivers"
-        rm chromedriver.zip
-        green "Chrome driver installed successfully."
+function install_drivers {
+    if curl --version > /dev/null 2>&1; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Yokozuna59/webdriver-installer/master/install.sh)"
     else
-        red "Your device architecture does not support chrome driver version $latest_chrome_version"
+        /bin/bash -c "$(wget -qO- https://raw.githubusercontent.com/Yokozuna59/webdriver-installer/master/install.sh)"
     fi
-}
-
-# install geckodriver
-function firefox_driver_install {
-    driver_file_name=$(echo "$os$processor" | sed 's/windows/win/' | sed 's/-bit//' | sed 's/mac64/mac/' | sed 's/macM1/macos-aarch64/')
-    if [[ "$os" == "linux" ]]; then
-        if firefox --version > /dev/null 2>&1; then
-            firefox_local_version=$(firefox --version | cut -d " " -f 3 | cut -d "." -f 1)
-        fi
-    elif [[ "$os" == "mac" ]]; then
-        if /Applications/Firefox.app/Contents/MacOS/firefox -v > /dev/null 2>&1; then
-            firefox_local_version=$(/Applications/Firefox.app/Contents/MacOS/firefox -v | cut -d " " -f 3 | cut -d "." -f 1)
-        fi
-    elif [[ "$os" == "windows" ]]; then
-        readonly current_path=`pwd`
-        if [[ "$processor" == "64-bit" ]]; then
-            firefox_path="/mnt/c/Program Files/Mozilla Firefox"
-        elif [[ "$processor" == "32-bit" ]]; then
-            firefox_path="/mnt/c/Program Files (x86)/Mozilla Firefox"
-        fi
-        if [[ -d "$firefox_path" ]]; then
-            cd "$firefox_path"
-            firefox_local_version="$(cmd.exe /c "firefox -v | more" | cut -d " " -f 3 | cut -d "." -f 1 | tr -d '\r')"
-            cd "$current_path"
-        fi
-    fi
-    if [[ "$firefox_local_version" == "" ]]; then
-        yellow "You don't have Firefox broswer, so the script won't download the driver for you."
-        return 0
-    fi
-    geckodriver_versions=$(curl -fsSL https://api.github.com/repos/mozilla/geckodriver/releases | grep 'browser_download_url' | sed 's/        "browser_download_url": "//' | sed 's/"//' | grep "$driver_file_name")
-    if [[ "$geckodriver_versions" == "" ]]; then
-        red "Your device architecture does not support firefox driver"
-    fi
-    if [ $firefox_local_version -gt 90 ]; then
-        firefox_url=$(echo $geckodriver_versions | cut -d " " -f 1)
-    elif [ $firefox_local_version -gt 79 ]; then
-        firefox_url=$(echo $geckodriver_versions | cut -d " " -f 2)
-    elif [ $firefox_local_version -ge 62 ]; then
-        firefox_url=$(echo $geckodriver_versions | cut -d " " -f 9)
-    else
-        red "Your Firefox version in not supported, so the script won't download the driver for you."
-        return 0
-    fi
-    mkdir -p drivers
-    if [[ "$os" == "linux" ]] || [[ $os == "mac" ]]; then
-        curl -fsSL -o geckodriver.tar.gz "$firefox_url"
-        tar -xzf geckodriver.tar.gz -C drivers
-        rm geckodriver.tar.gz
-    elif [[ "$os" == "windows" ]]; then
-        curl -fsSL -o geckodriver.zip "$firefox_url"
-        unzip -qq -o geckodriver.zip -d drivers
-        rm geckodriver.zip
-    fi
-    green "Firefox driver installed successfully."
 }
 
 # install python
@@ -532,13 +340,13 @@ function python_install {
 }
 
 function python_venv {
-    if [[ ! -d ".venv" ]]; then
-        python -m venv .venv || python3 -m venv .venv
-    fi
+    pip install virtualenv -q || pip3 install virtualenv -q
+    python -m venv .venv || python3 -m venv .venv
     source .venv/bin/activate
     pip install -r requirements.txt -q || pip3 install -r requirements.txt -q
     deactivate
     green "Python virtual environment created and packages installed."
+    yellow "Type \`source .venv/bin/activate\` to activate the environment and \`deactivate\` to deactivate it."
 }
 
 function main {
@@ -547,10 +355,8 @@ function main {
     get_package_manager
     check_bc
     check_curl_or_wget
-    check_zip
-    check_tar
-    chrome_driver_install
-    firefox_driver_install
+    check_cut
+    install_drivers
     python_install
     python_venv
 }
