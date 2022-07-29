@@ -1,14 +1,10 @@
 # Contributing Guidelines
 
-Contributions welcome!
-
 **Before spending lots of time on something, ask for feedback on your idea first!**
 
-Please search issues and pull requests before adding something new to avoid duplicating
-efforts and conversations.
+Please search issues and pull requests before adding something new to avoid duplicating efforts and conversations.
 
-This project welcomes non-code contributions, too! The following types of contributions
-are welcome:
+This project welcomes non-code contributions, too! The following types of contributions are welcome:
 
 - **Ideas**: participate in an issue thread or start your own to have your voice heard.
 - **Writing**: contribute your expertise in an area by helping expand the included docs.
@@ -41,8 +37,7 @@ and to avoid style arguments.
 
 ## Project Governance
 
-Individuals making significant and valuable contributions are given commit-access to the
-project to contribute as they see fit.
+Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit.
 
 ### Rules
 
@@ -51,7 +46,7 @@ There are a few basic ground-rules for contributors:
 1. **No `--force` pushes** or modifying the Git history in any way.
 2. **Non-master branches** should be used for ongoing work.
 3. **Significant modifications** like API changes should be subject to a **pull request** to solicit feedback from other contributors.
-4. **Pull requests** are *encouraged* for all contributions to solicit feedback, but left to the discretion of the contributor.
+4. **Pull requests** are _encouraged_ for all contributions to solicit feedback, but left to the discretion of the contributor.
 
 ### Releases
 
@@ -67,27 +62,49 @@ This is an experiment and feedback is welcome! This document may also be subject
 
 2. [Fork](https://help.github.com/articles/fork-a-repo/) the [auto-registrar](https://github.com/Yokozuna59/auto-registrar) repository ([Click to fork](https://github.com/Yokozuna59/auto-registrar/fork)).
 
-3. Clone the repository to your device:
+3. Open a new terminal/cmd/powershell window.
+
+4. Change to directory where you want Auto Registrar to be. For example, Desktop:
+
+    - For Linux and macOS
+
+        ```bash
+        cd ~/Desktop
+        ```
+
+    - For PowerShell
+
+        ```PowerShell
+        cd ~\Destop
+        ```
+
+    - For Command Prompt:
+
+        ```cmd
+        cd %USERPROFILE%\Desktop
+        ```
+
+5. Clone the repository to your device:
 
     ```bash
     git clone https://github.com/<username>/auto-registrar.git
     ```
 
-4. Change directory to the cloned project:
+6. Change directory to the cloned project:
 
     ```bash
     cd auto-registrar
     ```
 
-5. Create your new feature branch locally:
+7. Create your new feature branch locally:
 
     ```bash
     git checkout -b <branch_name>
     ```
 
-    **For clarity**, name your branch `update-xxx` or `fix-xxx`. The `xxx` is a short description of the changes you're making, e.g., `update-readme-md` or `fix-typo-in-contributing-md`.
+    **For clarity**, name your branch `update-xxx` or `fix-xxx`. The `xxx` is a short description of the changes you're making. For example, `update-readme-md` or `fix-typo-in-contributing-md`.
 
-6. Add your changes to git:
+8. Add your changes to git:
     - Add specific file to git using:
 
         ```bash
@@ -100,7 +117,7 @@ This is an experiment and feedback is welcome! This document may also be subject
         git add *
         ```
 
-7. Commit your changes using a descriptive commit message:
+9. Commit your changes using a descriptive commit message:
 
     ```bash
     git commit -sm "Brief Description of Commit"
@@ -108,10 +125,10 @@ This is an experiment and feedback is welcome! This document may also be subject
 
    **Note** that **-s**, it's important!
 
-8. Push your commits to your GitHub Fork:
+10. Push your commits to your GitHub Fork:
 
     ```bash
     git push --set-upstream origin <branch_name>
     ```
 
-9. Submit a [pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) ([Click to pull request](https://github.com/Yokozuna59/auto-registrar/pulls)).
+11. Submit a [pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) ([Click to pull request](https://github.com/Yokozuna59/auto-registrar/pulls)).
