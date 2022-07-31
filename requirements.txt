@@ -1,5 +1,5 @@
 async-generator==1.10
-attrs==21.4.0
+attrs==22.1.0
 beautifulsoup4==4.11.1
 certifi==2022.6.15
 cffi==1.15.1
