@@ -1,0 +1,22 @@
+{
+    "Login failed! Please recheck the username and password and try again.": "Worng username or passcode in login page",
+    "invalid username/password; logon denied":"After long period of time AFK this error will come.",
+    "Would you like to log out or return home?":"After logging out this error will come.",
+    "Must select a term":"Didn't select a term in term selection page",
+    "Open - Reserved for Wait List":"Open for wait list students",
+    "Link Error (Lecture) (LC)":"",
+    "Prerequisite and Test Score error":"ماخلصت المتطلب لفتح المادة ",
+    "An error has occurred and you registration connot be processed.":"",
+    "Student Attribute Restriction":"مسجل في سشكن للجنس الاخر",
+    "Class Restriction":"",
+    "Level Restriction":"",
+    "You have requested to drop a course that a connected course (). Select Drop to drop all courses in the same transaction or Cancel":"Drop or Cancel",
+    "An error has occurred during the processing of your registration. Please try to submit again.":"",
+    "You have holds which prevent registration and my not shown here.":"",
+    "Student Status prevents registration.":"",
+    "Link Error (Laboratory) (LB)":"",
+    "Unable to make requested change so your schedule was not changed":"",
+    "Closed section":"",
+    "Closed - waitlist open":"تقدر تسجل في قائمة الانتظار",
+    "Not vaild course number(crn)":"كتبت الرقم غلط"
+}
