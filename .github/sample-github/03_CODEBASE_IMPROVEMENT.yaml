@@ -1,0 +1,23 @@
+name: Codebase improvement
+description: Provide your feedback for the existing codebase. Suggest a better solution for algorithms, development tools, etc.
+labels:
+  - enhancement
+assignees:
+  - Yokozuna59
+body:
+  - type: dropdown
+    id: improve
+    attributes:
+      label: Type of Improvement
+      description: What type of improvement would you like to submit?
+      multiple: false
+      options:
+        - algorithms
+        - Build/Install
+        - Performance
+        - Support
+        - Feature Request
+        - Documentation Feature Request
+        - Others
+    validations:
+      required: true
