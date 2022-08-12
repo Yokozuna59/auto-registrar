@@ -309,8 +309,12 @@ function install_drivers {
 
 # install python
 function python_install {
-    if python --version > /dev/null 2>&1 || python3 --version > /dev/null 2>&1; then
-        python_local_version=$(python --version | cut -d " " -f 2 | cut -d "." -f 1,2) || $(python3 --version | cut -d " " -f 2 | cut -d "." -f 1,2)
+    if python --version > /dev/null 2>&1; then
+        python_local_version=$(python --version | cut -d " " -f 2 | cut -d "." -f 1,2)
+    elif python3 --version > /dev/null 2>&1; then
+        python_local_version=$(python3 --version | cut -d " " -f 2 | cut -d "." -f 1,2)
+    fi
+    if [[ -n $python_local_version ]]; then
         if (( $(echo "$python_local_version > 3.7" | bc -l) )); then
             yellow "Your python version is lower than 3.7, so the script will upgrade it to the latest version."
         else
@@ -341,7 +345,7 @@ function python_install {
 
 function python_venv {
     pip install virtualenv -q || pip3 install virtualenv -q
-    python -m venv .venv || python3 -m venv .venv
+    python -m venv .venv > /dev/null 2>&1 || python3 -m venv .venv > /dev/null 2>&1
     source .venv/bin/activate
     pip install -r requirements.txt -q || pip3 install -r requirements.txt -q
     deactivate
