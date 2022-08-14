@@ -5,9 +5,9 @@ from sys import platform
 from cryptography.fernet import Fernet, InvalidToken
 
 from auto_registrar.tui.questions import Questions
-from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.colored_text import print_one_color_text
-from auto_registrar.universities import kfupm
+from auto_registrar.tui.ansi import AnsiColor
+from auto_registrar.universities.kfupm import KFUPM
 
 SLASH_PATH = "/" if "/" in __file__ else "\\"
 PROJECT_PATH = SLASH_PATH.join(__file__.split(SLASH_PATH)[:-2])
@@ -15,10 +15,10 @@ CONFIGS_PATH = f"{PROJECT_PATH}{SLASH_PATH}.config.json"
 DRIVERS_PATH = f"{PROJECT_PATH}{SLASH_PATH}drivers"
 
 
-def get_configs(print_ask_for_config: bool) -> dict:
+def get_configs(ask_for_config: bool) -> dict:
     """
-    Checks if user has installed and configured his default configuration.\n
-    If he did, return configs as `dict` type.
+    Checks if user configured his default configuration.\n
+    return configs as `dict` type.
     """
 
     if not path.exists(path=CONFIGS_PATH):
@@ -36,16 +36,15 @@ def get_configs(print_ask_for_config: bool) -> dict:
                 "passcode": None,
                 "university": "kfupm",
                 "username": None,
-                "version": "0.5.0",
             }
         write_config_file(configs_file=json_objects)
 
-    with open(file=CONFIGS_PATH, mode="r") as f:
-        configs = loads(s=f.read())
+    with open(file=CONFIGS_PATH, mode="r") as file:
+        configs = loads(s=file.read())
 
     if not configs["configured"]:
         bool_answer = True
-        if print_ask_for_config:
+        if ask_for_config:
             print_one_color_text(
                 text_string="! Sorry, you haven't configured yet!",
                 text_color=AnsiColor.LIGHT_RED,
@@ -56,8 +55,7 @@ def get_configs(print_ask_for_config: bool) -> dict:
 
         if bool_answer:
             if configs["university"]:
-                kfupm_ = kfupm.KFUPM(configs=configs)
-                configs = kfupm_.do_configs(configs_file=configs)
+                configs = KFUPM.do_configs(configs_file=configs)
     else:
         configs["passcode"] = decode_passcode(
             passcode=configs["passcode"], configs_file=configs
