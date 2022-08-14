@@ -1,4 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 try:
     from sys import stdin
@@ -26,6 +26,8 @@ def read_one_char() -> str:
                     return_value = future.result(timeout=0.01)
                     future.cancel()
                     char += return_value
+                except TimeoutError:
+                    pass
                 finally:
                     stdin.flush()
         finally:
