@@ -24,14 +24,27 @@ class AnsiKeys:
 
 
 class AnsiStyle:
-    RESET = "\x1B[0m"
+    """A class contains some Ansi styles"""
+
+    RESET_ALL = "\x1B[0m"
+
     BOLD = "\x1B[1m"
     FAINT = "\x1B[2m"
-    ITALIC_TEXT = "\x1B[3m"
-    UNDERSCORE = "\x1B[4m"
+    ITALIC = "\x1B[3m"
+    UNDERLINE = "\x1B[4m"
     BLINK = "\x1B[5m"
     INVERSE = "\x1B[7m"
-    REVERSE = "\x1B[27m"
+    HIDDEN = "\x1B[8m"
+    STRIKETHROUGH = "\x1B[9m"
+
+    BOLD_RESET = "\x1B[22m"
+    FAINT_RESET = "\x1B[22m"
+    ITALIC_RESET = "\x1B[23m"
+    UNDERLINE_RESET = "\x1B[24m"
+    BLINK_RESET = "\x1B[25m"
+    INVERSE_RESET = "\x1B[27m"
+    HIDDEN_RESET = "\x1B[28m"
+    STRIKETHROUGH_RESET = "\x1B[29m"
 
 
 class AnsiColor:
@@ -76,24 +89,29 @@ class AnsiCursor:
         stdout.flush()
 
     def move_up(n: int = 1):
-        stdout.write("\x1B[%dA" % n)
-        stdout.flush()
+        if n != 0:
+            stdout.write("\x1B[%dA" % n)
+            stdout.flush()
 
     def move_down(n: int = 1):
-        stdout.write("\x1B[%dB" % n)
-        stdout.flush()
+        if n != 0:
+            stdout.write("\x1B[%dB" % n)
+            stdout.flush()
 
     def move_right(n: int = 1):
-        stdout.write("\x1B[%dC" % n)
-        stdout.flush()
+        if n != 0:
+            stdout.write("\x1B[%dC" % n)
+            stdout.flush()
 
     def move_left(n: int = 1):
-        stdout.write("\x1B[%dD" % n)
-        stdout.flush()
+        if n != 0:
+            stdout.write("\x1B[%dD" % n)
+            stdout.flush()
 
     def move_next_line(n: int = 1):
-        stdout.write("\x1B[%dE" % n)
-        stdout.flush()
+        if n != 0:
+            stdout.write("\x1B[%dE" % n)
+            stdout.flush()
 
 
 class AnsiErase:
