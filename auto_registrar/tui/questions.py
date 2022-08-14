@@ -320,7 +320,7 @@ class Questions:
         finished = False
         while not finished:
             AnsiCursor.restore_position()
-            terminal_columns = get_terminal_size()[0]
+            terminal_columns, terminal_rows = get_terminal_size()
             question_lines = (
                 (len(question) + 41)
                 - terminal_columns * floor(len(question) + 41) / terminal_columns
@@ -355,10 +355,14 @@ class Questions:
                         choices.append(choice)
                         AnsiErase.erase_entire_line()
                         if list_lenght == 1:
-                            stdout.write(f"{AnsiColor.BLUE}> {choice}{AnsiStyle.RESET}")
+                            stdout.write(
+                                f"{AnsiColor.BLUE}> {choice}{AnsiStyle.RESET_ALL}"
+                            )
                             answer = choice
                         else:
-                            stdout.write(f"{AnsiStyle.BOLD}  {choice}{AnsiStyle.RESET}")
+                            stdout.write(
+                                f"{AnsiStyle.BOLD}  {choice}{AnsiStyle.RESET_ALL}"
+                            )
                         AnsiCursor.move_next_line()
 
                 current_index = 1
@@ -629,11 +633,11 @@ class Questions:
                     stdout.write(
                         "{}>{} {}{} {}{}".format(
                             AnsiColor.LIGHT_BLUE,
-                            AnsiStyle.RESET,
+                            AnsiStyle.RESET_ALL,
                             AnsiColor.LIGHT_BLUE,
                             "○",
                             choices[current_index - 1],
-                            AnsiStyle.RESET,
+                            AnsiStyle.RESET_ALL,
                         )
                     )
                     answers.remove(choices[current_index - 1])
