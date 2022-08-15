@@ -309,9 +309,9 @@ function install_drivers {
 
 # install python
 function python_install {
-    if python --version > /dev/null 2>&1; then
+    if python3 --version > /dev/null 2>&1; then
         python_local_version=$(python --version | cut -d " " -f 2 | cut -d "." -f 1,2)
-    elif python3 --version > /dev/null 2>&1; then
+    elif python --version > /dev/null 2>&1; then
         python_local_version=$(python3 --version | cut -d " " -f 2 | cut -d "." -f 1,2)
     fi
     if [[ -n $python_local_version ]]; then
@@ -328,7 +328,7 @@ function python_install {
     if [[ "$package_manager" == "apk" ]]; then
         sudo apk add --no-cache python3 py3-pip
     elif [[ "$package_manager" == "apt-get" ]]; then
-        sudo apt-get install -y python3
+        sudo apt-get install -qq -y python3 python3-pip
     elif [[ "$package_manager" == "pacman" ]]; then
         sudo pacman -S python python-pip
     elif [[ "$package_manager" == "yum" ]]; then
