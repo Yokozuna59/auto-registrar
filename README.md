@@ -1,22 +1,15 @@
 # Auto Course Checker/Registrar
 
-> A CLI/GUI script to check/register courses from KFUPM [Course Offering] and
-> [Banner 8] and [Banner 9].
+> A CLI script to check/register courses from KFUPM [Course Offering] and [Banner 9]. <!-- [Banner 8] -->
 
 ## Prerequisites
 
-You don't need to install any prerequisites, because [`install.sh`](install.sh)
-script (for MacOS & Linux & WSL) and [`install.ps1`](install.ps1) (for Windows)
-will install all the required dependencies for you
-([go to Installation](#installation)), but you can install the dependencies
-manually if you want.
+You don't need to install any prerequisites, because [`install.sh`](install.sh) script (for MacOS & Linux & WSL) and [`install.ps1`](install.ps1) (for Windows) will install all the required dependencies for you ([go to Installation](#installation)), but you can install the dependencies manually if you want.
 
 ### Minimal Manual Prerequisites
 
 1. [Python3.7+](https://www.python.org/downloads/)
-    **Note:** Make sure you install the correct version. You can check the
-    version of Python you have installed by running `python --version` or
-    `python3 --version` in the command prompt or terminal.
+    **Note:** Make sure you install the correct version. You can check the version of Python you have installed by running `python --version` or `python3 --version` in the command prompt or terminal.
 
     <details close>
     <summary>Linux</summary>
@@ -151,12 +144,10 @@ manually if you want.
     </details>
 
 2. Browser: [Chrome] or [Firefox].
-    Currently, the script only supports Chrome and Firefox. If you want to use
-    other browsers, you could open an issue on [GitHub][GitHub Issue].
+    Currently, the script only supports Chrome and Firefox. If you want to use other browsers, you could open an issue on [GitHub][GitHub Issue].
 
 3. Browser Drivers
-    **Note:** You have to create `drivers` folder and move the drivers to it
-    then move the whole folder to the project.<br>
+    **Note:** You have to create `drivers` folder and move the drivers to it then move the whole folder to the project.<br>
     e.g., `drivers/chromedriver.exe` and `drivers/geckodriver.exe`.
 
     <details close>
@@ -168,8 +159,6 @@ manually if you want.
         <code>chrome://settings/help</code> in your chrome browser.</p>
         <img src="assets/chrome-version.png" alt="chrome-version">
     </details>
-
-    <!-- markdownlint-disable MD013 -->
 
     <details close>
     <summary>Firefox -
@@ -246,8 +235,8 @@ cd auto-registrar
 - Run the script:
 
     ```bash
-    python src/main.py
-    # or python3 src/main.py
+    python -m auto_registrar
+    # or python3 -m auto_registrar
     ```
 
 - To deactivate the virtual environment:
@@ -255,8 +244,6 @@ cd auto-registrar
     ```bash
     deactivate
     ```
-
-<!-- markdownlint-disable MD013 -->
 
 [Course Offering]: https:/registrar.kfupm.edu.sa/courses-classes/course-offering/
 [Banner 8]: https://banner8-ssb.kfupm.edu.sa/PROD9/twbksite.P_DispSiteMap?menu_name_in=bmenu.P_MainMnu&depth_in=2&columns_in=3
