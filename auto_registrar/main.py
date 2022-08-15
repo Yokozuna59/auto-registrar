@@ -1,26 +1,26 @@
-from os import system, remove
-
-from auto_registrar.config import get_configs, CONFIGS_PATH
-from auto_registrar.tui.bar import progress_bar
+from auto_registrar.config import get_configs, write_config_file
 from auto_registrar.tui.questions import Questions
-from auto_registrar.universities import kfupm
+from auto_registrar.tui.colored_text import print_one_color_text
+from auto_registrar.tui.ansi import AnsiColor
+from auto_registrar.universities.kfupm import KFUPM
+from auto_registrar.tui.bar import progress_bar
 
 
-def main():
-    # Enhance ansi colors for windows
-    system("")
+def main() -> None:
+    """The main the start of the program."""
 
     # Get local configuration
-    configs = get_configs(print_ask_for_config=True)
-    alarm = configs["alarm"]
+    configs = get_configs(ask_for_config=True)
+    alarm_path = configs["alarm"]
     browser = configs["browser"]
     delay = configs["delay"]
+    driver_path = configs["driver_path"]
     interface = configs["interface"]
     username = configs["username"]
     passcode = configs["passcode"]
     university = configs["university"]
-    purpose = (
-        Questions.list_question(
+    if configs["configured"]:
+        purpose = Questions.list_question(
             question="What do you want to do in this run",
             choices=[
                 "Reconfig configuration",
@@ -28,35 +28,44 @@ def main():
                 "Check courses status",
             ],
         )
-        if configs["configured"] == True
-        else "Reconfig configuration"
-    )
+    else:
+        purpose = "Reconfig configuration"
 
     if university == "kfupm":
         if purpose == "Reconfig configuration":
-            remove(CONFIGS_PATH)
-            get_configs(print_ask_for_config=False)
+            configs["configured"] = False
+            write_config_file(configs_file=configs)
+            get_configs(ask_for_config=False)
             exit()
         elif purpose == "Edit schedule":
-            pass
+            print_one_color_text(
+                text_string="Currently the instructors filter is not supported!",
+                text_color=AnsiColor.RED,
+            )
+            exit()
+            # term, departments = KFUPM.get_term_and_department(interface=interface)
+            # schedule = KFUPM.get_schedule(
+            #     username=username, passcode=passcode, term=term
+            # )
         elif purpose == "Check courses status":
-            term, departments = kfupm.KFUPM.get_term_and_department(interface=interface)
-            searsh_filter = kfupm.KFUPM.get_search_filter(
-                interface=interface, term=term
+            term, departments, source = KFUPM.get_term_and_departments(
+                interface=interface
+            )
+            search_filter = KFUPM.get_search_filter(
+                interface=interface, term=term, registration=False
             )
 
-            registrared = False
-            while not registrared:
-                courses_requested = kfupm.KFUPM.get_banner9_courses(
-                    term=term, departments=departments
+            finished = False
+            while not finished:
+                courses_requested, source = KFUPM.get_courses(
+                    term=term, departments=departments, interface=interface
                 )
-                registrared = kfupm.KFUPM.check_for_changes(
+                finished = KFUPM.check_for_changes(
                     content=courses_requested,
-                    searsh_filter=searsh_filter,
-                    configs_file=configs,
+                    search_filter=search_filter,
+                    interface=interface,
+                    source=source,
+                    alarm_path=alarm_path,
                 )
                 progress_bar(total_time=delay)
-
-
-"'Too large to show contents. Max items to show: 300'"
-main()
+    return
