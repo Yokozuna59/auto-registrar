@@ -54,6 +54,14 @@ def main() -> None:
             search_filter = KFUPM.get_search_filter(
                 interface=interface, term=term, registration=False
             )
+            exit()
+            # term, departments = KFUPM.get_term_and_department(interface=interface)
+            # schedule = KFUPM.get_schedule(
+            #     username=username, passcode=passcode, term=term
+            # )
+        elif purpose == "Check courses status":
+            term, departments = KFUPM.get_term_and_department(interface=interface)
+            searsh_filter = KFUPM.get_search_filter(interface=interface, term=term)
 
             finished = False
             while not finished:
