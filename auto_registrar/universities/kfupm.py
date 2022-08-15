@@ -653,7 +653,7 @@ class KFUPM:
 
 
 class KFUPM_banner9:
-    def get_banner9_terms_and_departments(interface: str) -> tuple[str | list]:
+    def get_banner9_terms_and_departments(interface: str) -> tuple:
         term = KFUPM_banner9.get_banner9_terms(interface=interface)
         departments = KFUPM_banner9.get_banner9_departments(
             term=term, interface=interface
@@ -837,7 +837,7 @@ class KFUPM_banner9:
 
 
 class KFUPM_registrar:
-    def get_registrar_terms_and_departments(interface: str) -> tuple[str | list]:
+    def get_registrar_terms_and_departments(interface: str) -> tuple:
         finished = False
         banner9 = False
         url = "https://registrar.kfupm.edu.sa/courses-classes/course-offering1/"
