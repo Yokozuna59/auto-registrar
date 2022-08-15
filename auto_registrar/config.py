@@ -55,7 +55,7 @@ def get_configs(ask_for_config: bool) -> dict:
 
         if bool_answer:
             if configs["university"]:
-                configs = KFUPM.ask_for_configs(configs_file=configs)
+                configs = KFUPM.ask_for_configs(config_file=configs)
     else:
         configs["passcode"] = decode_passcode(
             passcode=configs["passcode"], configs_file=configs
