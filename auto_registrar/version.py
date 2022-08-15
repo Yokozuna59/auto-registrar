@@ -10,7 +10,7 @@ from distro import name, version
 from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.colored_text import print_one_color_text
 
-LOCAL_VERSION = "0.6.0"
+LOCAL_VERSION = "0.7.0"
 
 
 def check_updates():
