@@ -48,8 +48,12 @@ def main() -> None:
             #     username=username, passcode=passcode, term=term
             # )
         elif purpose == "Check courses status":
-            term, departments, source = KFUPM.get_term_and_departments(interface=interface)
-            search_filter = KFUPM.get_search_filter(interface=interface, term=term, registration=False)
+            term, departments, source = KFUPM.get_term_and_departments(
+                interface=interface
+            )
+            search_filter = KFUPM.get_search_filter(
+                interface=interface, term=term, registration=False
+            )
 
             finished = False
             while not finished:
