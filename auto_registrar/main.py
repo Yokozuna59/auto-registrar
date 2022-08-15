@@ -11,9 +11,10 @@ def main() -> None:
 
     # Get local configuration
     configs = get_configs(ask_for_config=True)
-    alarm = configs["alarm"]
+    alarm_path = configs["alarm"]
     browser = configs["browser"]
     delay = configs["delay"]
+    driver_path = configs["driver_path"]
     interface = configs["interface"]
     username = configs["username"]
     passcode = configs["passcode"]
@@ -47,18 +48,32 @@ def main() -> None:
             #     username=username, passcode=passcode, term=term
             # )
         elif purpose == "Check courses status":
+            term, departments, source = KFUPM.get_term_and_departments(
+                interface=interface
+            )
+            search_filter = KFUPM.get_search_filter(
+                interface=interface, term=term, registration=False
+            )
+            exit()
+            # term, departments = KFUPM.get_term_and_department(interface=interface)
+            # schedule = KFUPM.get_schedule(
+            #     username=username, passcode=passcode, term=term
+            # )
+        elif purpose == "Check courses status":
             term, departments = KFUPM.get_term_and_department(interface=interface)
             searsh_filter = KFUPM.get_search_filter(interface=interface, term=term)
 
             finished = False
             while not finished:
-                courses_requested = KFUPM.get_courses(
+                courses_requested, source = KFUPM.get_courses(
                     term=term, departments=departments, interface=interface
                 )
                 finished = KFUPM.check_for_changes(
                     content=courses_requested,
-                    searsh_filter=searsh_filter,
-                    configs_file=configs,
+                    search_filter=search_filter,
+                    interface=interface,
+                    source=source,
+                    alarm_path=alarm_path,
                 )
                 progress_bar(total_time=delay)
     return

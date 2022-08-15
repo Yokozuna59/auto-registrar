@@ -2,7 +2,9 @@ from json import loads
 from sys import exit
 
 from requests import get, session, post
-from requests.exceptions import ConnectionError, RequestException
+from requests.exceptions import ConnectionError, RequestException, Timeout
+from bs4 import BeautifulSoup
+from playsound import playsound
 
 import auto_registrar.config as config
 from auto_registrar.tui.questions import Questions
@@ -10,47 +12,123 @@ from auto_registrar.tui.colored_text import print_more_color_text, print_one_col
 from auto_registrar.tui.ansi import AnsiColor, AnsiCursor, AnsiErase, AnsiStyle
 from auto_registrar.tui.bar import progress_bar
 
+DAYS = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+]
+
+BANNER_CHIOCES = {
+    "ACCT" or "ECON" or "FIN": "ACFN",
+    "AS": None,
+    "AE": "AE",
+    "ARE": "ARE",
+    "ARC": "ARC",
+    "BIOE": "BIOE",
+    "BUS" or "HRM" or "MGT" or "MKT": "MGT",
+    "CHE": "CHE",
+    "CHEM": "CHEM",
+    "CRP" or "CP": "CRP",
+    "CE": "CE",
+    "CGS" or "ENGL": "ELD",
+    "CPG": "CPG",
+    "COE": "COE",
+    "CEM" or "EM": "CEM",
+    "CIE" or "SCE": "CIE",
+    "XE": None,
+    "EE": "EE",
+    "ENVS" or "GEOL" or "GEOP": "ERTH",
+    "GS": "GS",
+    "ISE": "SE",
+    "ICS" or "SEC" or "SWE": "ICS",
+    "IAS": "IAS",
+    "LS": "LS",
+    "MIS" or "OM": "ISOM",
+    "MBA": "MBA",
+    "MSE": "MSE",
+    "MATH" or "STAT": "MATH",
+    "ME": "ME",
+    "PETE": "PETE",
+    "PE": "PE",
+    "PHYS": "PHYS",
+    "SE": None,
+}
+
 CLASS_TYPE_COLORS = {
     "COP": "\x1b[48;2;92;148;13m",
-    "DIS": "\x1b[48;2;201;42;42m",
-    "FLD": "\x1b[48;2;33;37;41m",
-    "IND": "\x1b[48;2;33;37;41m",
+    "DIS" or "EXP" or "RES": "\x1b[48;2;201;42;42m",
+    "FLD"
+    or "IND"
+    or "LLB"
+    or "LPJ"
+    or "MR"
+    or "SLB"
+    or "ST"
+    or "STD": "\x1b[48;2;33;37;41m",
     "LAB": "\x1b[48;2;95;61;196m",
-    "LEC": "\x1b[48;2;24;100;171m",
-    "LRC": "\x1b[48;2;24;100;171m",
-    "LLB": "\x1b[48;2;33;37;41m",
-    "LPJ": "\x1b[48;2;33;37;41m",
-    "MR": "\x1b[48;2;33;37;41m",
+    "LEC" or "LRC": "\x1b[48;2;24;100;171m",
     "PRJ": "\x1b[48;2;217;72;15m",
     "REC": "\x1b[48;2;166,30,77m",
-    "RES": "\x1b[48;2;201;42;42m",
     "SEM": "\x1b[48;2;8;127;91m",
-    "SLB": "\x1b[48;2;33;37;41m",
-    "ST": "\x1b[48;2;33;37;41m",
-    "STD": "\x1b[48;2;33;37;41m",
     "THS": "\x1b[48;2;54;79;199m",
-    "EXP": "\x1b[48;2;201;42;42m"
+}
+
+REGISTRER_CHIOCES = {
+    "ACFN": "ACCT,ECON,FIN",
+    "AE": "AE",
+    "ARE": "ARE",
+    "ARC": "ARC",
+    "BIOE": "BIOE",
+    "MGT": "BUS,HRM,MGT,MKT",
+    "CHE": "CHE",
+    "CHEM": "CHEM",
+    "CRP": "CRP,CP",
+    "CE": "CE",
+    "ELD": "CGS,ENGL",
+    "CPG": "CPG",
+    "COE": "COE",
+    "CEM": "CEM,EM",
+    "CIE": "CIE,SCE",
+    "EE": "EE",
+    "ERTH": "ENVS,GEOL,GEOP",
+    "GS": "GS",
+    "ISE": "SE",
+    "ICS": "ICS,SEC,SWE",
+    "IAS": "IAS",
+    "LS": "LS",
+    "ISOM": "MIS,OM",
+    "MBA": "MBA",
+    "MSE": "MSE",
+    "MATH": "MATH,STAT",
+    "ME": "ME",
+    "PETE": "PETE",
+    "PE": "PE",
+    "PHYS": "PHYS",
 }
 
 
 class KFUPM:
-    def do_configs(configs_file: dict) -> dict:
+    def ask_for_configs(config_file: dict) -> dict:
         """
-        Ask user 5 diffrent questinos to configurate.\n
-        If he answered the question, return them as `dict` type.
+        Ask user 5 questinos to configurate.\n
+        Return answers as `dict` type.
         """
 
         default_banner = Questions.dict_question(
             question="Select default banner for registration",
             choices={"Banner 9": 9},  # "Banner 8": 8}
         )
-        configs_file["banner"] = default_banner
+        config_file["banner"] = default_banner
 
         default_browser = Questions.dict_question(
             question="Select default browser",
             choices={"Chrome": "chromedriver"},  # "Firefox": "geckodriver"},
         )
-        configs_file["browser"] = default_browser
+        config_file["browser"] = default_browser
 
         default_delay = Questions.dict_question(
             question="Select default time delay between refreshes",
@@ -61,7 +139,7 @@ class KFUPM:
                 "60 Second": 60,
             },
         )
-        configs_file["delay"] = default_delay
+        config_file["delay"] = default_delay
 
         default_interface = Questions.dict_question(
             question="Select default user interface",
@@ -70,139 +148,36 @@ class KFUPM:
                 # "Graphical user interface (GUI)": "gui",
             },
         )
-        configs_file["interface"] = default_interface
+        config_file["interface"] = default_interface
 
         username = Questions.str_questoin(question="Enter your student ID with `S`")
-        configs_file["username"] = username
+        config_file["username"] = username
 
-        passcode = config.ask_for_passcode(configs_file=configs_file)
+        passcode = config.ask_for_passcode(configs_file=config_file)
 
-        configs_file["configured"] = True
-        config.write_config_file(configs_file=configs_file)
+        config_file["configured"] = True
+        config.write_config_file(configs_file=config_file)
 
-        configs_file["passcode"] = passcode
+        config_file["passcode"] = passcode
 
-        return configs_file
+        return config_file
 
-    def get_term_and_department(interface: str) -> tuple:
+    def get_term_and_departments(interface: str) -> tuple:
         """
         Do a get request by `url` and ask user to select a term and department.\n
         return the user answer as `list` type.
         """
 
-        term = KFUPM.get_terms(interface=interface)
-        department = KFUPM.get_departments(interface=interface, term=term)
-
-        return (term, department)
-
-    def get_terms(interface: str) -> str:
-        url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/classSearch/getTerms?searchTerm=&offset=1&max=1000"
-
-        request_done = False
-        while not request_done:
-            try:
-                response = get(url=url).content
-                loaded_response = loads(s=response)
-
-                index = 0
-                terms_number = 0
-                terms_dict = {}
-                finished = False
-
-                while (not finished) and (index < len(loaded_response) - 1):
-                    description = loaded_response[index]["description"]
-                    term_code = loaded_response[index]["code"]
-
-                    if not ("(View Only)" in description):
-                        terms_dict[description.replace("amp;", "")] = term_code
-                        terms_number += 1
-                    else:
-                        finished = True
-                    index += 1
-                if terms_number == 0:
-                    print_one_color_text(
-                        text_string="! Sorry, there is no terms available for registration.",
-                        color=AnsiColor.RED,
-                    )
-                    exit()
-                request_done = True
-            except ConnectionError:
-                if interface == "cli":
-                    print_one_color_text(
-                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
-                        text_color=AnsiColor.RED,
-                    )
-                    progress_bar(total_time=10)
-            except RequestException:
-                if interface == "cli":
-                    print_one_color_text(
-                        text_string="! Sorry, the website isn't working currently! the script will recheck in 60 seconds",
-                        text_color=AnsiColor.RED,
-                    )
-                    progress_bar(total_time=60)
-
-            if interface == "cli":
-                term_choice = Questions.dict_question(
-                    question=("Select the term has/have the course/courses"),
-                    choices=terms_dict,
-                )
-        return term_choice
-
-    def get_departments(interface: str, term: str) -> str:
-        url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/classSearch/get_subject?searchTerm=&term=&offset=1&max=1000".replace(
-            "term=", f"term={term}"
+        term, departments, source = KFUPM_registrar.get_registrar_terms_and_departments(
+            interface=interface
         )
 
-        request_done = False
-        while not request_done:
-            try:
-                response = get(url=url).content
-                loaded_response = loads(s=response)
+        return term, departments, source
 
-                index = 0
-                departments_number = 0
-                departments_dict = {}
-
-                while index < len(loaded_response) - 1:
-                    description = loaded_response[index]["description"]
-                    department_code = loaded_response[index]["code"]
-                    departments_dict[description.replace("amp;", "")] = department_code
-                    departments_number += 1
-                    index += 1
-
-                if departments_number == 0:
-                    print_one_color_text(
-                        text_string="! Sorry, there is no department available for registration.",
-                        color=AnsiColor.RED,
-                    )
-                    exit()
-                request_done = True
-            except ConnectionError:
-                if interface == "cli":
-                    print_one_color_text(
-                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
-                        text_color=AnsiColor.RED,
-                    )
-                    progress_bar(total_time=10)
-            except RequestException:
-                if interface == "cli":
-                    print_one_color_text(
-                        text_string="! Sorry, the website isn't working currently! the script will recheck in 60 seconds",
-                        text_color=AnsiColor.RED,
-                    )
-                    progress_bar(total_time=60)
-
-            if interface == "cli":
-                department_choices = Questions.mcq_dict_question(
-                    question=("Select the department has/have the course/courses"),
-                    choices=departments_dict,
-                )
-        return department_choices
-
-    def get_search_filter(interface: str, term: str, driver_path: str = None) -> dict:
+    def get_search_filter(interface: str, term: str, registration: bool) -> dict:
         """
         Ask user for what he want to search by each refresh.\n
-        return answer as `dict` type.
+        return answers as `dict` type.
         """
 
         min_crn = (int(term[-2])) * 10000
@@ -210,348 +185,303 @@ class KFUPM:
 
         filter_dictionary = {}
         if interface == "cli":
-            if driver_path != None:
-                registrar_answer = Questions.bool_question(
-                    question="Do you want to registrar course/courses", default=False
-                )
-
-                if registrar_answer == True:
-                    finished = False
-                    while not finished:
-                        crns_list = []
-                        crns_str = Questions.str_questoin(
-                            question="Enter CRN/CRNs you want to registrar (separated by spaces)"
-                        )
-                        for crn in crns_str.strip().split(" "):
-                            if crn.isdigit():
-                                if min_crn <= int(crn) <= max_crn:
-                                    crns_list.append(crn)
-                                    finished = True
-                                else:
-                                    print_more_color_text(
-                                        "! Sorry, your reply was invalid:",
-                                        AnsiColor.LIGHT_RED,
-                                        '"' + crn + '"',
-                                        AnsiStyle.BOLD,
-                                        "is out of range answer, please try again.",
-                                        AnsiColor.LIGHT_RED,
-                                    )
-                                    finished = False
-                                    break
+            if registration:
+                # TODO: repeated function
+                finished = False
+                while not finished:
+                    crns_list = []
+                    crns_str = Questions.str_questoin(
+                        question="Enter CRN/CRNs you want to registrar (separated by spaces)"
+                    )
+                    for crn in crns_str.strip().split(" "):
+                        if crn.isdigit():
+                            if min_crn <= int(crn) <= max_crn:
+                                crns_list.append(crn)
+                                finished = True
                             else:
                                 print_more_color_text(
                                     "! Sorry, your reply was invalid:",
                                     AnsiColor.LIGHT_RED,
                                     '"' + crn + '"',
                                     AnsiStyle.BOLD,
-                                    "is not a valid answer, please try again.",
+                                    "is out of range answer, please try again.",
                                     AnsiColor.LIGHT_RED,
                                 )
-                                finished = False
-                                break
+                        else:
+                            print_more_color_text(
+                                "! Sorry, your reply was invalid:",
+                                AnsiColor.LIGHT_RED,
+                                '"' + crn + '"',
+                                AnsiStyle.BOLD,
+                                "is not a valid answer, please try again.",
+                                AnsiColor.LIGHT_RED,
+                            )
 
-                    filter_dictionary["registrar"] = True
-                    filter_dictionary["crn"] = crns_list
-                    return filter_dictionary
-
-            search_by = Questions.mcq_list_question(
-                question="What filters you wany to check each refresh",
-                choices=[
-                    "Check `ALL` courses of the department",
-                    "Section/Sections",
-                    "Activity/Activities",
-                    "CRN/CRNs",
-                    "Course/Courses Name",
-                    "Instructor/Instructors",
-                    "Day/Days",
-                    "Time/Times",
-                    "Building/Buildings",
-                    "Status/Statuses",
-                    "Gender",
-                ],
-            )
-            if "Check `ALL` courses of the department" in search_by:
-                return None
+                filter_dictionary["crn"] = crns_list
             else:
-                for i in search_by:
-                    if i == "Section/Sections":
-                        finished = False
-                        while not finished:
-                            sections_list = []
-                            sections_str = Questions.str_questoin(
-                                question="Enter Section/Sections you want to check each refresh"
-                            )
+                alarm_answer = Questions.bool_question(
+                    question="Do you want to get notified if a section/sections is/are open",
+                    default=True,
+                )
+                filter_dictionary["alarm"] = alarm_answer
+                search_by = Questions.mcq_list_question(
+                    question="What filters you wany to check each refresh",
+                    choices=[
+                        "Check `ALL` courses of the department",
+                        "Section/Sections",
+                        "Activity/Activities",
+                        "CRN/CRNs",
+                        "Course/Courses Name",
+                        "Instructor/Instructors",
+                        "Day/Days",
+                        "Time/Times",
+                        "Building/Buildings",
+                        "Status/Statuses",
+                        "Gender",
+                    ],
+                )
 
-                            for section in sections_str.strip().split(" "):
-                                if section.isdigit():
-                                    sections_list.append("%02s" % section)
-                                    finished = True
-                                else:
-                                    print_more_color_text(
-                                        "! Sorry, your reply was invalid:",
-                                        AnsiColor.LIGHT_RED,
-                                        '"' + section + '"',
-                                        AnsiStyle.BOLD,
-                                        "is not a valid answer, please try again.",
-                                        AnsiColor.LIGHT_RED,
-                                    )
-                        filter_dictionary["section"] = sections_list
-                    elif i == "Activity/Activities":
-                        activities_str = Questions.mcq_list_question(
-                            question="Select type of activity you want to check each refresh",
-                            choices=[
-                                "COP",
-                                "DIS",
-                                "FLD",
-                                "IND",
-                                "LAB",
-                                "LLB",
-                                "LEC",
-                                "MR",
-                                "PRJ",
-                                "RES",
-                                "SEM",
-                                "SLB",
-                                "ST",
-                                "STD",
-                                "THS",
-                            ],
-                        )
-                        if len(activities_str) != 15:
-                            filter_dictionary["activity"] = activities_str
-                    elif i == "CRN/CRNs":
-                        # TODO: repeated function
-                        finished = False
-                        while not finished:
-                            crns_list = []
-                            crns_str = Questions.str_questoin(
-                                question="Enter CRN/CRNs you want to registrar (separated by spaces)"
-                            )
-                            for crn in crns_str.strip().split(" "):
-                                if crn.isdigit():
-                                    if min_crn <= int(crn) <= max_crn:
-                                        crns_list.append(crn)
+                if "Check `ALL` courses of the department" in search_by:
+                    return None
+                else:
+                    for index in search_by:
+                        if index == "Section/Sections":
+                            finished = False
+                            while not finished:
+                                sections_list = []
+                                sections_str = Questions.str_questoin(
+                                    question="Enter Section/Sections you want to check each refresh"
+                                )
+
+                                for section in sections_str.strip().split(" "):
+                                    if section.isdigit():
+                                        sections_list.append("%02s" % section)
                                         finished = True
+                                    else:
+                                        print_more_color_text(
+                                            "! Sorry, your reply was invalid:",
+                                            AnsiColor.LIGHT_RED,
+                                            '"' + section + '"',
+                                            AnsiStyle.BOLD,
+                                            "is not a valid answer, please try again.",
+                                            AnsiColor.LIGHT_RED,
+                                        )
+                            filter_dictionary["section"] = sections_list
+                        elif index == "Activity/Activities":
+                            activities_str = Questions.mcq_list_question(
+                                question="Select type of activity you want to check each refresh",
+                                choices=[
+                                    "COP",
+                                    "DIS",
+                                    "FLD",
+                                    "IND",
+                                    "LAB",
+                                    "LLB",
+                                    "LEC",
+                                    "MR",
+                                    "PRJ",
+                                    "RES",
+                                    "SEM",
+                                    "SLB",
+                                    "ST",
+                                    "STD",
+                                    "THS",
+                                ],
+                            )
+                            if len(activities_str) != 15:
+                                filter_dictionary["activity"] = activities_str
+                        elif index == "CRN/CRNs":
+                            # TODO: repeated function
+                            finished = False
+                            while not finished:
+                                crns_list = []
+                                crns_str = Questions.str_questoin(
+                                    question="Enter CRN/CRNs you want to registrar (separated by spaces)"
+                                )
+                                for crn in crns_str.strip().split(" "):
+                                    if crn.isdigit():
+                                        if min_crn <= int(crn) <= max_crn:
+                                            crns_list.append(crn)
+                                            finished = True
+                                        else:
+                                            print_more_color_text(
+                                                "! Sorry, your reply was invalid:",
+                                                AnsiColor.LIGHT_RED,
+                                                '"' + crn + '"',
+                                                AnsiStyle.BOLD,
+                                                "is out of range answer, please try again.",
+                                                AnsiColor.LIGHT_RED,
+                                            )
                                     else:
                                         print_more_color_text(
                                             "! Sorry, your reply was invalid:",
                                             AnsiColor.LIGHT_RED,
                                             '"' + crn + '"',
                                             AnsiStyle.BOLD,
-                                            "is out of range answer, please try again.",
+                                            "is not a valid answer, please try again.",
                                             AnsiColor.LIGHT_RED,
                                         )
-                                else:
-                                    print_more_color_text(
-                                        "! Sorry, your reply was invalid:",
-                                        AnsiColor.LIGHT_RED,
-                                        '"' + crn + '"',
-                                        AnsiStyle.BOLD,
-                                        "is not a valid answer, please try again.",
-                                        AnsiColor.LIGHT_RED,
-                                    )
 
-                        filter_dictionary["crn"] = crns_list
-                    elif i == "Course/Courses Name":
-                        correct_answer = False
-                        while not correct_answer:
-                            course_names_list = []
-                            courses_names_str = Questions.str_questoin(
-                                question="Enter Course/Courses Name you want to check each refresh"
-                            )
-                            for index, element in enumerate(
-                                courses_names_str.split(" ")
-                            ):
-                                if ((element.isalpha()) and (index % 2 == 1)) or (
-                                    (element.isdigit()) and (index % 2 == 0)
+                            filter_dictionary["crn"] = crns_list
+                        elif index == "Course/Courses Name":
+                            correct_answer = False
+                            while not correct_answer:
+                                course_names_list = []
+                                courses_names_str = Questions.str_questoin(
+                                    question="Enter Course/Courses Name you want to check each refresh"
+                                )
+                                for index, element in enumerate(
+                                    courses_names_str.split(" ")
                                 ):
-                                    print_more_color_text(
-                                        "! Sorry, your reply was invalid:",
-                                        AnsiColor.LIGHT_RED,
-                                        '"' + crn + '"',
-                                        AnsiStyle.BOLD,
-                                        "is not a valid answer, please try again.",
-                                        AnsiColor.LIGHT_RED,
-                                    )
-                                    break
-                                else:
-                                    if (element.isalpha()) and (index % 2 == 0):
-                                        course = element
-                                        index += 1
-                                    elif (element.isdigit()) and (index % 2 == 1):
-                                        course += element
-                                        course_names_list.append(course.upper())
-                                        index += 1
-                                    elif element.isalnum():
-                                        course_names_list.append(element.upper())
-                                        index += 2
-                                    correct_answer = True
+                                    if ((element.isalpha()) and (index % 2 == 1)) or (
+                                        (element.isdigit()) and (index % 2 == 0)
+                                    ):
+                                        print_more_color_text(
+                                            "! Sorry, your reply was invalid:",
+                                            AnsiColor.LIGHT_RED,
+                                            '"' + crn + '"',
+                                            AnsiStyle.BOLD,
+                                            "is not a valid answer, please try again.",
+                                            AnsiColor.LIGHT_RED,
+                                        )
+                                        break
+                                    else:
+                                        if (element.isalpha()) and (index % 2 == 0):
+                                            course = element
+                                            index += 1
+                                        elif (element.isdigit()) and (index % 2 == 1):
+                                            course += element
+                                            course_names_list.append(course.upper())
+                                            index += 1
+                                        elif element.isalnum():
+                                            course_names_list.append(element.upper())
+                                            index += 2
+                                        correct_answer = True
 
-                            AnsiCursor.restore_position()
-                            AnsiErase.erase_line_to_end()
+                                AnsiCursor.restore_position()
+                                AnsiErase.erase_line_to_end()
+                                print_one_color_text(
+                                    text_string=" ".join(course_names_list).upper(),
+                                    text_color=AnsiColor.LIGHT_BLUE,
+                                )
+                            filter_dictionary["course_number"] = course_names_list
+                        elif index == "Instructor/Instructors":
                             print_one_color_text(
-                                text_string=" ".join(course_names_list).upper(),
-                                text_color=AnsiColor.LIGHT_BLUE,
+                                text_string="! Sorry, Currently the instructors filter is not supported!",
+                                text_color=AnsiColor.RED,
                             )
-                        filter_dictionary["course_number"] = course_names_list
-                    elif i == "Instructor/Instructors":
-                        print_one_color_text(
-                            text_string="Currently the instructors filter is not supported!",
-                            text_color=AnsiColor.RED,
-                        )
-                    # TODO: edit instructor chioce
-                    #     colorful_text(text_string="e.g. ABDULRAHMAN AL-ARFAJ; MOHAMMAD SIDDIQUI", text_color=AnsiEscapeCodes.BRIGHT_CYAN)
-                    #     instructors_list = Questions.str_questoin("Enter Instructor/Instructor you want to check each refresh (type the full name of instructor, each instructor separate with ;)")
-                    #     filter_dictionary["instructor_name"] = instructors_list.split(";")
-                    elif i == "Day/Days":
-                        days_list = Questions.mcq_dict_question(
-                            question="Select the Day/Days Course/Courses occurs",
-                            choices={
-                                "U, Sunday": "U",
-                                "M, Monday": "M",
-                                "T, Tuesday": "T",
-                                "W, Wednesday": "W",
-                                "R, Thursday": "R",
-                                "F, Friday": "F",
-                                "S, Saturday": "S",
-                            },
-                        )
-                        if len(days_list) != 7:
-                            filter_dictionary["class_days"] = days_list
-                    elif i == "Time/Times":
-                        print_one_color_text(
-                            text_string="Currently the time filter is not supported!",
-                            text_color=AnsiColor.RED,
-                        )
-                    # TODO edit time chioce
-                    #     colorful_text(text_string="e.g. 0800-1050 1300-1350", text_color=cli_colors.BRIGHT_CYAN)
-                    #     times_str = Questions.str_questoin("Enter Time/Times you want to check each refresh")
-                    #     filter_dictionary["course_number"] = times_str.split(" ")
-                    elif i == "Building/Buildings":
-                        correct_answer = False
-                        while not correct_answer:
-                            buildings_list = []
-                            buildings_str = Questions.str_questoin(
-                                question="Enter Building/Buildings you want to check each refresh"
+                            # TODO: edit instructor chioce
+                            #     colorful_text(text_string="e.g. ABDULRAHMAN AL-ARFAJ; MOHAMMAD SIDDIQUI", text_color=AnsiEscapeCodes.BRIGHT_CYAN)
+                            #     instructors_list = Questions.str_questoin("Enter Instructor/Instructor you want to check each refresh (type the full name of instructor, each instructor separate with ;)")
+                            #     filter_dictionary["instructor_name"] = instructors_list.split(";")
+                        elif index == "Day/Days":
+                            print_one_color_text(
+                                text_string="! Sorry, Currently the day filter is not supported!",
+                                text_color=AnsiColor.RED,
                             )
-                            for building in buildings_str.strip().split(" "):
-                                if building.isdigit():
-                                    buildings_list.append(building)
-                                    correct_answer = True
-                                else:
-                                    print_more_color_text(
-                                        "! Sorry, your reply was invalid:",
-                                        AnsiColor.LIGHT_RED,
-                                        '"' + crn + '"',
-                                        AnsiStyle.BOLD,
-                                        "is not a valid answer, please try again.",
-                                        AnsiColor.LIGHT_RED,
-                                    )
-                                    break
+                            # TODO: edit day chioce
+                            # days_list = Questions.mcq_dict_question(
+                            #     question="Select the Day/Days Course/Courses occurs",
+                            #     choices={
+                            #         "U, Sunday": "U",
+                            #         "M, Monday": "M",
+                            #         "T, Tuesday": "T",
+                            #         "W, Wednesday": "W",
+                            #         "R, Thursday": "R",
+                            #         "F, Friday": "F",
+                            #         "S, Saturday": "S",
+                            #     },
+                            # )
+                            # if len(days_list) != 7:
+                            #     filter_dictionary["class_days"] = days_list
+                        elif index == "Time/Times":
+                            # TODO: edit time choice
+                            print_one_color_text(
+                                text_string="! Sorry, Currently the time filter is not supported!",
+                                text_color=AnsiColor.RED,
+                            )
+                            #     colorful_text(text_string="e.g. 0800-1050 1300-1350", text_color=cli_colors.BRIGHT_CYAN)
+                            #     times_str = Questions.str_questoin("Enter Time/Times you want to check each refresh")
+                            #     filter_dictionary["course_number"] = times_str.split(" ")
+                        elif index == "Building/Buildings":
+                            correct_answer = False
+                            while not correct_answer:
+                                buildings_list = []
+                                buildings_str = Questions.str_questoin(
+                                    question="Enter Building/Buildings you want to check each refresh"
+                                )
+                                for building in buildings_str.strip().split(" "):
+                                    if building.isdigit():
+                                        buildings_list.append(building)
+                                        correct_answer = True
+                                    else:
+                                        print_more_color_text(
+                                            "! Sorry, your reply was invalid:",
+                                            AnsiColor.LIGHT_RED,
+                                            '"' + crn + '"',
+                                            AnsiStyle.BOLD,
+                                            "is not a valid answer, please try again.",
+                                            AnsiColor.LIGHT_RED,
+                                        )
+                                        break
 
-                        filter_dictionary["building"] = buildings_list
-                    elif i == "Status/Statuses":
-                        status_list = Questions.mcq_list_question(
-                            question="Select status of course/courses",
-                            choices=["Open", "Wait list"],
-                        )
-                        if status_list != 2:
-                            filter_dictionary["status"] = status_list[0]
-                    elif i == "Gender":
-                        genders_list = Questions.mcq_dict_question(
-                            question="Select the gender of course/courses meant to have",
-                            choices={"Male": "M", "Female": "F"},
-                        )
-                        if genders_list != 2:
-                            filter_dictionary["gender"] = genders_list[0]
-            filter_dictionary["registrar"] = False
+                            filter_dictionary["building"] = buildings_list
+                        elif index == "Status/Statuses":
+                            status_list = Questions.mcq_list_question(
+                                question="Select status of course/courses",
+                                choices=["Open", "Wait list"],
+                            )
+                            if status_list != 2:
+                                filter_dictionary["status"] = status_list[0]
+                        elif index == "Gender":
+                            genders_list = Questions.mcq_dict_question(
+                                question="Select the gender of course/courses meant to have",
+                                choices={"Male": "M", "Female": "F"},
+                            )
+                            if genders_list != 2:
+                                filter_dictionary["gender"] = genders_list[0]
+
+        filter_dictionary["registrar"] = registration
         return filter_dictionary
 
-    def get_banner9_courses(term: str, departments: list) -> list:
-        """
-        Do a get and post requests to get content.\n
-        Return the content as a `dict` type.
-        """
-
-        session_client = session()
-
-        request_cookies = session_client.get(
-            url="https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/term/termSelection?mode=search"
+    def get_courses(term: str, departments: list, interface: str) -> list:
+        courses, source = KFUPM_registrar.get_registrar_coures(
+            term=term, departments=departments, interface=interface
         )
-        session_id = dict(request_cookies.cookies)["JSESSIONID"]
-        post(
-            url="https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/term/search?mode=search",
-            cookies={"JSESSIONID": session_id},
-            data={"term": term},
-        )
-        departments = ",".join(departments)
 
-        courses = []
-        page_off_set = 0
-        number_of_pages = 0
-        while page_off_set <= number_of_pages:
-            url = f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_term={term}&txt_subject={departments}&pageOffset={page_off_set*500}&pageMaxSize=500"
-            response = get(
-                url=url,
-                cookies={"JSESSIONID": session_id},
-            )
-            loaded_response = loads(s=response.text)
-            courses += loaded_response["data"]
-            page_off_set += 1
-            if number_of_pages == 0:
-                number_of_pages = int(loaded_response["sectionsFetchedCount"] / 500)
-        return courses
+        return courses, source
 
-    def check_for_changes(content: list, searsh_filter: dict, configs_file: str) -> bool:
+    def check_for_changes(
+        content: list, search_filter: dict, interface: str, source: str, alarm_path: str
+    ) -> bool:
         """
         Checks if there is available seats in courses.\n
-        after checking, return `bool` type.
+        return `bool` type.
         """
 
-        if searsh_filter == None:
-            course_name_length = 0
-            course_type_length = 0
-            course_available_seats = 0
-            course_waiting_list = 0
+        courses_strucured = KFUPM.get_courses_structured(
+            courses_requested=content, source=source
+        )
 
-            found_elements = list(
-                filter(
-                    lambda x: int(x["seatsAvailable"]) > 0
-                    or int(x["waitAvailable"]) > 0,
-                    content,
-                )
-            )
-            if configs_file["interface"] == "cli":
-                for element in found_elements:
-                    crn = element["courseReferenceNumber"]
-                    course_name = element["subjectCourse"].replace(" ", "")
-                    section = element["sequenceNumber"]
-                    available_seats = element["seatsAvailable"]
-                    waiting_list_count = element["waitAvailable"]
-                    class_type = element["meetingsFaculty"][0]["meetingTime"][
-                        "meetingScheduleType"
-                    ]
+        max_lengths = {}
+        for element in courses_strucured:
+            for key, value in element.items():
+                max_lengths[key] = max(max_lengths.get(key, 0), len(str(value)))
 
-                    course_name_length = max(
-                        len(f"{course_name}-{section}"), course_name_length
-                    )
-                    course_type_length = max(len(class_type), course_type_length)
-                    course_available_seats = max(
-                        len(str(available_seats)), course_available_seats
-                    )
-                    course_waiting_list = max(
-                        len(str(waiting_list_count)), course_waiting_list
-                    )
+        course_name_length = max_lengths["course_name"] + max_lengths["section"] + 1
+        course_type_length = max_lengths["class_type"]
+        course_available_seats = max_lengths["available_seats"]
+        course_waiting_list = max_lengths["waiting_list_count"]
 
-                for index, element in enumerate(found_elements):
-                    crn = element["courseReferenceNumber"]
-                    course_name = element["subjectCourse"].replace(" ", "")
-                    section = element["sequenceNumber"]
-                    available_seats = element["seatsAvailable"]
-                    waiting_list_count = element["waitAvailable"]
-                    class_type = element["meetingsFaculty"][0]["meetingTime"][
-                        "meetingScheduleType"
-                    ]
+        if search_filter == None:
+            if interface == "cli":
+                for index, element in enumerate(courses_strucured):
+                    crn = element["crn"]
+                    course_name = element["course_name"]
+                    section = element["section"]
+                    available_seats = element["available_seats"]
+                    waiting_list_count = element["waiting_list_count"]
+                    class_type = element["class_type"]
 
                     if available_seats > 0:
                         color = AnsiColor.LIGHT_GREEN
@@ -584,124 +514,96 @@ class KFUPM:
                         else AnsiColor.LIGHT_MAGENTA,
                     )
         else:
-            found_elements = filter(
-                lambda x: int(x["seatsAvailable"]) > 0 or int(x["waitAvailable"]) > 0,
-                content,
-            )
-            if configs_file["interface"] == "cli":
-                for i in searsh_filter:
-                    if i == "section":
-                        found_elements = list(
+            if interface == "cli":
+                for index in search_filter:
+                    if index == "section":
+                        courses_strucured = list(
                             filter(
-                                lambda x: x["sequenceNumber"]
-                                in searsh_filter["section"],
-                                found_elements,
+                                lambda x: x["section"],
+                                courses_strucured,
                             )
                         )
-                    elif i == "activity":
-                        found_elements = list(
+                    elif index == "activity":
+                        courses_strucured = list(
                             filter(
-                                lambda x: x["meetingsFaculty"][0]["meetingTime"][
-                                    "meetingScheduleType"
-                                ]
-                                in searsh_filter["activity"],
-                                found_elements,
+                                lambda x: x["class_type"],
+                                courses_strucured,
                             )
                         )
-                    elif i == "crn":
-                        found_elements = list(
+                    elif index == "crn":
+                        courses_strucured = list(
                             filter(
-                                lambda x: x["courseReferenceNumber"]
-                                in searsh_filter["crn"],
-                                found_elements,
+                                lambda x: x["crn"],
+                                courses_strucured,
                             )
                         )
-                    elif i == "course_number":
-                        found_elements = list(
+                    elif index == "course_number":
+                        courses_strucured = list(
                             filter(
-                                lambda x: x["subjectCourse"].replace(" ", "")
-                                in searsh_filter["course_number"],
-                                found_elements,
+                                lambda x: x["course_number"],
+                                courses_strucured,
                             )
                         )
-                    elif i == "instructor_name":
-                        found_elements = list(
-                            filter(
-                                lambda x: x["faculty"][0]["displayName"]
-                                in searsh_filter["instructor_name"],
-                                found_elements,
-                            )
+                    elif index == "instructor_name":
+                        print_one_color_text(
+                            text_string="! Sorry, Currently the instructors filter is not supported!",
+                            text_color=AnsiColor.RED,
                         )
-                    # TODO: edit day choice
-                    # elif (i == "class_days"):
-                    #     found_elements = list(filter(lambda x: x["class_days"] in search_input["class_days"], found_elements))
-                    # TODO: edit time chioce
-                    # elif (i == "time"):
-                    #     (filter(lambda x: x["building"] in search_user_input["building"], found_elements))
-                    elif i == "building":
-                        found_elements = list(
-                            filter(
-                                lambda x: x["meetingsFaculty"][0]["meetingTime"][
-                                    "building"
-                                ]
-                                in searsh_filter["building"],
-                                found_elements,
-                            )
+                        # TODO: edit instructor name
+                    elif index == "class_days":
+                        print_one_color_text(
+                            text_string="! Sorry, Currently the day filter is not supported!",
+                            text_color=AnsiColor.RED,
                         )
-                    elif i == "status":
-                        if searsh_filter["status"] == "Open":
-                            found_elements = list(
+                        # TODO: edit day choice
+                    elif index == "time":
+                        print_one_color_text(
+                            text_string="! Sorry, Currently the time filter is not supported!",
+                            text_color=AnsiColor.RED,
+                        )
+                        # TODO: edit time chioce
+                    elif index == "building":
+                        # TODO: edit days chioce
+                        print_one_color_text(
+                            text_string="! Sorry, Currently the building filter is not supported!",
+                            text_color=AnsiColor.RED,
+                        )
+                    elif index == "status":
+                        if search_filter["status"] == "Open":
+                            courses_strucured = list(
                                 filter(
-                                    lambda x: x["seatsAvailable"] > 0, found_elements
+                                    lambda x: x["available_seats"] > 0,
+                                    courses_strucured,
                                 )
                             )
                         else:
-                            found_elements = list(
+                            courses_strucured = list(
                                 filter(
-                                    lambda x: x["waitAvailable"] > 0
-                                    and x["seatsAvailable"] <= 0,
-                                    found_elements,
+                                    lambda x: x["waiting_list_count"] > 0
+                                    and x["available_seats"] <= 0,
+                                    courses_strucured,
                                 )
                             )
-                    elif i == "gender":
-                        found_elements = list(
+                    elif index == "gender":
+                        courses_strucured = list(
                             filter(
-                                lambda x: "F" in x["sequenceNumber"]
-                                if searsh_filter["gender"] == "F"
-                                else "F" not in x["section_number"],
-                                found_elements,
+                                lambda x: "F" in x["section"]
+                                if search_filter["gender"] == "F"
+                                else "F" not in x["section"],
+                                courses_strucured,
                             )
                         )
-                for element in found_elements:
-                    crn = element["courseReferenceNumber"]
-                    course_name = element["subjectCourse"].replace(" ", "")
-                    section = element["sequenceNumber"]
-                    available_seats = element["seatsAvailable"]
-                    waiting_list_count = element["waitAvailable"]
-                    class_type = element["meetingsFaculty"][0]["meetingTime"][
-                        "meetingScheduleType"
-                    ]
 
-                    course_name_length = max(
-                        len(f"{course_name}-{section}"), course_name_length
-                    )
-                    course_type_length = max(len(class_type), course_type_length)
-                    course_available_seats = max(
-                        len(str(available_seats)), course_available_seats
-                    )
-                    course_waiting_list = max(
-                        len(str(waiting_list_count)), course_waiting_list
-                    )
+                do_alarm = False
+                for index, element in enumerate(courses_strucured):
+                    do_alarm = True
 
-                for index, element in enumerate(found_elements):
-                    crn = element["courseReferenceNumber"]
-                    course_name = element["subjectCourse"].replace(" ", "")
-                    section = element["sequenceNumber"]
-                    available_seats = element["seatsAvailable"]
-                    waiting_list_count = element["waitAvailable"]
-                    class_type = element["meetingsFaculty"][0]["meetingTime"][
-                        "meetingScheduleType"
-                    ]
+                    crn = element["crn"]
+                    course_name = element["course_name"]
+                    section = element["section"]
+                    available_seats = element["available_seats"]
+                    waiting_list_count = element["waiting_list_count"]
+                    class_type = element["class_type"]
 
                     if available_seats > 0:
                         color = AnsiColor.LIGHT_GREEN
@@ -733,4 +635,360 @@ class KFUPM:
                         if index % 2 == 0
                         else AnsiColor.LIGHT_MAGENTA,
                     )
+            if do_alarm:
+                playsound(sound=alarm_path)
         return False
+
+    def get_courses_structured(courses_requested: list, source: str) -> list:
+        if source == "registrar":
+            structured_courses = KFUPM_registrar.get_registrar_courses_structured(
+                courses_requested=courses_requested
+            )
+        else:
+            structured_courses = KFUPM_banner9.get_banner9_courses_structured(
+                courses_requested=courses_requested
+            )
+
+        return structured_courses
+
+
+class KFUPM_banner9:
+    def get_banner9_terms_and_departments(interface: str) -> tuple[str | list]:
+        term = KFUPM_banner9.get_banner9_terms(interface=interface)
+        departments = KFUPM_banner9.get_banner9_departments(
+            term=term, interface=interface
+        )
+
+        return term, departments
+
+    def get_banner9_terms(interface: str) -> str:
+        request_done = False
+        url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/classSearch/getTerms?searchTerm=&offset=1&max=1000"
+
+        while not request_done:
+            try:
+                response = get(url=url).content
+                loaded_response = loads(s=response)
+
+                index = 0
+                terms_dict = {}
+                finished = False
+
+                while (not finished) and (index < len(loaded_response) - 1):
+                    term_code = loaded_response[index]["code"]
+                    description = loaded_response[index]["description"]
+
+                    if not ("(View Only)" in description):
+                        terms_dict[description.replace("amp;", "")] = term_code
+                    else:
+                        finished = True
+                    index += 1
+
+                if len(terms_dict) == 0:
+                    print_one_color_text(
+                        text_string="! Sorry, there isn't any terms available for registration.",
+                        color=AnsiColor.RED,
+                    )
+                    exit()
+                request_done = True
+            except ConnectionError:
+                if interface == "cli":
+                    print_one_color_text(
+                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
+                        text_color=AnsiColor.RED,
+                    )
+                    progress_bar(total_time=10)
+
+            sorted_terms_dict = dict(
+                sorted(terms_dict.items(), key=lambda x: x[1], reverse=True)
+            )
+            if interface == "cli":
+                term_choice = Questions.dict_question(
+                    question=("Select the term has/have the course/courses"),
+                    choices=sorted_terms_dict,
+                )
+        return term_choice
+
+    def get_banner9_departments(term: str, interface: str) -> list:
+        url = (
+            "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/classSearch/get_subject?searchTerm=&term=%s&offset=1&max=1000"
+            % term
+        )
+
+        request_done = False
+        while not request_done:
+            try:
+                response = get(url=url).content
+                loaded_response = loads(s=response)
+
+                index = 0
+                departments_dict = {}
+
+                while index < len(loaded_response) - 1:
+                    department_code = loaded_response[index]["code"]
+                    description = loaded_response[index]["description"]
+                    departments_dict[description.replace("amp;", "")] = department_code
+                    index += 1
+
+                if len(departments_dict) == 0:
+                    print_one_color_text(
+                        text_string="! Sorry, there is no department available for registration.",
+                        color=AnsiColor.RED,
+                    )
+                    exit()
+                request_done = True
+            except ConnectionError:
+                if interface == "cli":
+                    print_one_color_text(
+                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
+                        text_color=AnsiColor.RED,
+                    )
+                    progress_bar(total_time=10)
+
+            if interface == "cli":
+                departments_choices = Questions.mcq_dict_question(
+                    question=("Select the department has/have the course/courses"),
+                    choices=departments_dict,
+                )
+                departments_list = []
+                for department in departments_choices:
+                    if BANNER_CHIOCES[department] != None:
+                        departments_list.append(BANNER_CHIOCES[department])
+
+        return departments_list
+
+    def get_banner9_courses(term: str, departments: list) -> list:
+        """
+        Do a get and post requests to get content.\n
+        Return the content as a `dict` type.
+        """
+
+        url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/term/search?mode=search"
+        session_client = session()
+        request_cookies = session_client.get(url=url)
+        session_id = dict(request_cookies.cookies)["JSESSIONID"]
+        post(
+            url=url,
+            cookies={"JSESSIONID": session_id},
+            data={"term": term},
+        )
+
+        departments_list = []
+        for department in departments:
+            if department in REGISTRER_CHIOCES:
+                departments_list.append(REGISTRER_CHIOCES[department])
+        departments_list = ",".join(departments_list)
+
+        courses = []
+        page_off_set = 0
+        number_of_pages = 0
+        while page_off_set <= number_of_pages:
+            url = f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_term={term}&txt_subject={departments_list}&pageOffset={page_off_set*500}&pageMaxSize=500"
+            response = get(
+                url=url,
+                cookies={"JSESSIONID": session_id},
+            )
+
+            loaded_response = loads(s=response.text)
+            courses += loaded_response["data"]
+            page_off_set += 1
+            if number_of_pages == 0:
+                number_of_pages = int(loaded_response["sectionsFetchedCount"] / 500)
+        return courses
+
+    def get_banner9_courses_structured(courses_requested: list) -> list:
+        found_elements = list(
+            filter(
+                lambda x: int(x["seatsAvailable"]) > 0 or int(x["waitAvailable"]) > 0
+            ),
+            courses_requested,
+        )
+
+        courses_structured = []
+        for element in found_elements:
+            course_dict = {}
+            course_dict["crn"] = element["courseReferenceNumber"]
+            course_dict["course_name"] = element["subjectCourse"].replace(" ", "")
+            course_dict["section"] = element["sequenceNumber"]
+            course_dict["available_seats"] = int(element["seatsAvailable"])
+            course_dict["waiting_list_count"] = int(element["waitAvailable"])
+            course_dict["class_type"] = element["meetingsFaculty"][0]["meetingTime"][
+                "meetingScheduleType"
+            ]
+            course_dict["class_days"] = [
+                day[0].upper()
+                for day in DAYS
+                if element["meetingsFaculty"][0]["meetingTime"][day]
+            ]
+            course_dict["start_time"] = element["meetingsFaculty"][0]["meetingTime"][
+                "beginTime"
+            ]
+            course_dict["end_time"] = element["meetingsFaculty"][0]["meetingTime"][
+                "endTime"
+            ]
+            course_dict["building"] = element["meetingsFaculty"][0]["meetingTime"][
+                "building"
+            ]
+            course_dict["room"] = element["meetingsFaculty"][0]["meetingTime"]["room"]
+            course_dict["instructor_name"] = element["faculty"][0]["displayName"]
+
+            courses_structured.append(course_dict)
+        return courses_structured
+
+
+class KFUPM_registrar:
+    def get_registrar_terms_and_departments(interface: str) -> tuple[str | list]:
+        finished = False
+        banner9 = False
+        url = "https://registrar.kfupm.edu.sa/courses-classes/course-offering1/"
+
+        while not finished:
+            try:
+                response = get(url=url, timeout=10).text
+                if "Under Maintenance" in response:
+                    banner9 = True
+                finished = True
+            except ConnectionError:
+                if interface == "cli":
+                    print_one_color_text(
+                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
+                        text_color=AnsiColor.RED,
+                    )
+                    progress_bar(10)
+            except Timeout:
+                banner9 = True
+                finished = True
+
+        if banner9:
+            term, departments = KFUPM_banner9.get_banner9_terms_and_departments(
+                interface=interface
+            )
+            source = "banner9"
+        else:
+            soup = BeautifulSoup(markup=response, features="html.parser")
+            term = KFUPM_registrar.get_registrar_terms(soup=soup)
+            departments = KFUPM_registrar.get_registrar_departments(soup=soup)
+            source = "registrar"
+
+        return term, departments, source
+
+    def get_registrar_terms(soup: BeautifulSoup) -> str:
+        terms_element = soup.find(id="course_term_code")
+        options = terms_element.find_all("option")[1:]
+
+        dict_elements = {}
+        for option in options:
+            dict_elements[option.text] = option["value"]
+
+        term = Questions.dict_question(
+            question="Select the term has/have the course/courses",
+            choices=dict(
+                sorted(dict_elements.items(), key=lambda x: x[1], reverse=True)
+            ),
+        )
+        return term
+
+    def get_registrar_departments(soup: BeautifulSoup) -> list:
+        departments_element = soup.find(id="course_dept_code")
+        options = departments_element.find_all("option")[1:]
+
+        dict_elements = {}
+        for option in options:
+            dict_elements[option.text] = option["value"]
+
+        departments = Questions.mcq_dict_question(
+            question="Select the department has/have the course/courses",
+            choices=dict_elements,
+        )
+        return departments
+
+    def get_registrar_coures(term: str, departments: list, interface: str) -> list:
+        courses = []
+        for department in departments:
+            request_finished = False
+            url = (
+                "https://registrar.kfupm.edu.sa/api/course-offering?term_code=%s&department_code=%s"
+                % (term, department)
+            )
+
+            while not request_finished:
+                try:
+                    response = get(url=url, timeout=10).text
+                    request_finished = True
+                except ConnectionError:
+                    if interface == "cli":
+                        print_one_color_text(
+                            text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
+                            text_color=AnsiColor.RED,
+                        )
+                        progress_bar(10)
+                except Timeout:
+                    courses = KFUPM_banner9.get_banner9_courses(
+                        term=term, departments=departments
+                    )
+                    return courses, "banner9"
+                except RequestException:
+                    if interface == "cli":
+                        print_one_color_text(
+                            text_string="! Sorry, the website isn't working currently! the script will recheck in 60 seconds",
+                            text_color=AnsiColor.RED,
+                        )
+                        progress_bar(60)
+
+            courses += loads(s=response)["data"]
+        return courses, "registrar"
+
+    def get_registrar_courses_structured(courses_requested: list) -> list:
+        found_elements = list(
+            filter(
+                lambda x: x["available_seats"] > 0 or x["waiting_list_count"] > 0,
+                courses_requested,
+            )
+        )
+
+        courses_structured = []
+        for element in found_elements:
+            course_dict = {}
+            course_dict["crn"] = element["crn"]
+            course_dict["course_name"] = element["course_number"].replace(" ", "")
+            course_dict["section"] = element["section_number"]
+            course_dict["available_seats"] = element["available_seats"]
+            course_dict["waiting_list_count"] = element["waiting_list_count"]
+            course_dict["class_type"] = element["class_type"]
+            course_dict["class_days"] = ["class_days"]
+            course_dict["start_time"] = element["start_time"]
+            course_dict["end_time"] = element["end_time"]
+            course_dict["building"] = element["building"]
+            course_dict["room"] = element["room"]
+            course_dict["instructor_name"] = element["instructor_name"]
+
+            courses_structured.append(course_dict)
+        return courses_structured
+
+    """
+    # def get_schedule(username: str, passcode: str, term: str):
+    #     url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/registrationHistory"
+    #     session_client = session()
+    #     request_cookies = session_client.get(url=url)
+    #     session_id = dict(request_cookies.cookies)["JSESSIONID"]
+
+    #     request_url = request_cookies.url
+    #     session_data_key = request_url.split("&")[6].split("=")[1]
+
+    #     post(
+    #         url=request_url,
+    #         data={
+    #             "usernameUserInput": username,
+    #             "username:": username + "@carbon.super",
+    #             "password": passcode,
+    #             "chkRemember": "on",
+    #             "sessionDataKey": session_data_key,
+    #         },
+    #         cookies={"JSESSIONID": session_id},
+    #     )
+
+    #     tt = get(
+    #         url=f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/reset?term={term}"
+    #     )
+    #     print(tt.text)
+    """
