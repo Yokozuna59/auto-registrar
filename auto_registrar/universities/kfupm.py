@@ -12,15 +12,15 @@ from auto_registrar.tui.colored_text import print_more_color_text, print_one_col
 from auto_registrar.tui.ansi import AnsiColor, AnsiCursor, AnsiErase, AnsiStyle
 from auto_registrar.tui.bar import progress_bar
 
-DAYS = [
-    "sunday",
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday",
-]
+DAYS = {
+    "sunday": "U",
+    "monday": "M",
+    "tuesday": "T",
+    "wednesday": "W",
+    "thursday": "R",
+    "friday": "F",
+    "saturday": "S",
+}
 
 BANNER_CHIOCES = {
     "ACCT": "ACFN",
@@ -383,7 +383,7 @@ class KFUPM:
                                     text_string=" ".join(course_names_list).upper(),
                                     text_color=AnsiColor.LIGHT_BLUE,
                                 )
-                            filter_dictionary["course_number"] = course_names_list
+                            filter_dictionary["course_name"] = course_names_list
                         elif index == "Instructor/Instructors":
                             print_one_color_text(
                                 text_string="! Sorry, Currently the instructors filter is not supported!",
@@ -530,6 +530,7 @@ class KFUPM:
                     )
         else:
             if interface == "cli":
+                alarm_filter = search_filter.pop("alarm")
                 for index in search_filter:
                     if index == "section":
                         courses_strucured = list(
@@ -609,9 +610,9 @@ class KFUPM:
                             )
                         )
 
-                do_alarm = False
+                alarm_condition = False
                 for index, element in enumerate(courses_strucured):
-                    do_alarm = True
+                    alarm_condition = True
 
                     crn = element["crn"]
                     course_name = element["course_name"]
@@ -650,7 +651,7 @@ class KFUPM:
                         if index % 2 == 0
                         else AnsiColor.LIGHT_MAGENTA,
                     )
-            if do_alarm:
+            if alarm_condition and alarm_filter:
                 playsound(sound=alarm_path)
         return False
 
@@ -832,11 +833,13 @@ class KFUPM_banner9:
             course_dict["class_type"] = element["meetingsFaculty"][0]["meetingTime"][
                 "meetingScheduleType"
             ]
-            course_dict["class_days"] = [
-                day[0].upper()
-                for day in DAYS
-                if element["meetingsFaculty"][0]["meetingTime"][day]
-            ]
+            course_dict["class_days"] = "".join(
+                [
+                    DAYS[day]
+                    for day in DAYS
+                    if element["meetingsFaculty"][0]["meetingTime"][day]
+                ]
+            )
             course_dict["start_time"] = element["meetingsFaculty"][0]["meetingTime"][
                 "beginTime"
             ]
