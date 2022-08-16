@@ -52,6 +52,7 @@ BANNER_CHIOCES = {
     "EE": "EE",
     "ENVS": "ERTH",
     "GEOL": "ERTH",
+    "GEO": "ERTH",
     "GEOP": "ERTH",
     "GS": "GS",
     "ISE": "SE",
@@ -186,11 +187,11 @@ class KFUPM:
         return the user answer as `list` type.
         """
 
-        term, departments, source = KFUPM_registrar.get_registrar_terms_and_departments(
+        term, departments = KFUPM_registrar.get_registrar_terms_and_departments(
             interface=interface
         )
 
-        return term, departments, source
+        return term, departments
 
     def get_search_filter(interface: str, term: str, registration: bool) -> dict:
         """
@@ -463,23 +464,19 @@ class KFUPM:
         return filter_dictionary
 
     def get_courses(term: str, departments: list, interface: str) -> list:
-        courses, source = KFUPM_registrar.get_registrar_coures(
+        courses = KFUPM_registrar.get_registrar_coures(
             term=term, departments=departments, interface=interface
         )
 
-        return courses, source
+        return courses
 
     def check_for_changes(
-        content: list, search_filter: dict, interface: str, source: str, alarm_path: str
+        courses_strucured: list, search_filter: dict, interface: str, alarm_path: str
     ) -> bool:
         """
         Checks if there is available seats in courses.\n
         return `bool` type.
         """
-
-        courses_strucured = KFUPM.get_courses_structured(
-            courses_requested=content, source=source
-        )
 
         max_lengths = {}
         for element in courses_strucured:
@@ -782,8 +779,7 @@ class KFUPM_banner9:
         """
 
         url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/term/search?mode=search"
-        session_client = session()
-        request_cookies = session_client.get(url=url)
+        request_cookies = get(url=url)
         session_id = dict(request_cookies.cookies)["JSESSIONID"]
         post(
             url=url,
@@ -812,14 +808,17 @@ class KFUPM_banner9:
             page_off_set += 1
             if number_of_pages == 0:
                 number_of_pages = int(loaded_response["sectionsFetchedCount"] / 500)
-        return courses
+        courses_structured = KFUPM_banner9.get_banner9_courses_structured(
+            courses_requested=courses
+        )
+        return courses_structured
 
     def get_banner9_courses_structured(courses_requested: list) -> list:
         found_elements = list(
             filter(
-                lambda x: int(x["seatsAvailable"]) > 0 or int(x["waitAvailable"]) > 0
-            ),
-            courses_requested,
+                lambda x: int(x["seatsAvailable"]) > 0 or int(x["waitAvailable"]) > 0,
+                courses_requested,
+            )
         )
 
         courses_structured = []
@@ -848,10 +847,38 @@ class KFUPM_banner9:
                 "building"
             ]
             course_dict["room"] = element["meetingsFaculty"][0]["meetingTime"]["room"]
-            course_dict["instructor_name"] = element["faculty"][0]["displayName"]
-
+            if len(element["faculty"]) != 0:
+                course_dict["instructor_name"] = element["faculty"][0]["displayName"]
+            else:
+                course_dict["instructor_name"] = ""
             courses_structured.append(course_dict)
         return courses_structured
+
+    def get_user_schedule(username: str, passcode: str, term: str):
+        url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/registrationHistory"
+        session_client = session()
+        request_response = session_client.get(url=url)
+        session_id = dict(request_response.cookies)["JSESSIONID"]
+        tttt = dict(request_response.headers)
+        request_url = request_response.url
+        session_data_key = request_url.split("&")[6].split("=")[1]
+
+        t = session_client.post(
+            url=request_url,
+            data={
+                "usernameUserInput": username,
+                "username:": username + "@carbon.super",
+                "password": passcode,
+                "chkRemember": "on",
+                "sessionDataKey": session_data_key,
+            },
+            cookies={"JSESSIONID": session_id},
+        )
+
+        tt = session_client.get(
+            url=f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/reset?term={term}"
+        )
+        print(tt.text)
 
 
 class KFUPM_registrar:
@@ -881,14 +908,12 @@ class KFUPM_registrar:
             term, departments = KFUPM_banner9.get_banner9_terms_and_departments(
                 interface=interface
             )
-            source = "banner9"
         else:
             soup = BeautifulSoup(markup=response, features="html.parser")
             term = KFUPM_registrar.get_registrar_terms(soup=soup)
             departments = KFUPM_registrar.get_registrar_departments(soup=soup)
-            source = "registrar"
 
-        return term, departments, source
+        return term, departments
 
     def get_registrar_terms(soup: BeautifulSoup) -> str:
         terms_element = soup.find(id="course_term_code")
@@ -941,10 +966,10 @@ class KFUPM_registrar:
                         )
                         progress_bar(10)
                 except Timeout:
-                    courses = KFUPM_banner9.get_banner9_courses(
+                    courses_structured = KFUPM_banner9.get_banner9_courses(
                         term=term, departments=departments
                     )
-                    return courses, "banner9"
+                    return courses_structured
                 except RequestException:
                     if interface == "cli":
                         print_one_color_text(
@@ -952,9 +977,12 @@ class KFUPM_registrar:
                             text_color=AnsiColor.RED,
                         )
                         progress_bar(60)
-
             courses += loads(s=response)["data"]
-        return courses, "registrar"
+
+        courses_structured = KFUPM_registrar.get_registrar_courses_structured(
+            courses_requested=courses
+        )
+        return courses_structured
 
     def get_registrar_courses_structured(courses_requested: list) -> list:
         found_elements = list(
@@ -968,8 +996,14 @@ class KFUPM_registrar:
         for element in found_elements:
             course_dict = {}
             course_dict["crn"] = element["crn"]
-            course_dict["course_name"] = element["course_number"].replace(" ", "")
-            course_dict["section"] = element["section_number"]
+            if "course_number" in element:
+                course_dict["course_name"] = element["course_number"].replace(" ", "")
+            else:
+                course_dict["course_name"] = element["course_name"].replace(" ", "")
+            if "section_number" in element:
+                course_dict["section"] = element["section_number"]
+            else:
+                course_dict["section"] = element["section"]
             course_dict["available_seats"] = element["available_seats"]
             course_dict["waiting_list_count"] = element["waiting_list_count"]
             course_dict["class_type"] = element["class_type"]
@@ -982,31 +1016,3 @@ class KFUPM_registrar:
 
             courses_structured.append(course_dict)
         return courses_structured
-
-    """
-    # def get_schedule(username: str, passcode: str, term: str):
-    #     url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/registrationHistory"
-    #     session_client = session()
-    #     request_cookies = session_client.get(url=url)
-    #     session_id = dict(request_cookies.cookies)["JSESSIONID"]
-
-    #     request_url = request_cookies.url
-    #     session_data_key = request_url.split("&")[6].split("=")[1]
-
-    #     post(
-    #         url=request_url,
-    #         data={
-    #             "usernameUserInput": username,
-    #             "username:": username + "@carbon.super",
-    #             "password": passcode,
-    #             "chkRemember": "on",
-    #             "sessionDataKey": session_data_key,
-    #         },
-    #         cookies={"JSESSIONID": session_id},
-    #     )
-
-    #     tt = get(
-    #         url=f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/reset?term={term}"
-    #     )
-    #     print(tt.text)
-    """
