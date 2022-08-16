@@ -2,7 +2,7 @@ from auto_registrar.config import get_configs, write_config_file
 from auto_registrar.tui.questions import Questions
 from auto_registrar.tui.colored_text import print_one_color_text
 from auto_registrar.tui.ansi import AnsiColor
-from auto_registrar.universities.kfupm import KFUPM
+from auto_registrar.universities.kfupm import KFUPM, KFUPM_banner9
 from auto_registrar.tui.bar import progress_bar
 
 
@@ -43,28 +43,27 @@ def main() -> None:
                 text_color=AnsiColor.RED,
             )
             exit()
-            # term, departments = KFUPM.get_term_and_department(interface=interface)
-            # schedule = KFUPM.get_schedule(
+            # term, departments  = KFUPM.get_term_and_departments(
+            #     interface=interface
+            # )
+            # schedule = KFUPM_banner9.get_user_schedule(
             #     username=username, passcode=passcode, term=term
             # )
         elif purpose == "Check courses status":
-            term, departments, source = KFUPM.get_term_and_departments(
-                interface=interface
-            )
+            term, departments = KFUPM.get_term_and_departments(interface=interface)
             search_filter = KFUPM.get_search_filter(
                 interface=interface, term=term, registration=False
             )
 
             finished = False
             while not finished:
-                courses_requested, source = KFUPM.get_courses(
+                courses_requested = KFUPM.get_courses(
                     term=term, departments=departments, interface=interface
                 )
                 finished = KFUPM.check_for_changes(
-                    content=courses_requested,
+                    courses_strucured=courses_requested,
                     search_filter=search_filter,
                     interface=interface,
-                    source=source,
                     alarm_path=alarm_path,
                 )
                 progress_bar(total_time=delay)
