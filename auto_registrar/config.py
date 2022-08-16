@@ -64,7 +64,7 @@ def get_configs(ask_for_config: bool) -> dict:
 
     if path.exists(path=DRIVERS_PATH):
         # TODO: check if drivers are installed
-        configs["driver_path"] = DRIVERS_PATH.joinpath(configs['browser'])
+        configs["driver_path"] = DRIVERS_PATH.joinpath(configs["browser"])
     else:
         print_one_color_text(
             text_string="! Sorry, you don't have drivers folder yet, which means the script can't open any WebDrivers to registrar courses!",
