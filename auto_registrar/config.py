@@ -1,3 +1,4 @@
+from pathlib import Path
 from os import path, system
 from json import dumps, loads
 from sys import platform
@@ -9,10 +10,10 @@ from auto_registrar.tui.colored_text import print_one_color_text
 from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.universities.kfupm import KFUPM
 
-SLASH_PATH = "/" if "/" in __file__ else "\\"
-PROJECT_PATH = SLASH_PATH.join(__file__.split(SLASH_PATH)[:-2])
-CONFIGS_PATH = f"{PROJECT_PATH}{SLASH_PATH}.config.json"
-DRIVERS_PATH = f"{PROJECT_PATH}{SLASH_PATH}drivers"
+PROJECT_PATH = Path(__file__).parent.parent
+CONFIGS_PATH = PROJECT_PATH.joinpath(".config.json")
+DRIVERS_PATH = PROJECT_PATH.joinpath("drivers")
+KEY_PATH = PROJECT_PATH.joinpath(".key")
 
 
 def get_configs(ask_for_config: bool) -> dict:
@@ -63,7 +64,7 @@ def get_configs(ask_for_config: bool) -> dict:
 
     if path.exists(path=DRIVERS_PATH):
         # TODO: check if drivers are installed
-        configs["driver_path"] = f"{DRIVERS_PATH}{SLASH_PATH}{configs['browser']}"
+        configs["driver_path"] = DRIVERS_PATH.joinpath(configs['browser'])
     else:
         print_one_color_text(
             text_string="! Sorry, you don't have drivers folder yet, which means the script can't open any WebDrivers to registrar courses!",
@@ -86,7 +87,7 @@ def ask_for_passcode(configs_file: dict) -> dict:
     passcode = Questions.passcode_question(question="Enter your portal passcode")
 
     key = Fernet.generate_key()
-    with open(file=f"{PROJECT_PATH}{SLASH_PATH}.key", mode="w") as fernet:
+    with open(file=KEY_PATH, mode="w") as fernet:
         fernet.write(
             "-----BEGIN PRIVATE KEY-----\n"
             + key.decode()
@@ -108,7 +109,7 @@ def decode_passcode(passcode: str, configs_file: dict) -> str:
     Return the decrypted passcode as `str` type.
     """
 
-    if not path.exists(path=f"{PROJECT_PATH}{SLASH_PATH}.key"):
+    if not path.exists(path=KEY_PATH):
         print_one_color_text(
             text_string="! Sorry, you have deleted your key file, which means the script can't decrypt your passcode!",
             text_color=AnsiColor.LIGHT_RED,
@@ -121,7 +122,7 @@ def decode_passcode(passcode: str, configs_file: dict) -> str:
         passcode = ask_for_passcode(configs_file=configs_file)
         configs_file["passcode"] = passcode
 
-    with open(file=f"{PROJECT_PATH}{SLASH_PATH}.key", mode="r") as fernet:
+    with open(file=KEY_PATH, mode="r") as fernet:
         key = fernet.readlines()[1]
     fernet = Fernet(key=key)
     try:
