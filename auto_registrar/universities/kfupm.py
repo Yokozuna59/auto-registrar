@@ -857,6 +857,7 @@ class KFUPM_banner9:
             courses_structured.append(course_dict)
         return courses_structured
 
+    """
     def get_user_schedule(username: str, passcode: str, term: str):
         url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/registrationHistory"
         session_client = session()
@@ -882,6 +883,7 @@ class KFUPM_banner9:
             url=f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/reset?term={term}"
         )
         print(tt.text)
+        """
 
 
 class KFUPM_registrar:
