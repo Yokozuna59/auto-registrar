@@ -1,8 +1,8 @@
-from pathlib import Path
 from os import path, system
 from json import dumps, loads
 from sys import platform
 
+from pathlib import Path
 from cryptography.fernet import Fernet, InvalidToken
 
 from auto_registrar.tui.questions import Questions
