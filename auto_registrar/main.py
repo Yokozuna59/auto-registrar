@@ -39,7 +39,7 @@ def main() -> None:
             exit()
         elif purpose == "Edit schedule":
             print_one_color_text(
-                text_string="Currently the instructors filter is not supported!",
+                text_string="Currently the edit schedule is not supported!",
                 text_color=AnsiColor.RED,
             )
             exit()
