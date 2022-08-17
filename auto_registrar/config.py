@@ -86,6 +86,8 @@ def ask_and_write_passcode(configs_file: dict, ask_for_passcode: bool) -> dict:
 
     if ask_for_passcode:
         passcode = Questions.passcode_question(question="Enter your portal passcode")
+    else:
+        passcode = configs_file["passcode"]
 
     key = Fernet.generate_key()
     with open(file=KEY_PATH, mode="w") as fernet:
