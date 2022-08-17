@@ -310,9 +310,9 @@ function install_drivers {
 # install python
 function python_install {
     if python3 --version > /dev/null 2>&1; then
-        python_local_version=$(python --version | cut -d " " -f 2 | cut -d "." -f 1,2)
-    elif python --version > /dev/null 2>&1; then
         python_local_version=$(python3 --version | cut -d " " -f 2 | cut -d "." -f 1,2)
+    elif python --version > /dev/null 2>&1; then
+        python_local_version=$(python --version | cut -d " " -f 2 | cut -d "." -f 1,2)
     fi
     if [[ -n $python_local_version ]]; then
         if (( $(echo "$python_local_version > 3.7" | bc -l) )); then
