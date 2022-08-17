@@ -78,13 +78,14 @@ def get_configs(ask_for_config: bool) -> dict:
     return configs
 
 
-def ask_for_passcode(configs_file: dict) -> dict:
+def ask_and_write_passcode(configs_file: dict, ask_for_passcode: bool) -> dict:
     """
     Ask user to enter the passcode,\n
     Return the passcode as `str` type.
     """
 
-    passcode = Questions.passcode_question(question="Enter your portal passcode")
+    if ask_for_passcode:
+        passcode = Questions.passcode_question(question="Enter your portal passcode")
 
     key = Fernet.generate_key()
     with open(file=KEY_PATH, mode="w") as fernet:
@@ -119,7 +120,9 @@ def decode_passcode(passcode: str, configs_file: dict) -> str:
             text_color=AnsiColor.LIGHT_YELLOW,
         )
 
-        passcode = ask_for_passcode(configs_file=configs_file)
+        passcode = ask_and_write_passcode(
+            configs_file=configs_file, ask_for_passcode=True
+        )
         configs_file["passcode"] = passcode
 
     with open(file=KEY_PATH, mode="r") as fernet:
@@ -136,7 +139,9 @@ def decode_passcode(passcode: str, configs_file: dict) -> str:
             text_string="Please reenter your passcode again.",
             text_color=AnsiColor.LIGHT_YELLOW,
         )
-        passcode_decrypted = ask_for_passcode(configs_file=configs_file)
+        passcode_decrypted = ask_and_write_passcode(
+            configs_file=configs_file, ask_for_passcode=True
+        )
     return passcode_decrypted
 
 

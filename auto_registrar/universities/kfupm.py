@@ -172,7 +172,9 @@ class KFUPM:
         username = Questions.str_questoin(question="Enter your student ID with `S`")
         config_file["username"] = username
 
-        passcode = config.ask_for_passcode(configs_file=config_file)
+        passcode = config.ask_and_write_passcode(
+            configs_file=config_file, ask_for_passcode=True
+        )
 
         config_file["configured"] = True
         config.write_config_file(configs_file=config_file)
