@@ -964,7 +964,11 @@ class KFUPM_registrar:
             while not request_finished:
                 try:
                     response = get(url=url, timeout=10).text
-                    request_finished = True
+                    if (response == None):
+                        courses_structured = KFUPM_banner9.get_banner9_courses(
+                            term=term, departments=departments
+                        )
+                        return courses_structured
                 except ConnectionError:
                     if interface == "cli":
                         print_one_color_text(
