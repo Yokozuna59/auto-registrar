@@ -1,4 +1,3 @@
-from json import loads
 from sys import exit
 
 from requests import get, session, post
@@ -276,7 +275,7 @@ class KFUPM:
 
                                 for section in sections_str.strip().split(" "):
                                     if section.isdigit():
-                                        sections_list.append("%02s" % section)
+                                        sections_list.append("%02d" % int(section))
                                         finished = True
                                     else:
                                         print_more_color_text(
@@ -396,25 +395,21 @@ class KFUPM:
                             #     instructors_list = Questions.str_questoin("Enter Instructor/Instructor you want to check each refresh (type the full name of instructor, each instructor separate with ;)")
                             #     filter_dictionary["instructor_name"] = instructors_list.split(";")
                         elif index == "Day/Days":
-                            print_one_color_text(
-                                text_string="! Sorry, Currently the day filter is not supported!",
-                                text_color=AnsiColor.RED,
-                            )
                             # TODO: edit day chioce
-                            # days_list = Questions.mcq_dict_question(
-                            #     question="Select the Day/Days Course/Courses occurs",
-                            #     choices={
-                            #         "U, Sunday": "U",
-                            #         "M, Monday": "M",
-                            #         "T, Tuesday": "T",
-                            #         "W, Wednesday": "W",
-                            #         "R, Thursday": "R",
-                            #         "F, Friday": "F",
-                            #         "S, Saturday": "S",
-                            #     },
-                            # )
-                            # if len(days_list) != 7:
-                            #     filter_dictionary["class_days"] = days_list
+                            days_list = Questions.mcq_dict_question(
+                                question="Select the Day/Days Course/Courses occurs",
+                                choices={
+                                    "U, Sunday": "U",
+                                    "M, Monday": "M",
+                                    "T, Tuesday": "T",
+                                    "W, Wednesday": "W",
+                                    "R, Thursday": "R",
+                                    "F, Friday": "F",
+                                    "S, Saturday": "S",
+                                },
+                            )
+                            if len(days_list) != 7:
+                                filter_dictionary["class_days"] = days_list
                         elif index == "Time/Times":
                             # TODO: edit time choice
                             print_one_color_text(
@@ -444,7 +439,6 @@ class KFUPM:
                                             "is not a valid answer, please try again.",
                                             AnsiColor.LIGHT_RED,
                                         )
-                                        break
 
                             filter_dictionary["building"] = buildings_list
                         elif index == "Status/Statuses":
@@ -533,32 +527,35 @@ class KFUPM:
         else:
             if interface == "cli":
                 alarm_filter = search_filter.pop("alarm")
+                register = search_filter.pop("registrar")
+
                 for index in search_filter:
                     if index == "section":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["section"],
+                                lambda x: x["section"] in search_filter["section"],
                                 courses_strucured,
                             )
                         )
                     elif index == "activity":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["class_type"],
+                                lambda x: x["class_type"] in search_filter["activity"],
                                 courses_strucured,
                             )
                         )
                     elif index == "crn":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["crn"],
+                                lambda x: x["crn"] in search_filter["crn"],
                                 courses_strucured,
                             )
                         )
-                    elif index == "course_number":
+                    elif index == "course_name":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["course_number"],
+                                lambda x: x["course_name"]
+                                in search_filter["course_name"],
                                 courses_strucured,
                             )
                         )
@@ -581,10 +578,11 @@ class KFUPM:
                         )
                         # TODO: edit time chioce
                     elif index == "building":
-                        # TODO: edit days chioce
-                        print_one_color_text(
-                            text_string="! Sorry, Currently the building filter is not supported!",
-                            text_color=AnsiColor.RED,
+                        courses_strucured = list(
+                            filter(
+                                lambda x: x["building"] in search_filter["building"],
+                                courses_strucured,
+                            )
                         )
                     elif index == "status":
                         if search_filter["status"] == "Open":
@@ -612,49 +610,52 @@ class KFUPM:
                             )
                         )
 
-                alarm_condition = False
-                for index, element in enumerate(courses_strucured):
-                    alarm_condition = True
+                if register:
+                    pass
+                else:
+                    alarm_condition = False
+                    for index, element in enumerate(courses_strucured):
+                        alarm_condition = True
 
-                    crn = element["crn"]
-                    course_name = element["course_name"]
-                    section = element["section"]
-                    available_seats = element["available_seats"]
-                    waiting_list_count = element["waiting_list_count"]
-                    class_type = element["class_type"]
+                        crn = element["crn"]
+                        course_name = element["course_name"]
+                        section = element["section"]
+                        available_seats = element["available_seats"]
+                        waiting_list_count = element["waiting_list_count"]
+                        class_type = element["class_type"]
 
-                    if available_seats > 0:
-                        color = AnsiColor.LIGHT_GREEN
-                        sign = "+"
-                    elif waiting_list_count > 0:
-                        color = AnsiColor.LIGHT_YELLOW
-                        sign = "-"
+                        if available_seats > 0:
+                            color = AnsiColor.LIGHT_GREEN
+                            sign = "+"
+                        elif waiting_list_count > 0:
+                            color = AnsiColor.LIGHT_YELLOW
+                            sign = "-"
 
-                    full_course_name = (
-                        f"%{-course_name_length}s" % f"{course_name}-{section}"
-                    )
-                    full_course_type = f"%{-course_type_length}s" % class_type
-                    full_course_available_seats = (
-                        f"%{-course_available_seats}s" % available_seats
-                    )
-                    full_course_waiting_list = (
-                        f"%{-course_waiting_list}s" % waiting_list_count
-                    )
+                        full_course_name = (
+                            f"%{-course_name_length}s" % f"{course_name}-{section}"
+                        )
+                        full_course_type = f"%{-course_type_length}s" % class_type
+                        full_course_available_seats = (
+                            f"%{-course_available_seats}s" % available_seats
+                        )
+                        full_course_waiting_list = (
+                            f"%{-course_waiting_list}s" % waiting_list_count
+                        )
 
-                    print_more_color_text(
-                        f"[{sign}] - {full_course_name}, Type:",
-                        color,
-                        full_course_type,
-                        CLASS_TYPE_COLORS[class_type],
-                        f"Available Seats: {full_course_available_seats}, Waiting List: {full_course_waiting_list}, CRN:",
-                        color,
-                        crn,
-                        AnsiColor.LIGHT_BLUE
-                        if index % 2 == 0
-                        else AnsiColor.LIGHT_MAGENTA,
-                    )
-            if alarm_condition and alarm_filter:
-                playsound(sound=alarm_path)
+                        print_more_color_text(
+                            f"[{sign}] - {full_course_name}, Type:",
+                            color,
+                            full_course_type,
+                            CLASS_TYPE_COLORS[class_type],
+                            f"Available Seats: {full_course_available_seats}, Waiting List: {full_course_waiting_list}, CRN:",
+                            color,
+                            crn,
+                            AnsiColor.LIGHT_BLUE
+                            if index % 2 == 0
+                            else AnsiColor.LIGHT_MAGENTA,
+                        )
+                    if alarm_condition and alarm_filter:
+                        playsound(sound=alarm_path)
         return False
 
     def get_courses_structured(courses_requested: list, source: str) -> list:
@@ -685,8 +686,8 @@ class KFUPM_banner9:
 
         while not request_done:
             try:
-                response = get(url=url).content
-                loaded_response = loads(s=response)
+                response = get(url=url)
+                loaded_response = response.json()
 
                 index = 0
                 terms_dict = {}
@@ -736,8 +737,8 @@ class KFUPM_banner9:
         request_done = False
         while not request_done:
             try:
-                response = get(url=url).content
-                loaded_response = loads(s=response)
+                response = get(url=url)
+                loaded_response = response.json()
 
                 index = 0
                 departments_dict = {}
@@ -806,7 +807,7 @@ class KFUPM_banner9:
                 cookies={"JSESSIONID": session_id},
             )
 
-            loaded_response = loads(s=response.text)
+            loaded_response = response.json()
             courses += loaded_response["data"]
             page_off_set += 1
             if number_of_pages == 0:
@@ -963,12 +964,13 @@ class KFUPM_registrar:
 
             while not request_finished:
                 try:
-                    response = get(url=url, timeout=10).text
-                    if (response == None):
+                    response = get(url=url, timeout=10).json()
+                    if response == None:
                         courses_structured = KFUPM_banner9.get_banner9_courses(
                             term=term, departments=departments
                         )
                         return courses_structured
+                    request_finished = True
                 except ConnectionError:
                     if interface == "cli":
                         print_one_color_text(
@@ -988,7 +990,7 @@ class KFUPM_registrar:
                             text_color=AnsiColor.RED,
                         )
                         progress_bar(60)
-            courses += loads(s=response)["data"]
+            courses += response["data"]
 
         courses_structured = KFUPM_registrar.get_registrar_courses_structured(
             courses_requested=courses
