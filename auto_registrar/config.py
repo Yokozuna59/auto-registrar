@@ -11,6 +11,7 @@ from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.universities.kfupm import KFUPM
 
 PROJECT_PATH = Path(__file__).parent.parent
+ALARM_PATH = PROJECT_PATH.joinpath("sounds")
 CONFIGS_PATH = PROJECT_PATH.joinpath(".config.json")
 DRIVERS_PATH = PROJECT_PATH.joinpath("drivers")
 KEY_PATH = PROJECT_PATH.joinpath(".key")
@@ -29,7 +30,7 @@ def get_configs(ask_for_config: bool) -> dict:
         if university == "KFUPM":
             json_objects = {
                 "configured": False,
-                "alarm": "alarms/default-alarm.mp3",
+                "alarm": "alarm.mp3",
                 "banner": 9,
                 "browser": "chrome",
                 "delay": 60,
