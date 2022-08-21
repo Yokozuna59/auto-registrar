@@ -1,4 +1,4 @@
-from auto_registrar.config import get_configs, write_config_file
+from auto_registrar.config import get_configs, ALARM_PATH, write_config_file
 from auto_registrar.tui.questions import Questions
 from auto_registrar.tui.colored_text import print_one_color_text
 from auto_registrar.tui.ansi import AnsiColor
@@ -11,7 +11,7 @@ def main() -> None:
 
     # Get local configuration
     configs = get_configs(ask_for_config=True)
-    alarm_path = configs["alarm"]
+    alarm_path = ALARM_PATH.joinpath(configs["alarm"])
     browser = configs["browser"]
     delay = configs["delay"]
     driver_path = configs["driver_path"]
