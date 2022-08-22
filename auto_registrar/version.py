@@ -10,7 +10,7 @@ from requests import get
 from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.colored_text import print_one_color_text
 
-LOCAL_VERSION = "0.7.3"
+LOCAL_VERSION = "0.7.4"
 
 
 def check_updates():
