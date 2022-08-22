@@ -2,10 +2,10 @@ from os import getppid
 from platform import python_version
 from sysconfig import get_platform
 
-from requests import get
 from bs4 import BeautifulSoup
-from psutil import Process
 from distro import name, version
+from psutil import Process
+from requests import get
 
 from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.colored_text import print_one_color_text
