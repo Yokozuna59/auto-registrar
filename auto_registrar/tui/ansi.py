@@ -152,9 +152,9 @@ class AnsiErase:
 
         index -= 1
         if passcode:
-            stdout.write("*" * (len(user_input[index:])))
+            stdout.write("*" * (len(user_input[index:-1])))
         else:
-            stdout.write(user_input[index:])
+            stdout.write(user_input[index:-1])
 
         AnsiCursor.restore_position()
         if index != 0:
