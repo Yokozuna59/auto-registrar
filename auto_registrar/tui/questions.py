@@ -1,22 +1,20 @@
-from sys import stdout, exit
-from os import get_terminal_size
 from math import floor
+from os import get_terminal_size
+from sys import exit, stdout
 
-from auto_registrar.tui.readchars import read_one_char
 from auto_registrar.tui.ansi import (
     AnsiColor,
+    AnsiCursor,
     AnsiErase,
     AnsiKeys,
     AnsiStyle,
-    AnsiCursor,
 )
 from auto_registrar.tui.colored_text import print_more_color_text, print_one_color_text
+from auto_registrar.tui.readchars import read_one_char
 
 
 class Questions:
-    """
-    A class contains different type of question.
-    """
+    """A class contains different type of question."""
 
     def bool_question(question: str, default: bool = True) -> bool:
         """

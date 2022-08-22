@@ -2,6 +2,8 @@ from sys import stdout
 
 
 class AnsiKeys:
+    """A class contains some keyboard keys."""
+
     ENTER = "\r"
     NEW_LINE = "\n"
     TAB = "\t"
@@ -24,7 +26,7 @@ class AnsiKeys:
 
 
 class AnsiStyle:
-    """A class contains some Ansi styles"""
+    """A class contains some ansi styles."""
 
     RESET_ALL = "\x1B[0m"
 
@@ -48,6 +50,8 @@ class AnsiStyle:
 
 
 class AnsiColor:
+    """A class contains asni colors."""
+
     GRAY = "\x1B[30m"
     RED = "\x1B[31m"
     GREEN = "\x1B[32m"

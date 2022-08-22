@@ -151,7 +151,7 @@ def decode_passcode(passcode: str, configs_file: dict) -> str:
 
 def write_config_file(configs_file: dict) -> None:
     """
-    Write config file as `json` type.
+    Write config file as `json` type.\n
     Returns `None`.
     """
 
