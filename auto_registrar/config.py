@@ -1,26 +1,26 @@
-from os import path, system
 from json import dumps, loads
+from os import path, system
 from sys import platform
 
-from pathlib import Path
 from cryptography.fernet import Fernet, InvalidToken
+from pathlib import Path
 
-from auto_registrar.tui.questions import Questions
-from auto_registrar.tui.colored_text import print_one_color_text
 from auto_registrar.tui.ansi import AnsiColor
+from auto_registrar.tui.colored_text import print_one_color_text
+from auto_registrar.tui.questions import Questions
 from auto_registrar.universities.kfupm import KFUPM
 
 PROJECT_PATH = Path(__file__).parent.parent
-SOUNDS_PATH = PROJECT_PATH.joinpath("sounds")
 CONFIGS_PATH = PROJECT_PATH.joinpath(".config.json")
 DRIVERS_PATH = PROJECT_PATH.joinpath("drivers")
 KEY_PATH = PROJECT_PATH.joinpath(".key")
+SOUNDS_PATH = PROJECT_PATH.joinpath("sounds")
 
 
 def get_configs(ask_for_config: bool) -> dict:
     """
     Checks if user configured his default configuration.\n
-    return configs as `dict` type.
+    Returns configurations as `dict` type.
     """
 
     if not path.exists(path=CONFIGS_PATH):
@@ -30,7 +30,6 @@ def get_configs(ask_for_config: bool) -> dict:
         if university == "KFUPM":
             json_objects = {
                 "configured": False,
-                "alarm": "alarm.mp3",
                 "banner": 9,
                 "browser": "chrome",
                 "delay": 60,
@@ -151,7 +150,7 @@ def decode_passcode(passcode: str, configs_file: dict) -> str:
 def write_config_file(configs_file: dict) -> None:
     """
     Write config file as `json` type.
-    Returns `None` type.
+    Returns `None`.
     """
 
     json_objects = dumps(obj=configs_file, sort_keys=True, indent=4)
@@ -159,4 +158,3 @@ def write_config_file(configs_file: dict) -> None:
         file.write(json_objects)
     if (platform == "win32") or (platform == "cygwin"):
         system("attrib +h " + file.name)
-    return

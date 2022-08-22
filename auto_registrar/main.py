@@ -1,13 +1,16 @@
 from auto_registrar.config import get_configs, SOUNDS_PATH, write_config_file
-from auto_registrar.tui.questions import Questions
-from auto_registrar.tui.colored_text import print_one_color_text
 from auto_registrar.tui.ansi import AnsiColor
-from auto_registrar.universities.kfupm import KFUPM, KFUPM_banner9
 from auto_registrar.tui.bar import progress_bar
+from auto_registrar.tui.colored_text import print_one_color_text
+from auto_registrar.tui.questions import Questions
+from auto_registrar.universities.kfupm import KFUPM, KFUPM_banner9
 
 
 def main() -> None:
-    """The main and start of the program."""
+    """
+    The main and start of the program.\n
+    Returns `None`.
+    """
 
     # Get local configuration
     configs = get_configs(ask_for_config=True)
@@ -67,4 +70,3 @@ def main() -> None:
                     alarm_path=alarm_path,
                 )
                 progress_bar(total_time=delay)
-    return
