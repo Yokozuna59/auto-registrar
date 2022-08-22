@@ -11,7 +11,7 @@ from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.universities.kfupm import KFUPM
 
 PROJECT_PATH = Path(__file__).parent.parent
-ALARM_PATH = PROJECT_PATH.joinpath("sounds")
+SOUNDS_PATH = PROJECT_PATH.joinpath("sounds")
 CONFIGS_PATH = PROJECT_PATH.joinpath(".config.json")
 DRIVERS_PATH = PROJECT_PATH.joinpath("drivers")
 KEY_PATH = PROJECT_PATH.joinpath(".key")
