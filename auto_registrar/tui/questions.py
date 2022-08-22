@@ -1,6 +1,7 @@
 from math import floor
 from os import get_terminal_size
 from sys import exit, stdout
+from xmlrpc.client import FastParser
 
 from auto_registrar.tui.ansi import (
     AnsiColor,
@@ -19,7 +20,7 @@ class Questions:
     def bool_question(question: str, default: bool = True) -> bool:
         """
         Ask user a boolean question.\n
-        Return the answer as `bool` type if he answered correctly.
+        Returns answer as `bool`.
         """
 
         default_answer = "[Y/n]" if default == True else "[y/N]"
@@ -33,7 +34,7 @@ class Questions:
                 AnsiStyle.BOLD,
                 default_answer,
                 AnsiColor.DEFAULT,
-                end_with="",
+                end_with=" ",
             )
             AnsiCursor.save_position()
 
@@ -85,14 +86,14 @@ class Questions:
     def str_questoin(question: str) -> str:
         """
         Ask user a string question.\n
-        Return the answer as `str` type.
+        Returns answer as `str`.
         """
         print_more_color_text(
             "?",
             AnsiColor.GREEN,
             question + "?",
             AnsiStyle.BOLD,
-            end_with="",
+            end_with=" ",
         )
         AnsiCursor.save_position()
 
@@ -129,7 +130,7 @@ class Questions:
     ) -> int:
         """
         Ask user an integer question.\n
-        Return the answer as `int` type.
+        Returns answer as `int`.
         """
 
         finished = False
@@ -141,7 +142,7 @@ class Questions:
                     AnsiColor.GREEN,
                     question + "?",
                     AnsiStyle.BOLD,
-                    end_with="",
+                    end_with=" ",
                 )
                 AnsiCursor.save_position()
 
@@ -196,7 +197,7 @@ class Questions:
     def passcode_question(question: str) -> str:
         """
         Ask user a string question without printing what he wrote.\n
-        return the answer as `str` type.
+        Returns answer as `str`.
         """
 
         answer = ""
@@ -207,7 +208,7 @@ class Questions:
             AnsiColor.GREEN,
             question + "?",
             AnsiStyle.BOLD,
-            end_with="",
+            end_with=" ",
         )
         AnsiCursor.save_position()
         print("\n(esc to make passcode visible)", end="")
@@ -220,8 +221,8 @@ class Questions:
 
             if letter == AnsiKeys.ENTER:
                 if answer != "":
-                    AnsiErase.erase_line_to_end()
                     AnsiCursor.restore_position()
+                    AnsiErase.erase_line_to_end()
                     print_more_color_text(
                         "*" * len(answer),
                         AnsiColor.BLUE,
@@ -238,6 +239,7 @@ class Questions:
                     "Cancelled by user",
                     AnsiColor.LIGHT_RED,
                 )
+                AnsiErase.erase_entire_line()
                 exit()
             elif letter.startswith(AnsiKeys.ESCAPE):
                 if letter == AnsiKeys.ESCAPE:
@@ -690,3 +692,10 @@ class Questions:
         for answer in answers:
             answers_value.append(choices[answer])
         return answers_value
+
+
+# tt1 = Questions.bool_question(question="Sample boolean question", default=True)
+# tt2 = Questions.str_questoin(question="Sample string question")
+# tt3 = Questions.int_question(question="Sample integer quesion", minimum=10000, maximum=19999)
+tt4 = Questions.passcode_question(question="Sample passcode quesion")
+print
