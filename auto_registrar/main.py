@@ -13,8 +13,7 @@ def main() -> None:
     """
 
     # Get local configuration
-    configs = get_configs(ask_for_config=True)
-    alarm_path = SOUNDS_PATH.joinpath(configs["alarm"])
+    configs = get_configs()
     browser = configs["browser"]
     delay = configs["delay"]
     driver_path = configs["driver_path"]
@@ -38,7 +37,7 @@ def main() -> None:
         if purpose == "Reconfig configuration":
             configs["configured"] = False
             write_config_file(configs_file=configs)
-            get_configs(ask_for_config=False)
+            get_configs(ask_for_configs=False)
             exit()
         elif purpose == "Edit schedule":
             print_one_color_text(
@@ -53,6 +52,8 @@ def main() -> None:
             #     username=username, passcode=passcode, term=term
             # )
         elif purpose == "Check courses status":
+            alarm_path = SOUNDS_PATH.joinpath("alarm.mp3")
+
             term, departments = KFUPM.get_term_and_departments(interface=interface)
             search_filter = KFUPM.get_search_filter(
                 interface=interface, term=term, registration=False
