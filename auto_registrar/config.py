@@ -17,10 +17,10 @@ KEY_PATH = PROJECT_PATH.joinpath(".key")
 SOUNDS_PATH = PROJECT_PATH.joinpath("sounds")
 
 
-def get_configs(ask_for_config: bool) -> dict:
+def get_configs(ask_for_configs: bool = True) -> dict:
     """
     Checks if user configured his default configuration.\n
-    Returns configurations as `dict` type.
+    Returns configurations as `dict`.
     """
 
     if not path.exists(path=CONFIGS_PATH):
@@ -45,7 +45,7 @@ def get_configs(ask_for_config: bool) -> dict:
 
     if not configs["configured"]:
         bool_answer = True
-        if ask_for_config:
+        if ask_for_configs:
             print_one_color_text(
                 text_string="! Sorry, you haven't configured yet!",
                 text_color=AnsiColor.LIGHT_RED,
@@ -75,13 +75,14 @@ def get_configs(ask_for_config: bool) -> dict:
             text_color=AnsiColor.LIGHT_YELLOW,
         )
         configs["driver_path"] = None
+
     return configs
 
 
 def ask_and_write_passcode(configs_file: dict, ask_for_passcode: bool) -> dict:
     """
     Ask user to enter the passcode,\n
-    Return the passcode as `str` type.
+    Returns the passcode as `str`.
     """
 
     if ask_for_passcode:
@@ -109,7 +110,7 @@ def ask_and_write_passcode(configs_file: dict, ask_for_passcode: bool) -> dict:
 def decode_passcode(passcode: str, configs_file: dict) -> str:
     """
     Decrypts the passcode with Fernet,\n
-    Return the decrypted passcode as `str` type.
+    Returns the decrypted passcode as `str`.
     """
 
     if not path.exists(path=KEY_PATH):
@@ -138,12 +139,13 @@ def decode_passcode(passcode: str, configs_file: dict) -> str:
             text_color=AnsiColor.LIGHT_RED,
         )
         print_one_color_text(
-            text_string="Please reenter your passcode again.",
+            text_string="Please re-enter your passcode again.",
             text_color=AnsiColor.LIGHT_YELLOW,
         )
         passcode_decrypted = ask_and_write_passcode(
             configs_file=configs_file, ask_for_passcode=True
         )
+
     return passcode_decrypted
 
 
