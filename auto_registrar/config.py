@@ -8,7 +8,7 @@ from pathlib import Path
 from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.colored_text import print_one_color_text
 from auto_registrar.tui.questions import Questions
-from auto_registrar.universities.kfupm import KFUPM
+from auto_registrar.universities.kfupm.kfupm import KFUPM
 
 PROJECT_PATH = Path(__file__).parent.parent
 CONFIGS_PATH = PROJECT_PATH.joinpath(".config.json")

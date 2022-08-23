@@ -706,5 +706,8 @@ class Questions:
 # tt2 = Questions.str_questoin(question="Sample string question")
 # tt3 = Questions.int_question(question="Sample integer quesion", minimum=10000, maximum=19999)
 # tt4 = Questions.passcode_question(question="Sample passcode quesion")
-tt5 = Questions.list_question(question="Sample list question", choices=["Apple", "Banana", "Potato", "TT", "Orange"])
+# tt5 = Questions.list_question(
+#     question="Sample list question",
+#     choices=["Apple", "Banana", "Potato", "TT", "Orange"],
+# )
 print

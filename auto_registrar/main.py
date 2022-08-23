@@ -3,7 +3,8 @@ from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.bar import progress_bar
 from auto_registrar.tui.colored_text import print_one_color_text
 from auto_registrar.tui.questions import Questions
-from auto_registrar.universities.kfupm import KFUPM, KFUPM_banner9
+from auto_registrar.universities.kfupm.kfupm import KFUPM
+from auto_registrar.universities.kfupm.banner9 import KFUPM_banner9
 
 
 def main() -> None:
