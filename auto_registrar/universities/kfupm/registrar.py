@@ -1,0 +1,151 @@
+from bs4 import BeautifulSoup
+from requests import get
+from requests.exceptions import ConnectionError, RequestException, Timeout
+
+from auto_registrar.tui.ansi import AnsiColor
+from auto_registrar.tui.bar import progress_bar
+from auto_registrar.tui.colored_text import print_one_color_text
+from auto_registrar.tui.questions import Questions
+from auto_registrar.universities.kfupm.banner9 import KFUPM_banner9
+
+
+class KFUPM_registrar:
+    def get_registrar_terms_and_departments(interface: str) -> tuple:
+        finished = False
+        banner9 = False
+        url = "https://registrar.kfupm.edu.sa/courses-classes/course-offering1/"
+
+        while not finished:
+            try:
+                response = get(url=url, timeout=10).text
+                if "Under Maintenance" in response:
+                    banner9 = True
+                finished = True
+            except ConnectionError:
+                if interface == "cli":
+                    print_one_color_text(
+                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
+                        text_color=AnsiColor.RED,
+                    )
+                    progress_bar(10)
+            except Timeout:
+                banner9 = True
+                finished = True
+
+        if banner9:
+            term, departments = KFUPM_banner9.get_banner9_terms_and_departments(
+                interface=interface
+            )
+        else:
+            soup = BeautifulSoup(markup=response, features="html.parser")
+            term = KFUPM_registrar.get_registrar_terms(soup=soup)
+            departments = KFUPM_registrar.get_registrar_departments(soup=soup)
+
+        return term, departments
+
+    def get_registrar_terms(soup: BeautifulSoup) -> str:
+        terms_element = soup.find(id="course_term_code")
+        options = terms_element.find_all("option")[1:]
+
+        dict_elements = {}
+        for option in options:
+            dict_elements[option.text] = option["value"]
+
+        term = Questions.dict_question(
+            question="Select the term has/have the course/courses",
+            choices=dict(
+                sorted(dict_elements.items(), key=lambda x: x[1], reverse=True)
+            ),
+        )
+        return term
+
+    def get_registrar_departments(soup: BeautifulSoup) -> list:
+        departments_element = soup.find(id="course_dept_code")
+        options = departments_element.find_all("option")[1:]
+
+        dict_elements = {}
+        for option in options:
+            dict_elements[option.text] = option["value"]
+
+        departments = Questions.mcq_dict_question(
+            question="Select the department has/have the course/courses",
+            choices=dict_elements,
+        )
+        return departments
+
+    def get_registrar_coures(term: str, departments: list, interface: str) -> list:
+        courses = []
+        for department in departments:
+            request_finished = False
+            url = (
+                "https://registrar.kfupm.edu.sa/api/course-offering?term_code=%s&department_code=%s"
+                % (term, department)
+            )
+
+            while not request_finished:
+                try:
+                    response = get(url=url, timeout=10).json()
+                    if response == None:
+                        courses_structured = KFUPM_banner9.get_banner9_courses(
+                            term=term, departments=departments
+                        )
+                        return courses_structured
+                    request_finished = True
+                except ConnectionError:
+                    if interface == "cli":
+                        print_one_color_text(
+                            text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
+                            text_color=AnsiColor.RED,
+                        )
+                        progress_bar(10)
+                except Timeout:
+                    courses_structured = KFUPM_banner9.get_banner9_courses(
+                        term=term, departments=departments
+                    )
+                    return courses_structured
+                except RequestException:
+                    if interface == "cli":
+                        print_one_color_text(
+                            text_string="! Sorry, the website isn't working currently! the script will recheck in 60 seconds",
+                            text_color=AnsiColor.RED,
+                        )
+                        progress_bar(60)
+            courses += response["data"]
+
+        courses_structured = KFUPM_registrar.get_registrar_courses_structured(
+            courses_requested=courses
+        )
+        return courses_structured
+
+    def get_registrar_courses_structured(courses_requested: list) -> list:
+        found_elements = list(
+            filter(
+                lambda x: x["available_seats"] > 0 or x["waiting_list_count"] > 0,
+                courses_requested,
+            )
+        )
+
+        courses_structured = []
+        for element in found_elements:
+            course_dict = {}
+            course_dict["crn"] = element["crn"]
+            if "course_number" in element:
+                course_dict["course_name"] = element["course_number"].replace(" ", "")
+            else:
+                course_dict["course_name"] = element["course_name"].replace(" ", "")
+            if "section_number" in element:
+                course_dict["section"] = element["section_number"]
+            else:
+                course_dict["section"] = element["section"]
+            course_dict["available_seats"] = element["available_seats"]
+            course_dict["waiting_list_count"] = element["waiting_list_count"]
+            course_dict["class_type"] = element["class_type"]
+            course_dict["class_days"] = ["class_days"]
+            course_dict["start_time"] = element["start_time"]
+            course_dict["end_time"] = element["end_time"]
+            course_dict["building"] = element["building"]
+            course_dict["room"] = element["room"]
+            course_dict["instructor_name"] = element["instructor_name"]
+
+            courses_structured.append(course_dict)
+        return courses_structured
