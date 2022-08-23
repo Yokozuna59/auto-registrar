@@ -1,8 +1,7 @@
-from os import get_terminal_size
 from math import ceil, floor
-from sys import stdout
+from os import get_terminal_size
+from sys import exit, stdout
 from time import sleep
-from sys import exit
 
 from auto_registrar.tui.ansi import AnsiColor, AnsiCursor, AnsiErase, AnsiKeys
 from auto_registrar.tui.colored_text import print_one_color_text
@@ -71,4 +70,3 @@ def progress_bar(total_time: int) -> None:
     AnsiCursor.show()
     stdout.write(AnsiKeys.NEW_LINE)
     stdout.flush()
-    return

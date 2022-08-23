@@ -2,6 +2,8 @@ from sys import stdout
 
 
 class AnsiKeys:
+    """A class contains some keyboard keys."""
+
     ENTER = "\r"
     NEW_LINE = "\n"
     TAB = "\t"
@@ -24,7 +26,7 @@ class AnsiKeys:
 
 
 class AnsiStyle:
-    """A class contains some Ansi styles"""
+    """A class contains some ansi styles."""
 
     RESET_ALL = "\x1B[0m"
 
@@ -48,6 +50,8 @@ class AnsiStyle:
 
 
 class AnsiColor:
+    """A class contains asni colors."""
+
     GRAY = "\x1B[30m"
     RED = "\x1B[31m"
     GREEN = "\x1B[32m"
@@ -72,50 +76,77 @@ class AnsiColor:
 
 
 class AnsiCursor:
-    def hide():
+    """A class contains cursor movement and customization."""
+
+    def hide() -> None:
+        """Hide cursor."""
+
         stdout.write("\x1B[?25l")
         stdout.flush()
 
-    def show():
+    def show() -> None:
+        """Show cursor."""
+
         stdout.write("\x1B[?25h")
         stdout.flush()
 
-    def save_position():
+    def save_position() -> None:
+        """Save cursor position."""
+
         stdout.write("\x1B7\x1B[s")
         stdout.flush()
 
-    def restore_position():
+    def restore_position() -> None:
+        """Restore cursor position."""
+
         stdout.write("\x1B8\x1B[u")
         stdout.flush()
 
-    def move_up(n: int = 1):
+    def move_up(n: int = 1) -> None:
+        """Move cursor `n` lines upwards."""
+
         if n != 0:
             stdout.write("\x1B[%dA" % n)
             stdout.flush()
 
-    def move_down(n: int = 1):
+    def move_down(n: int = 1) -> None:
+        """Move cursor `n` lines downwards."""
+
         if n != 0:
             stdout.write("\x1B[%dB" % n)
             stdout.flush()
 
-    def move_right(n: int = 1):
+    def move_right(n: int = 1) -> None:
+        """Move cursor `n` characters rightwards."""
+
         if n != 0:
             stdout.write("\x1B[%dC" % n)
             stdout.flush()
 
-    def move_left(n: int = 1):
+    def move_left(n: int = 1) -> None:
+        """Move cursor `n` characters leftwards."""
+
         if n != 0:
             stdout.write("\x1B[%dD" % n)
             stdout.flush()
 
-    def move_next_line(n: int = 1):
+    def move_next_line(n: int = 1) -> None:
+        """Move cursor to the begin of `n` lines downwards."""
+
         if n != 0:
             stdout.write("\x1B[%dE" % n)
             stdout.flush()
 
 
 class AnsiErase:
-    def backspace(user_input: str, index: int, passcode=False) -> str:
+    """A class contains cursor erase."""
+
+    def backspace(user_input: str, index: int, passcode: bool = False) -> str:
+        """
+        Delete current index character.\n
+        Return edited user input as `str`.
+        """
+
         AnsiCursor.move_left()
         AnsiErase.erase_line_to_end()
 
@@ -124,14 +155,20 @@ class AnsiErase:
             stdout.write("*" * (len(user_input[index:-1])))
         else:
             stdout.write(user_input[index:-1])
+
         AnsiCursor.restore_position()
         if index != 0:
             AnsiCursor.move_right(index)
-
         edited_user_input = user_input[:index] + user_input[index + 1 :]
+
         return edited_user_input
 
-    def delete(user_input: str, index: int, passcode=False) -> str:
+    def delete(user_input: str, index: int, passcode: bool = False) -> str:
+        """
+        Delete previous index character.\n
+        Return edited user input as `str`.
+        """
+
         AnsiErase.erase_line_to_end()
 
         index += 1
@@ -141,14 +178,18 @@ class AnsiErase:
             stdout.write(user_input[index:])
         AnsiCursor.restore_position()
         AnsiCursor.move_right(index - 1)
-
         edited_user_input = user_input[: index - 1] + user_input[index:]
+
         return edited_user_input
 
-    def erase_line_to_end():
+    def erase_line_to_end() -> None:
+        """Erase from cursor position to the end of line."""
+
         stdout.write("\x1B[0K")
         stdout.flush()
 
-    def erase_entire_line():
+    def erase_entire_line() -> None:
+        """Erase the entire line."""
+
         stdout.write("\x1B[2K")
         stdout.flush()

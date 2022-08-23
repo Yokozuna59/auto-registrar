@@ -1,78 +1,12 @@
-from json import loads
-from sys import exit
-
-from requests import get, session, post
-from requests.exceptions import ConnectionError, RequestException, Timeout
-from bs4 import BeautifulSoup
+from asyncio import get_event_loop
 from playsound import playsound
 
 import auto_registrar.config as config
 from auto_registrar.tui.questions import Questions
 from auto_registrar.tui.colored_text import print_more_color_text, print_one_color_text
 from auto_registrar.tui.ansi import AnsiColor, AnsiCursor, AnsiErase, AnsiStyle
-from auto_registrar.tui.bar import progress_bar
-
-DAYS = {
-    "sunday": "U",
-    "monday": "M",
-    "tuesday": "T",
-    "wednesday": "W",
-    "thursday": "R",
-    "friday": "F",
-    "saturday": "S",
-}
-
-BANNER_CHIOCES = {
-    "ACCT": "ACFN",
-    "ECON": "ACFN",
-    "FIN": "ACFN",
-    "AS": None,
-    "AE": "AE",
-    "ARE": "ARE",
-    "ARC": "ARC",
-    "BIOE": "BIOE",
-    "BUS": "MGT",
-    "HRM": "MGT",
-    "MGT": "MGT",
-    "MKT": "MGT",
-    "CHE": "CHE",
-    "CHEM": "CHEM",
-    "CRP": "CRP",
-    "CP": "CRP",
-    "CE": "CE",
-    "CGS": "ELD",
-    "ENGL": "ELD",
-    "CPG": "CPG",
-    "COE": "COE",
-    "CEM": "CEM",
-    "EM": "CEM",
-    "CIE": "CIE",
-    "SCE": "CIE",
-    "XE": None,
-    "EE": "EE",
-    "ENVS": "ERTH",
-    "GEOL": "ERTH",
-    "GEO": "ERTH",
-    "GEOP": "ERTH",
-    "GS": "GS",
-    "ISE": "SE",
-    "ICS": "ICS",
-    "SEC": "ICS",
-    "SWE": "ICS",
-    "IAS": "IAS",
-    "LS": "LS",
-    "MIS": "ISOM",
-    "OM": "ISOM",
-    "MBA": "MBA",
-    "MSE": "MSE",
-    "MATH": "MATH",
-    "STAT": "MATH",
-    "ME": "ME",
-    "PETE": "PETE",
-    "PE": "PE",
-    "PHYS": "PHYS",
-    "SE": None,
-}
+from auto_registrar.universities.kfupm.registrar import KFUPM_registrar
+from auto_registrar.universities.kfupm.banner9 import KFUPM_banner9
 
 CLASS_TYPE_COLORS = {
     "COP": "\x1b[48;2;92;148;13m",
@@ -94,39 +28,6 @@ CLASS_TYPE_COLORS = {
     "ST": "\x1b[48;2;33;37;41m",
     "STD": "\x1b[48;2;33;37;41m",
     "THS": "\x1b[48;2;54;79;199m",
-}
-
-REGISTRER_CHIOCES = {
-    "ACFN": "ACCT,ECON,FIN",
-    "AE": "AE",
-    "ARE": "ARE",
-    "ARC": "ARC",
-    "BIOE": "BIOE",
-    "MGT": "BUS,HRM,MGT,MKT",
-    "CHE": "CHE",
-    "CHEM": "CHEM",
-    "CRP": "CRP,CP",
-    "CE": "CE",
-    "ELD": "CGS,ENGL",
-    "CPG": "CPG",
-    "COE": "COE",
-    "CEM": "CEM,EM",
-    "CIE": "CIE,SCE",
-    "EE": "EE",
-    "ERTH": "ENVS,GEOL,GEOP",
-    "GS": "GS",
-    "ISE": "SE",
-    "ICS": "ICS,SEC,SWE",
-    "IAS": "IAS",
-    "LS": "LS",
-    "ISOM": "MIS,OM",
-    "MBA": "MBA",
-    "MSE": "MSE",
-    "MATH": "MATH,STAT",
-    "ME": "ME",
-    "PETE": "PETE",
-    "PE": "PE",
-    "PHYS": "PHYS",
 }
 
 
@@ -172,7 +73,9 @@ class KFUPM:
         username = Questions.str_questoin(question="Enter your student ID with `S`")
         config_file["username"] = username
 
-        passcode = config.ask_for_passcode(configs_file=config_file)
+        passcode = config.ask_and_write_passcode(
+            configs_file=config_file, ask_for_passcode=True
+        )
 
         config_file["configured"] = True
         config.write_config_file(configs_file=config_file)
@@ -274,7 +177,7 @@ class KFUPM:
 
                                 for section in sections_str.strip().split(" "):
                                     if section.isdigit():
-                                        sections_list.append("%02s" % section)
+                                        sections_list.append("%02d" % int(section))
                                         finished = True
                                     else:
                                         print_more_color_text(
@@ -394,25 +297,21 @@ class KFUPM:
                             #     instructors_list = Questions.str_questoin("Enter Instructor/Instructor you want to check each refresh (type the full name of instructor, each instructor separate with ;)")
                             #     filter_dictionary["instructor_name"] = instructors_list.split(";")
                         elif index == "Day/Days":
-                            print_one_color_text(
-                                text_string="! Sorry, Currently the day filter is not supported!",
-                                text_color=AnsiColor.RED,
-                            )
                             # TODO: edit day chioce
-                            # days_list = Questions.mcq_dict_question(
-                            #     question="Select the Day/Days Course/Courses occurs",
-                            #     choices={
-                            #         "U, Sunday": "U",
-                            #         "M, Monday": "M",
-                            #         "T, Tuesday": "T",
-                            #         "W, Wednesday": "W",
-                            #         "R, Thursday": "R",
-                            #         "F, Friday": "F",
-                            #         "S, Saturday": "S",
-                            #     },
-                            # )
-                            # if len(days_list) != 7:
-                            #     filter_dictionary["class_days"] = days_list
+                            days_list = Questions.mcq_dict_question(
+                                question="Select the Day/Days Course/Courses occurs",
+                                choices={
+                                    "U, Sunday": "U",
+                                    "M, Monday": "M",
+                                    "T, Tuesday": "T",
+                                    "W, Wednesday": "W",
+                                    "R, Thursday": "R",
+                                    "F, Friday": "F",
+                                    "S, Saturday": "S",
+                                },
+                            )
+                            if len(days_list) != 7:
+                                filter_dictionary["class_days"] = days_list
                         elif index == "Time/Times":
                             # TODO: edit time choice
                             print_one_color_text(
@@ -442,7 +341,6 @@ class KFUPM:
                                             "is not a valid answer, please try again.",
                                             AnsiColor.LIGHT_RED,
                                         )
-                                        break
 
                             filter_dictionary["building"] = buildings_list
                         elif index == "Status/Statuses":
@@ -464,8 +362,11 @@ class KFUPM:
         return filter_dictionary
 
     def get_courses(term: str, departments: list, interface: str) -> list:
-        courses = KFUPM_registrar.get_registrar_coures(
-            term=term, departments=departments, interface=interface
+        loop = get_event_loop()
+        courses = loop.run_until_complete(
+            KFUPM_registrar.get_registrar_coures(
+                term=term, departments=departments, interface=interface
+            )
         )
 
         return courses
@@ -531,32 +432,35 @@ class KFUPM:
         else:
             if interface == "cli":
                 alarm_filter = search_filter.pop("alarm")
+                register = search_filter.pop("registrar")
+
                 for index in search_filter:
                     if index == "section":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["section"],
+                                lambda x: x["section"] in search_filter["section"],
                                 courses_strucured,
                             )
                         )
                     elif index == "activity":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["class_type"],
+                                lambda x: x["class_type"] in search_filter["activity"],
                                 courses_strucured,
                             )
                         )
                     elif index == "crn":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["crn"],
+                                lambda x: x["crn"] in search_filter["crn"],
                                 courses_strucured,
                             )
                         )
-                    elif index == "course_number":
+                    elif index == "course_name":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["course_number"],
+                                lambda x: x["course_name"]
+                                in search_filter["course_name"],
                                 courses_strucured,
                             )
                         )
@@ -579,10 +483,11 @@ class KFUPM:
                         )
                         # TODO: edit time chioce
                     elif index == "building":
-                        # TODO: edit days chioce
-                        print_one_color_text(
-                            text_string="! Sorry, Currently the building filter is not supported!",
-                            text_color=AnsiColor.RED,
+                        courses_strucured = list(
+                            filter(
+                                lambda x: x["building"] in search_filter["building"],
+                                courses_strucured,
+                            )
                         )
                     elif index == "status":
                         if search_filter["status"] == "Open":
@@ -610,49 +515,52 @@ class KFUPM:
                             )
                         )
 
-                alarm_condition = False
-                for index, element in enumerate(courses_strucured):
-                    alarm_condition = True
+                if register:
+                    pass
+                else:
+                    alarm_condition = False
+                    for index, element in enumerate(courses_strucured):
+                        alarm_condition = True
 
-                    crn = element["crn"]
-                    course_name = element["course_name"]
-                    section = element["section"]
-                    available_seats = element["available_seats"]
-                    waiting_list_count = element["waiting_list_count"]
-                    class_type = element["class_type"]
+                        crn = element["crn"]
+                        course_name = element["course_name"]
+                        section = element["section"]
+                        available_seats = element["available_seats"]
+                        waiting_list_count = element["waiting_list_count"]
+                        class_type = element["class_type"]
 
-                    if available_seats > 0:
-                        color = AnsiColor.LIGHT_GREEN
-                        sign = "+"
-                    elif waiting_list_count > 0:
-                        color = AnsiColor.LIGHT_YELLOW
-                        sign = "-"
+                        if available_seats > 0:
+                            color = AnsiColor.LIGHT_GREEN
+                            sign = "+"
+                        elif waiting_list_count > 0:
+                            color = AnsiColor.LIGHT_YELLOW
+                            sign = "-"
 
-                    full_course_name = (
-                        f"%{-course_name_length}s" % f"{course_name}-{section}"
-                    )
-                    full_course_type = f"%{-course_type_length}s" % class_type
-                    full_course_available_seats = (
-                        f"%{-course_available_seats}s" % available_seats
-                    )
-                    full_course_waiting_list = (
-                        f"%{-course_waiting_list}s" % waiting_list_count
-                    )
+                        full_course_name = (
+                            f"%{-course_name_length}s" % f"{course_name}-{section}"
+                        )
+                        full_course_type = f"%{-course_type_length}s" % class_type
+                        full_course_available_seats = (
+                            f"%{-course_available_seats}s" % available_seats
+                        )
+                        full_course_waiting_list = (
+                            f"%{-course_waiting_list}s" % waiting_list_count
+                        )
 
-                    print_more_color_text(
-                        f"[{sign}] - {full_course_name}, Type:",
-                        color,
-                        full_course_type,
-                        CLASS_TYPE_COLORS[class_type],
-                        f"Available Seats: {full_course_available_seats}, Waiting List: {full_course_waiting_list}, CRN:",
-                        color,
-                        crn,
-                        AnsiColor.LIGHT_BLUE
-                        if index % 2 == 0
-                        else AnsiColor.LIGHT_MAGENTA,
-                    )
-            if alarm_condition and alarm_filter:
-                playsound(sound=alarm_path)
+                        print_more_color_text(
+                            f"[{sign}] - {full_course_name}, Type:",
+                            color,
+                            full_course_type,
+                            CLASS_TYPE_COLORS[class_type],
+                            f"Available Seats: {full_course_available_seats}, Waiting List: {full_course_waiting_list}, CRN:",
+                            color,
+                            crn,
+                            AnsiColor.LIGHT_BLUE
+                            if index % 2 == 0
+                            else AnsiColor.LIGHT_MAGENTA,
+                        )
+                    if alarm_condition and alarm_filter:
+                        playsound(sound=alarm_path)
         return False
 
     def get_courses_structured(courses_requested: list, source: str) -> list:
@@ -666,358 +574,3 @@ class KFUPM:
             )
 
         return structured_courses
-
-
-class KFUPM_banner9:
-    def get_banner9_terms_and_departments(interface: str) -> tuple:
-        term = KFUPM_banner9.get_banner9_terms(interface=interface)
-        departments = KFUPM_banner9.get_banner9_departments(
-            term=term, interface=interface
-        )
-
-        return term, departments
-
-    def get_banner9_terms(interface: str) -> str:
-        request_done = False
-        url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/classSearch/getTerms?searchTerm=&offset=1&max=1000"
-
-        while not request_done:
-            try:
-                response = get(url=url).content
-                loaded_response = loads(s=response)
-
-                index = 0
-                terms_dict = {}
-                finished = False
-
-                while (not finished) and (index < len(loaded_response) - 1):
-                    term_code = loaded_response[index]["code"]
-                    description = loaded_response[index]["description"]
-
-                    if not ("(View Only)" in description):
-                        terms_dict[description.replace("amp;", "")] = term_code
-                    else:
-                        finished = True
-                    index += 1
-
-                if len(terms_dict) == 0:
-                    print_one_color_text(
-                        text_string="! Sorry, there isn't any terms available for registration.",
-                        color=AnsiColor.RED,
-                    )
-                    exit()
-                request_done = True
-            except ConnectionError:
-                if interface == "cli":
-                    print_one_color_text(
-                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
-                        text_color=AnsiColor.RED,
-                    )
-                    progress_bar(total_time=10)
-
-            sorted_terms_dict = dict(
-                sorted(terms_dict.items(), key=lambda x: x[1], reverse=True)
-            )
-            if interface == "cli":
-                term_choice = Questions.dict_question(
-                    question=("Select the term has/have the course/courses"),
-                    choices=sorted_terms_dict,
-                )
-        return term_choice
-
-    def get_banner9_departments(term: str, interface: str) -> list:
-        url = (
-            "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/classSearch/get_subject?searchTerm=&term=%s&offset=1&max=1000"
-            % term
-        )
-
-        request_done = False
-        while not request_done:
-            try:
-                response = get(url=url).content
-                loaded_response = loads(s=response)
-
-                index = 0
-                departments_dict = {}
-
-                while index < len(loaded_response) - 1:
-                    department_code = loaded_response[index]["code"]
-                    description = loaded_response[index]["description"]
-                    departments_dict[description.replace("amp;", "")] = department_code
-                    index += 1
-
-                if len(departments_dict) == 0:
-                    print_one_color_text(
-                        text_string="! Sorry, there is no department available for registration.",
-                        color=AnsiColor.RED,
-                    )
-                    exit()
-                request_done = True
-            except ConnectionError:
-                if interface == "cli":
-                    print_one_color_text(
-                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
-                        text_color=AnsiColor.RED,
-                    )
-                    progress_bar(total_time=10)
-
-            if interface == "cli":
-                departments_choices = Questions.mcq_dict_question(
-                    question=("Select the department has/have the course/courses"),
-                    choices=departments_dict,
-                )
-                departments_list = []
-                for department in departments_choices:
-                    if BANNER_CHIOCES[department] != None:
-                        departments_list.append(BANNER_CHIOCES[department])
-
-        return departments_list
-
-    def get_banner9_courses(term: str, departments: list) -> list:
-        """
-        Do a get and post requests to get content.\n
-        Return the content as a `dict` type.
-        """
-
-        url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/term/search?mode=search"
-        request_cookies = get(url=url)
-        session_id = dict(request_cookies.cookies)["JSESSIONID"]
-        post(
-            url=url,
-            cookies={"JSESSIONID": session_id},
-            data={"term": term},
-        )
-
-        departments_list = []
-        for department in departments:
-            if department in REGISTRER_CHIOCES:
-                departments_list.append(REGISTRER_CHIOCES[department])
-        departments_list = ",".join(departments_list)
-
-        courses = []
-        page_off_set = 0
-        number_of_pages = 0
-        while page_off_set <= number_of_pages:
-            url = f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_term={term}&txt_subject={departments_list}&pageOffset={page_off_set*500}&pageMaxSize=500"
-            response = get(
-                url=url,
-                cookies={"JSESSIONID": session_id},
-            )
-
-            loaded_response = loads(s=response.text)
-            courses += loaded_response["data"]
-            page_off_set += 1
-            if number_of_pages == 0:
-                number_of_pages = int(loaded_response["sectionsFetchedCount"] / 500)
-        courses_structured = KFUPM_banner9.get_banner9_courses_structured(
-            courses_requested=courses
-        )
-        return courses_structured
-
-    def get_banner9_courses_structured(courses_requested: list) -> list:
-        found_elements = list(
-            filter(
-                lambda x: int(x["seatsAvailable"]) > 0 or int(x["waitAvailable"]) > 0,
-                courses_requested,
-            )
-        )
-
-        courses_structured = []
-        for element in found_elements:
-            course_dict = {}
-            course_dict["crn"] = element["courseReferenceNumber"]
-            course_dict["course_name"] = element["subjectCourse"].replace(" ", "")
-            course_dict["section"] = element["sequenceNumber"]
-            course_dict["available_seats"] = int(element["seatsAvailable"])
-            course_dict["waiting_list_count"] = int(element["waitAvailable"])
-            course_dict["class_type"] = element["meetingsFaculty"][0]["meetingTime"][
-                "meetingScheduleType"
-            ]
-            course_dict["class_days"] = "".join(
-                [
-                    DAYS[day]
-                    for day in DAYS
-                    if element["meetingsFaculty"][0]["meetingTime"][day]
-                ]
-            )
-            course_dict["start_time"] = element["meetingsFaculty"][0]["meetingTime"][
-                "beginTime"
-            ]
-            course_dict["end_time"] = element["meetingsFaculty"][0]["meetingTime"][
-                "endTime"
-            ]
-            course_dict["building"] = element["meetingsFaculty"][0]["meetingTime"][
-                "building"
-            ]
-            course_dict["room"] = element["meetingsFaculty"][0]["meetingTime"]["room"]
-            if len(element["faculty"]) != 0:
-                course_dict["instructor_name"] = element["faculty"][0]["displayName"]
-            else:
-                course_dict["instructor_name"] = ""
-            courses_structured.append(course_dict)
-        return courses_structured
-
-    """
-    def get_user_schedule(username: str, passcode: str, term: str):
-        url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/registrationHistory"
-        session_client = session()
-        request_response = session_client.get(url=url)
-        session_id = dict(request_response.cookies)["JSESSIONID"]
-        tttt = dict(request_response.headers)
-        request_url = request_response.url
-        session_data_key = request_url.split("&")[6].split("=")[1]
-
-        t = session_client.post(
-            url=request_url,
-            data={
-                "usernameUserInput": username,
-                "username:": username + "@carbon.super",
-                "password": passcode,
-                "chkRemember": "on",
-                "sessionDataKey": session_data_key,
-            },
-            cookies={"JSESSIONID": session_id},
-        )
-
-        tt = session_client.get(
-            url=f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/reset?term={term}"
-        )
-        print(tt.text)
-        """
-
-
-class KFUPM_registrar:
-    def get_registrar_terms_and_departments(interface: str) -> tuple:
-        finished = False
-        banner9 = False
-        url = "https://registrar.kfupm.edu.sa/courses-classes/course-offering1/"
-
-        while not finished:
-            try:
-                response = get(url=url, timeout=10).text
-                if "Under Maintenance" in response:
-                    banner9 = True
-                finished = True
-            except ConnectionError:
-                if interface == "cli":
-                    print_one_color_text(
-                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
-                        text_color=AnsiColor.RED,
-                    )
-                    progress_bar(10)
-            except Timeout:
-                banner9 = True
-                finished = True
-
-        if banner9:
-            term, departments = KFUPM_banner9.get_banner9_terms_and_departments(
-                interface=interface
-            )
-        else:
-            soup = BeautifulSoup(markup=response, features="html.parser")
-            term = KFUPM_registrar.get_registrar_terms(soup=soup)
-            departments = KFUPM_registrar.get_registrar_departments(soup=soup)
-
-        return term, departments
-
-    def get_registrar_terms(soup: BeautifulSoup) -> str:
-        terms_element = soup.find(id="course_term_code")
-        options = terms_element.find_all("option")[1:]
-
-        dict_elements = {}
-        for option in options:
-            dict_elements[option.text] = option["value"]
-
-        term = Questions.dict_question(
-            question="Select the term has/have the course/courses",
-            choices=dict(
-                sorted(dict_elements.items(), key=lambda x: x[1], reverse=True)
-            ),
-        )
-        return term
-
-    def get_registrar_departments(soup: BeautifulSoup) -> list:
-        departments_element = soup.find(id="course_dept_code")
-        options = departments_element.find_all("option")[1:]
-
-        dict_elements = {}
-        for option in options:
-            dict_elements[option.text] = option["value"]
-
-        departments = Questions.mcq_dict_question(
-            question="Select the department has/have the course/courses",
-            choices=dict_elements,
-        )
-        return departments
-
-    def get_registrar_coures(term: str, departments: list, interface: str) -> list:
-        courses = []
-        for department in departments:
-            request_finished = False
-            url = (
-                "https://registrar.kfupm.edu.sa/api/course-offering?term_code=%s&department_code=%s"
-                % (term, department)
-            )
-
-            while not request_finished:
-                try:
-                    response = get(url=url, timeout=10).text
-                    request_finished = True
-                except ConnectionError:
-                    if interface == "cli":
-                        print_one_color_text(
-                            text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
-                            text_color=AnsiColor.RED,
-                        )
-                        progress_bar(10)
-                except Timeout:
-                    courses_structured = KFUPM_banner9.get_banner9_courses(
-                        term=term, departments=departments
-                    )
-                    return courses_structured
-                except RequestException:
-                    if interface == "cli":
-                        print_one_color_text(
-                            text_string="! Sorry, the website isn't working currently! the script will recheck in 60 seconds",
-                            text_color=AnsiColor.RED,
-                        )
-                        progress_bar(60)
-            courses += loads(s=response)["data"]
-
-        courses_structured = KFUPM_registrar.get_registrar_courses_structured(
-            courses_requested=courses
-        )
-        return courses_structured
-
-    def get_registrar_courses_structured(courses_requested: list) -> list:
-        found_elements = list(
-            filter(
-                lambda x: x["available_seats"] > 0 or x["waiting_list_count"] > 0,
-                courses_requested,
-            )
-        )
-
-        courses_structured = []
-        for element in found_elements:
-            course_dict = {}
-            course_dict["crn"] = element["crn"]
-            if "course_number" in element:
-                course_dict["course_name"] = element["course_number"].replace(" ", "")
-            else:
-                course_dict["course_name"] = element["course_name"].replace(" ", "")
-            if "section_number" in element:
-                course_dict["section"] = element["section_number"]
-            else:
-                course_dict["section"] = element["section"]
-            course_dict["available_seats"] = element["available_seats"]
-            course_dict["waiting_list_count"] = element["waiting_list_count"]
-            course_dict["class_type"] = element["class_type"]
-            course_dict["class_days"] = ["class_days"]
-            course_dict["start_time"] = element["start_time"]
-            course_dict["end_time"] = element["end_time"]
-            course_dict["building"] = element["building"]
-            course_dict["room"] = element["room"]
-            course_dict["instructor_name"] = element["instructor_name"]
-
-            courses_structured.append(course_dict)
-        return courses_structured
