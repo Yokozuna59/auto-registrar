@@ -1,3 +1,4 @@
+from asyncio import get_event_loop
 from playsound import playsound
 
 import auto_registrar.config as config
@@ -361,8 +362,11 @@ class KFUPM:
         return filter_dictionary
 
     def get_courses(term: str, departments: list, interface: str) -> list:
-        courses = KFUPM_registrar.get_registrar_coures(
-            term=term, departments=departments, interface=interface
+        loop = get_event_loop()
+        courses = loop.run_until_complete(
+            KFUPM_registrar.get_registrar_coures(
+                term=term, departments=departments, interface=interface
+            )
         )
 
         return courses

@@ -1,6 +1,8 @@
 from sys import exit
 
-from requests import get, post
+from asyncio import gather, get_event_loop
+from concurrent.futures import ThreadPoolExecutor
+from requests import get, Session
 from requests.exceptions import ConnectionError
 
 from auto_registrar.tui.ansi import AnsiColor
@@ -209,42 +211,77 @@ class KFUPM_banner9:
 
         return departments_list
 
-    def get_banner9_courses(term: str, departments: list) -> list:
+    async def get_banner9_courses(term: str, departments: list, interface: str) -> list:
         """
         Do a get and post requests to get content.\n
         Return the content as a `dict` type.
         """
 
-        url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/term/search?mode=search"
-        request_cookies = get(url=url)
-        session_id = dict(request_cookies.cookies)["JSESSIONID"]
-        post(
-            url=url,
-            cookies={"JSESSIONID": session_id},
-            data={"term": term},
-        )
-
+        request_finished = False
+        courses = []
         departments_list = []
         for department in departments:
             if department in REGISTRER_CHIOCES:
                 departments_list.append(REGISTRER_CHIOCES[department])
         departments_list = ",".join(departments_list)
 
-        courses = []
-        page_off_set = 0
-        number_of_pages = 0
-        while page_off_set <= number_of_pages:
-            url = f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_term={term}&txt_subject={departments_list}&pageOffset={page_off_set*500}&pageMaxSize=500"
-            response = get(
-                url=url,
-                cookies={"JSESSIONID": session_id},
-            )
+        search_url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/term/search?mode=search"
+        while not request_finished:
+            try:
+                session = Session()
+                response = session.get(url=search_url)
+                session_id = dict(response.cookies)["JSESSIONID"]
+                session.cookies.update({"JSESSIONID": session_id})
 
-            loaded_response = response.json()
-            courses += loaded_response["data"]
-            page_off_set += 1
-            if number_of_pages == 0:
+                session.post(
+                    url=search_url,
+                    data={"term": term},
+                )
+
+                request_url = (
+                    "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_term=%s&txt_subject=%s&pageOffset=0&pageMaxSize=500"
+                    % (term, departments_list)
+                )
+                response = session.get(
+                    url=request_url,
+                )
+                loaded_response = response.json()
+                courses += loaded_response["data"]
                 number_of_pages = int(loaded_response["sectionsFetchedCount"] / 500)
+                request_finished = True
+            except ConnectionError:
+                if interface == "cli":
+                    print_one_color_text(
+                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
+                        text_color=AnsiColor.RED,
+                    )
+                    progress_bar(10)
+
+        urls = [
+            "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_term=%s&txt_subject=%s&pageOffset=%d&pageMaxSize=500"
+            % (term, departments_list, page_off_set)
+            for page_off_set in range(1, number_of_pages)
+        ]
+
+        request_finished = False
+        with ThreadPoolExecutor() as executor:
+            loop = get_event_loop()
+            while not request_finished:
+                try:
+                    futures = [
+                        loop.run_in_executor(executor, session.get, url) for url in urls
+                    ]
+                    for response in await gather(*futures):
+                        courses += response.json()["data"]
+                    request_finished = True
+                except ConnectionError:
+                    if interface == "cli":
+                        print_one_color_text(
+                            text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
+                            text_color=AnsiColor.RED,
+                        )
+                        progress_bar(10)
+
         courses_structured = KFUPM_banner9.get_banner9_courses_structured(
             courses_requested=courses
         )
@@ -319,4 +356,4 @@ class KFUPM_banner9:
             url=f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/reset?term={term}"
         )
         print(tt.text)
-        """
+    """

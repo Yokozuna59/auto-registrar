@@ -1,12 +1,19 @@
+from asyncio import gather, get_event_loop
 from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor
 from requests import get
-from requests.exceptions import ConnectionError, RequestException, Timeout
+from requests.exceptions import ConnectionError, Timeout
+from nest_asyncio import apply
+from warnings import filterwarnings
 
 from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.bar import progress_bar
 from auto_registrar.tui.colored_text import print_one_color_text
 from auto_registrar.tui.questions import Questions
 from auto_registrar.universities.kfupm.banner9 import KFUPM_banner9
+
+
+filterwarnings("ignore", category=DeprecationWarning)
 
 
 class KFUPM_registrar:
@@ -73,23 +80,33 @@ class KFUPM_registrar:
         )
         return departments
 
-    def get_registrar_coures(term: str, departments: list, interface: str) -> list:
+    async def get_registrar_coures(
+        term: str, departments: list, interface: str
+    ) -> list:
         courses = []
-        for department in departments:
-            request_finished = False
-            url = (
-                "https://registrar.kfupm.edu.sa/api/course-offering?term_code=%s&department_code=%s"
-                % (term, department)
-            )
+        urls = [
+            "https://registrar.kfupm.edu.sa/api/course-offering?term_code=%s&department_code=%s"
+            % (term, department)
+            for department in departments
+        ]
 
+        banner9 = False
+        request_finished = False
+        with ThreadPoolExecutor() as executor:
+            loop = get_event_loop()
             while not request_finished:
                 try:
-                    response = get(url=url, timeout=10).json()
-                    if response == None:
-                        courses_structured = KFUPM_banner9.get_banner9_courses(
-                            term=term, departments=departments
-                        )
-                        return courses_structured
+                    futures = [
+                        loop.run_in_executor(executor, get, url, 10) for url in urls
+                    ]
+                    for response in await gather(*futures):
+                        if response != None:
+                            courses += response.json()["data"]
+                        else:
+                            banner9 = True
+                            request_finished = True
+                            apply()
+                            break
                     request_finished = True
                 except ConnectionError:
                     if interface == "cli":
@@ -99,23 +116,23 @@ class KFUPM_registrar:
                         )
                         progress_bar(10)
                 except Timeout:
-                    courses_structured = KFUPM_banner9.get_banner9_courses(
-                        term=term, departments=departments
-                    )
-                    return courses_structured
-                except RequestException:
-                    if interface == "cli":
-                        print_one_color_text(
-                            text_string="! Sorry, the website isn't working currently! the script will recheck in 60 seconds",
-                            text_color=AnsiColor.RED,
-                        )
-                        progress_bar(60)
-            courses += response["data"]
+                    banner9 = True
+                    request_finished = True
+                    apply()
 
-        courses_structured = KFUPM_registrar.get_registrar_courses_structured(
-            courses_requested=courses
-        )
-        return courses_structured
+            if banner9:
+                loop = get_event_loop()
+                courses_structured = loop.run_until_complete(
+                    KFUPM_banner9.get_banner9_courses(
+                        term=term, departments=departments, interface=interface
+                    )
+                )
+            else:
+                courses_structured = KFUPM_registrar.get_registrar_courses_structured(
+                    courses_requested=courses
+                )
+
+            return courses_structured
 
     def get_registrar_courses_structured(courses_requested: list) -> list:
         found_elements = list(
