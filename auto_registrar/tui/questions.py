@@ -1,7 +1,7 @@
+from cgi import print_arguments
 from math import floor
 from os import get_terminal_size
 from sys import exit, stdout
-from xmlrpc.client import FastParser
 
 from auto_registrar.tui.ansi import (
     AnsiColor,
@@ -254,32 +254,29 @@ class Questions:
                         visible = False
                     if current_index != len(answer):
                         AnsiCursor.move_right(current_index)
-                elif letter == AnsiKeys.ARROW_LEFT:
-                    if current_index != 0:
-                        AnsiCursor.move_left()
-                        current_index -= 1
-                elif letter == AnsiKeys.ARROW_RIGHT:
-                    if current_index != len(answer):
-                        AnsiCursor.move_right()
-                        current_index += 1
+                elif (letter == AnsiKeys.ARROW_LEFT) and (current_index != 0):
+                    AnsiCursor.move_left()
+                    current_index -= 1
+                elif (letter == AnsiKeys.ARROW_RIGHT) and (
+                    current_index != len(answer)
+                ):
+                    AnsiCursor.move_right()
+                    current_index += 1
                 elif letter == AnsiKeys.HOME:
                     current_index = 0
                     AnsiCursor.restore_position()
-                elif letter == AnsiKeys.END:
-                    if current_index != 0:
-                        AnsiCursor.restore_position()
-                        AnsiCursor.move_right(len(answer))
+                elif (letter == AnsiKeys.END) and (current_index != 0):
+                    AnsiCursor.restore_position()
+                    AnsiCursor.move_right(len(answer))
                 elif letter == AnsiKeys.DELETE:
-                    if len(answer) != 0:
-                        answer = AnsiErase.delete(
-                            user_input=answer, index=current_index, passcode=not visible
-                        )
-            elif letter == AnsiKeys.BACKSPACE:
-                if current_index != 0:
-                    answer = AnsiErase.backspace(
+                    answer = AnsiErase.delete(
                         user_input=answer, index=current_index, passcode=not visible
                     )
-                    current_index -= 1
+            elif letter == AnsiKeys.BACKSPACE:
+                answer = AnsiErase.backspace(
+                    user_input=answer, index=current_index, passcode=not visible
+                )
+                current_index -= 1
             else:
                 answer = answer[:current_index] + letter + answer[current_index:]
                 current_index += 1
@@ -313,13 +310,13 @@ class Questions:
             AnsiColor.GREEN,
             question + "?",
             AnsiStyle.BOLD,
-            end_with="",
+            end_with=" ",
         )
         AnsiCursor.save_position()
+        stdout.write(AnsiKeys.NEW_LINE)
 
         finished = False
         while not finished:
-            AnsiCursor.restore_position()
             terminal_columns, terminal_rows = get_terminal_size()
             question_lines = (
                 (len(question) + 41)
@@ -332,6 +329,7 @@ class Questions:
             elif question_lines > 36 and question_lines <= terminal_columns:
                 line_gap = 1
 
+            AnsiCursor.restore_position()
             AnsiCursor.move_right(len(word))
             print_one_color_text(
                 text_string=" [Use arrows to move, type to filter]",
@@ -349,81 +347,92 @@ class Questions:
                 AnsiCursor.restore_position()
                 AnsiCursor.move_next_line(line_gap + 1)
 
+                printable = True
                 for choice in all_choices:
                     if word.lower() in choice.lower():
                         list_lenght += 1
                         choices.append(choice)
-                        AnsiErase.erase_entire_line()
-                        if list_lenght == 1:
-                            stdout.write(
-                                f"{AnsiColor.BLUE}> {choice}{AnsiStyle.RESET_ALL}"
-                            )
-                            answer = choice
+                        if list_lenght < terminal_rows:
+                            AnsiErase.erase_entire_line()
+                            if list_lenght == 1:
+                                print_one_color_text(
+                                    text_string=f"> {choice}", text_color=AnsiColor.BLUE
+                                )
+                                answer = choice
+                            else:
+                                # TODO: edit when list length is as same as list length (quesion disappear)
+                                print_one_color_text(
+                                    text_string=f"  {choice}", text_color=AnsiStyle.BOLD
+                                )
                         else:
-                            stdout.write(
-                                f"{AnsiStyle.BOLD}  {choice}{AnsiStyle.RESET_ALL}"
-                            )
-                        AnsiCursor.move_next_line()
+                            printable = False
+                if not printable:
+                    print_one_color_text(
+                        text_string="  " + "v" * (len(question) + 1),
+                        text_color=AnsiColor.LIGHT_GREEN,
+                        end_with="",
+                    )
 
-                current_index = 1
+                current_index = 0
 
             AnsiCursor.restore_position()
+            AnsiCursor.move_right(len(word))
             current_letter = read_one_char()
 
-            if "\x1B" in current_letter:
+            if current_letter.startswith("\x1B"):
                 if current_letter == AnsiKeys.ARROW_UP and list_lenght != 0:
-                    AnsiCursor.move_next_line(current_index + line_gap)
+                    AnsiCursor.move_next_line(current_index + line_gap + 1)
                     AnsiErase.erase_entire_line()
 
                     print_one_color_text(
-                        text_string=f"  {choices[current_index-1]}",
+                        text_string=f"  {choices[current_index]}",
                         text_color=AnsiStyle.BOLD,
                         end_with="",
                     )
 
-                    AnsiCursor.restore_position()
-
-                    if current_index == 1:
-                        current_index = list_lenght
+                    if current_index == 0:
+                        current_index = list_lenght - 1
                     else:
                         current_index -= 1
 
-                    AnsiCursor.move_next_line(current_index + line_gap)
+                    AnsiCursor.restore_position()
+
+                    AnsiCursor.move_next_line(current_index + line_gap + 1)
                     AnsiErase.erase_entire_line()
 
                     print_one_color_text(
-                        text_string=f"> {choices[current_index - 1]}",
+                        text_string=f"> {choices[current_index]}",
                         text_color=AnsiColor.LIGHT_BLUE,
                         end_with="",
                     )
 
-                    answer = choices[current_index - 1]
+                    answer = choices[current_index]
                 elif current_letter == AnsiKeys.ARROW_DOWN and list_lenght != 0:
-                    AnsiCursor.move_next_line(current_index + line_gap)
+                    AnsiCursor.move_next_line(current_index + line_gap + 1)
                     AnsiErase.erase_entire_line()
 
                     print_one_color_text(
-                        text_string=f"  {choices[current_index-1]}",
+                        text_string=f"  {choices[current_index]}",
                         text_color=AnsiStyle.BOLD,
                         end_with="",
                     )
 
                     AnsiCursor.restore_position()
 
-                    if current_index == list_lenght:
-                        current_index = 1
+                    if current_index == list_lenght - 1:
+                        current_index = 0
                     else:
                         current_index += 1
 
-                    AnsiCursor.move_next_line(current_index + line_gap)
+                    AnsiCursor.move_next_line(current_index + line_gap + 1)
                     AnsiErase.erase_entire_line()
 
                     print_one_color_text(
-                        text_string=f"> {choices[current_index - 1]}",
+                        text_string=f"> {choices[current_index]}",
                         text_color=AnsiColor.LIGHT_BLUE,
                         end_with="",
                     )
-                    answer = choices[current_index - 1]
+                    answer = choices[current_index]
             elif current_letter == AnsiKeys.ENTER:
                 if list_lenght != 0:
                     for _ in range(list_lenght + line_gap + 1):
@@ -450,17 +459,16 @@ class Questions:
                 )
                 AnsiCursor.save_position()
                 for _ in choices:
-                    AnsiCursor.move_next_line()
                     AnsiErase.erase_entire_line()
+                    AnsiCursor.move_next_line()
                 AnsiCursor.restore_position()
-                AnsiCursor.move_next_line()
                 AnsiCursor.show()
                 exit()
             else:
                 if current_letter == AnsiKeys.BACKSPACE:
-                    if word != "":
-                        AnsiCursor.move_left()
-                        word = word[:-1]
+                    word = AnsiErase.backspace(
+                        user_input=word, index=current_index + 1, passcode=False
+                    )
                 else:
                     word += current_letter
                 for _ in range(list_lenght + 1):
@@ -697,5 +705,6 @@ class Questions:
 # tt1 = Questions.bool_question(question="Sample boolean question", default=True)
 # tt2 = Questions.str_questoin(question="Sample string question")
 # tt3 = Questions.int_question(question="Sample integer quesion", minimum=10000, maximum=19999)
-tt4 = Questions.passcode_question(question="Sample passcode quesion")
+# tt4 = Questions.passcode_question(question="Sample passcode quesion")
+tt5 = Questions.list_question(question="Sample list question", choices=["Apple", "Banana", "Potato", "TT", "Orange"])
 print
