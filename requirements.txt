@@ -1,4 +1,5 @@
 async-generator==1.10
+asyncio==3.4.3
 attrs==22.1.0
 beautifulsoup4==4.11.1
 certifi==2022.6.15
@@ -8,11 +9,13 @@ cryptography==37.0.4
 distro==1.7.0
 h11==0.13.0
 idna==3.3
+nest-asyncio==1.5.5
 outcome==1.2.0
 pathlib==1.0.1
 playsound==1.3.0
 psutil==5.9.1
 pycparser==2.21
+PyGObject==3.42.2
 pyOpenSSL==22.0.0
 PyPDF2==2.10.2
 PyQt6==6.3.1
