@@ -246,8 +246,8 @@ class KFUPM_banner9:
                     url=request_url,
                 )
                 if (response.status_code == 200) and (response.json()["data"] != None):
-                    courses += response["data"]
-                    number_of_pages = int(response["sectionsFetchedCount"] / 500)
+                    courses += response.json()["data"]
+                    number_of_pages = int(response.json()["sectionsFetchedCount"] / 500)
                     request_finished = True
             except ConnectionError:
                 if interface == "cli":
@@ -275,7 +275,7 @@ class KFUPM_banner9:
                         if (response.status_code == 200) and (
                             response.json()["data"] != None
                         ):
-                            courses += response["data"]
+                            courses += response.json()["data"]
                     request_finished = True
                 except ConnectionError:
                     if interface == "cli":
