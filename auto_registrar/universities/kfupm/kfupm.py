@@ -1,3 +1,5 @@
+from threading import Thread
+
 from asyncio import get_event_loop
 from playsound import playsound
 
@@ -560,7 +562,8 @@ class KFUPM:
                             else AnsiColor.LIGHT_MAGENTA,
                         )
                     if alarm_condition and alarm_filter:
-                        playsound(sound=alarm_path)
+                        thread = Thread(target=playsound, args=(alarm_path,))
+                        thread.start()
         return False
 
     def get_courses_structured(courses_requested: list, source: str) -> list:
