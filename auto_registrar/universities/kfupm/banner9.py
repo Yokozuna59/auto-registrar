@@ -245,10 +245,10 @@ class KFUPM_banner9:
                 response = session.get(
                     url=request_url,
                 )
-                loaded_response = response.json()
-                courses += loaded_response["data"]
-                number_of_pages = int(loaded_response["sectionsFetchedCount"] / 500)
-                request_finished = True
+                if (response.status_code == 200) and (response.json()["data"] != None):
+                    courses += response["data"]
+                    number_of_pages = int(response["sectionsFetchedCount"] / 500)
+                    request_finished = True
             except ConnectionError:
                 if interface == "cli":
                     print_one_color_text(
@@ -272,7 +272,10 @@ class KFUPM_banner9:
                         loop.run_in_executor(executor, session.get, url) for url in urls
                     ]
                     for response in await gather(*futures):
-                        courses += response.json()["data"]
+                        if (response.status_code == 200) and (
+                            response.json()["data"] != None
+                        ):
+                            courses += response["data"]
                     request_finished = True
                 except ConnectionError:
                     if interface == "cli":
