@@ -433,8 +433,8 @@ class KFUPM:
                     )
         else:
             if interface == "cli":
-                alarm_filter = search_filter.pop("alarm")
-                register = search_filter.pop("registrar")
+                alarm_filter = search_filter.copy().pop("alarm")
+                register = search_filter.copy().pop("registrar")
 
                 for index in search_filter:
                     if index == "section":
