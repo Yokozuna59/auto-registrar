@@ -248,6 +248,7 @@ class KFUPM_banner9:
                 if (response.status_code == 200) and (response.json()["data"] != None):
                     courses += response.json()["data"]
                     number_of_pages = int(response.json()["sectionsFetchedCount"] / 500)
+
                     request_finished = True
             except ConnectionError:
                 if interface == "cli":
