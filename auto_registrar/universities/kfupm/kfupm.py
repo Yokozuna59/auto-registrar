@@ -255,7 +255,7 @@ class KFUPM:
                                     question="Enter Course/Courses Name you want to check each refresh"
                                 )
                                 for index, element in enumerate(
-                                    courses_names_str.split(" ")
+                                    courses_names_str.strip().split(" ")
                                 ):
                                     if ((element.isalpha()) and (index % 2 == 1)) or (
                                         (element.isdigit()) and (index % 2 == 0)
@@ -263,7 +263,7 @@ class KFUPM:
                                         print_more_color_text(
                                             "! Sorry, your reply was invalid:",
                                             AnsiColor.LIGHT_RED,
-                                            '"' + crn + '"',
+                                            '"' + element + '"',
                                             AnsiStyle.BOLD,
                                             "is not a valid answer, please try again.",
                                             AnsiColor.LIGHT_RED,
