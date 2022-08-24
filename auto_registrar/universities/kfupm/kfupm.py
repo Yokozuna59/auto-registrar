@@ -433,6 +433,7 @@ class KFUPM:
                     )
         else:
             if interface == "cli":
+                # TODO: use search_filter in efficient way
                 alarm_filter = search_filter.copy().pop("alarm")
                 register = search_filter.copy().pop("registrar")
 
