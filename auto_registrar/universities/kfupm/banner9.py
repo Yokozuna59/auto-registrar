@@ -230,8 +230,6 @@ class KFUPM_banner9:
             try:
                 session = Session()
                 response = session.get(url=search_url)
-                session_id = dict(response.cookies)["JSESSIONID"]
-                session.cookies.update({"JSESSIONID": session_id})
 
                 session.post(
                     url=search_url,
@@ -334,30 +332,34 @@ class KFUPM_banner9:
             courses_structured.append(course_dict)
         return courses_structured
 
-    """
-    def get_user_schedule(username: str, passcode: str, term: str):
-        url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/registrationHistory"
-        session_client = session()
-        request_response = session_client.get(url=url)
-        session_id = dict(request_response.cookies)["JSESSIONID"]
-        tttt = dict(request_response.headers)
-        request_url = request_response.url
-        session_data_key = request_url.split("&")[6].split("=")[1]
+    def get_user_schedule(
+        username: str, passcode: str, term: str, interface: str
+    ) -> dict:
+        session = Session()
+        schedule_url = "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/registrationHistory"
 
-        t = session_client.post(
-            url=request_url,
-            data={
-                "usernameUserInput": username,
-                "username:": username + "@carbon.super",
-                "password": passcode,
-                "chkRemember": "on",
-                "sessionDataKey": session_data_key,
-            },
-            cookies={"JSESSIONID": session_id},
-        )
-
-        tt = session_client.get(
-            url=f"https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/reset?term={term}"
-        )
-        print(tt.text)
-    """
+        try:
+            response = session.get(url=schedule_url)
+            session_data_key = response.url.split("&")[6].split("=")[1]
+            session.post(
+                url="https://login.kfupm.edu.sa/commonauth",
+                data={
+                    "usernameUserInput": "",
+                    "username": "@carbon.super",
+                    "password": "",
+                    "chkRemember": "on",
+                    "sessionDataKey": session_data_key,
+                },
+            )
+            test = session.get(
+                url="https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/registrationHistory/reset?term=%s"
+                % term
+            )
+            print(test.text)
+        except ConnectionError:
+            if interface == "cli":
+                print_one_color_text(
+                    text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
+                    text_color=AnsiColor.RED,
+                )
+                progress_bar(total_time=10)
