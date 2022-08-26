@@ -390,8 +390,10 @@ class Questions:
                         end_with="",
                     )
 
+                    AnsiCursor.restore_position()
+
                     if current_index == 0:
-                        current_index = list_lenght - 1
+                        current_index = list_lenght
                     else:
                         current_index -= 1
 
