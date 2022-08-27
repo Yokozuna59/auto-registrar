@@ -1,4 +1,3 @@
-from cgi import print_arguments
 from math import floor
 from os import get_terminal_size
 from sys import exit, stdout
@@ -393,7 +392,7 @@ class Questions:
                     AnsiCursor.restore_position()
 
                     if current_index == 0:
-                        current_index = list_lenght
+                        current_index = list_lenght - 1
                     else:
                         current_index -= 1
 

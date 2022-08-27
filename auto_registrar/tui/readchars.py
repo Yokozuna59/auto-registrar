@@ -1,5 +1,4 @@
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
-from sys import stdout
 
 try:
     from sys import stdin

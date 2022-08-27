@@ -1,7 +1,7 @@
 from threading import Thread
 
 from asyncio import get_event_loop
-from playsound import playsound
+from vlc import MediaPlayer
 
 import auto_registrar.config as config
 from auto_registrar.tui.questions import Questions
@@ -31,6 +31,11 @@ CLASS_TYPE_COLORS = {
     "STD": "\x1b[48;2;33;37;41m",
     "THS": "\x1b[48;2;54;79;199m",
 }
+
+
+def playsounds(sound_path: str):
+    sound_file = MediaPlayer(sound_path)
+    sound_file.play()
 
 
 class KFUPM:
@@ -563,7 +568,7 @@ class KFUPM:
                             else AnsiColor.LIGHT_MAGENTA,
                         )
                     if alarm_condition and alarm_filter:
-                        thread = Thread(target=playsound, args=(alarm_path,))
+                        thread = Thread(target=playsounds, args=(alarm_path,))
                         thread.start()
         return False
 
