@@ -15,7 +15,7 @@ pathlib==1.0.1
 psutil==5.9.1
 pycparser==2.21
 pyOpenSSL==22.0.0
-PyPDF2==2.10.2
+PyPDF2==2.10.3
 PyQt6==6.3.1
 PyQt6-Qt6==6.3.1
 PyQt6-sip==13.4.0
