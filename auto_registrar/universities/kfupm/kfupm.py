@@ -1,7 +1,7 @@
 from threading import Thread
 
 from asyncio import get_event_loop
-from vlc import MediaPlayer
+from playsound import playsound
 
 import auto_registrar.config as config
 from auto_registrar.tui.questions import Questions
@@ -34,8 +34,7 @@ CLASS_TYPE_COLORS = {
 
 
 def playsounds(sound_path: str):
-    sound_file = MediaPlayer(sound_path)
-    sound_file.play()
+    playsound(sound_path)
 
 
 class KFUPM:
