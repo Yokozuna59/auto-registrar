@@ -17,7 +17,7 @@ psutil==5.9.2
 pycparser==2.21
 pyOpenSSL==22.1.0
 PyPDF2==2.11.0
-PyQt6==6.3.1
+PyQt6==6.4.0
 PyQt6-Qt6==6.4.0
 PyQt6-sip==13.4.0
 PySocks==1.7.1
