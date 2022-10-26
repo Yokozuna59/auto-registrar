@@ -100,7 +100,7 @@ class KFUPM_registrar:
                         loop.run_in_executor(executor, get, url, 10) for url in urls
                     ]
                     for response in await gather(*futures):
-                        if ("Under Maintenance" not in response.text) and (
+                        if (response.status_code == 200) and ("Under Maintenance" not in response.text) and (
                             response.json()["data"] != None
                         ):
                             courses += response.json()["data"]
