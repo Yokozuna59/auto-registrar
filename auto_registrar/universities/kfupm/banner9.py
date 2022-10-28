@@ -1,8 +1,8 @@
-from sys import exit
-
 from asyncio import gather, get_event_loop
 from concurrent.futures import ThreadPoolExecutor
-from requests import get, Session
+from sys import exit
+
+from requests import Session, get
 from requests.exceptions import ConnectionError
 
 from auto_registrar.tui.ansi import AnsiColor

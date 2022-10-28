@@ -2,12 +2,12 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 try:
     from sys import stdin
-    from termios import tcgetattr, tcsetattr, TCSADRAIN
+    from termios import TCSADRAIN, tcgetattr, tcsetattr
     from tty import setraw
 
     unix = True
 except ImportError:
-    from msvcrt import kbhit, getch
+    from msvcrt import getch, kbhit
 
     unix = False
 

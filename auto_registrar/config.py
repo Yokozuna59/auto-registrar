@@ -1,9 +1,9 @@
 from json import dumps, loads
 from os import path, system
+from pathlib import Path
 from sys import platform
 
 from cryptography.fernet import Fernet, InvalidToken
-from pathlib import Path
 
 from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.colored_text import print_one_color_text

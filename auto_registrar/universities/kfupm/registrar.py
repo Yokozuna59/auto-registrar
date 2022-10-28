@@ -1,17 +1,17 @@
 from asyncio import gather, get_event_loop
-from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
+from warnings import filterwarnings
+
+from bs4 import BeautifulSoup
+from nest_asyncio import apply
 from requests import get
 from requests.exceptions import ConnectionError, Timeout
-from nest_asyncio import apply
-from warnings import filterwarnings
 
 from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.bar import progress_bar
 from auto_registrar.tui.colored_text import print_one_color_text
 from auto_registrar.tui.questions import Questions
 from auto_registrar.universities.kfupm.banner9 import KFUPM_banner9
-
 
 filterwarnings("ignore", category=DeprecationWarning)
 
@@ -100,8 +100,10 @@ class KFUPM_registrar:
                         loop.run_in_executor(executor, get, url, 10) for url in urls
                     ]
                     for response in await gather(*futures):
-                        if (response.status_code == 200) and ("Under Maintenance" not in response.text) and (
-                            response.json()["data"] != None
+                        if (
+                            (response.status_code == 200)
+                            and ("Under Maintenance" not in response.text)
+                            and (response.json()["data"] != None)
                         ):
                             courses += response.json()["data"]
                         else:

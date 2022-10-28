@@ -1,4 +1,4 @@
-from auto_registrar.config import get_configs, SOUNDS_PATH, write_config_file
+from auto_registrar.config import SOUNDS_PATH, get_configs, write_config_file
 from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.bar import progress_bar
 from auto_registrar.tui.colored_text import print_one_color_text

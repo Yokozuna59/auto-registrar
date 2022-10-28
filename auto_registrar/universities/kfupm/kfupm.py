@@ -1,14 +1,14 @@
+from asyncio import get_event_loop
 from threading import Thread
 
-from asyncio import get_event_loop
 from playsound import playsound
 
 import auto_registrar.config as config
-from auto_registrar.tui.questions import Questions
-from auto_registrar.tui.colored_text import print_more_color_text, print_one_color_text
 from auto_registrar.tui.ansi import AnsiColor, AnsiCursor, AnsiErase, AnsiStyle
-from auto_registrar.universities.kfupm.registrar import KFUPM_registrar
+from auto_registrar.tui.colored_text import print_more_color_text, print_one_color_text
+from auto_registrar.tui.questions import Questions
 from auto_registrar.universities.kfupm.banner9 import KFUPM_banner9
+from auto_registrar.universities.kfupm.registrar import KFUPM_registrar
 
 CLASS_TYPE_COLORS = {
     "COP": "\x1b[48;2;92;148;13m",
