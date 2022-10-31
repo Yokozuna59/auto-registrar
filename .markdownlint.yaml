@@ -1,0 +1,44 @@
+---
+# Default state for all rules
+default: true
+
+# MD003/heading-style/header-style - Heading style
+MD003:
+  style: "atx"
+
+# MD013/line-length - Line length
+MD013: true
+
+# MD029/ol-prefix - Ordered list item prefix
+MD029:
+  style: "ordered"
+
+# MD033/no-inline-html - Inline HTML
+MD033: false
+
+# MD046/code-block-style - Code block style
+MD046:
+  style: "fenced"
+
+# MD048/code-fence-style - Code fence style
+MD048:
+  style: "backtick"
+
+# MD049/emphasis-style
+MD049:
+  style: "underscore"
+
+# MD050/strong-style
+MD050:
+  style: "asterisk"
+
+# MD051/link-fragments - Link fragments should be valid
+MD051: true
+
+# MD052/reference-links-images - Reference links and images should use a label
+# that is defined
+MD052: true
+
+# MD053/link-image-reference-definitions - Link and image reference definitions
+# should be needed
+MD053: true
