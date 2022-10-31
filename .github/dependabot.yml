@@ -1,3 +1,4 @@
+---
 version: 2
 updates:
   # Maintain dependencies for pip
@@ -34,3 +35,4 @@ updates:
       - "automation"
     reviewers:
       - "Yokozuna59"
+    target-branch: "master"
