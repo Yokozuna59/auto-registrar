@@ -1,0 +1,22 @@
+---
+extends: default
+
+rules:
+  braces:
+    forbid: true
+  brackets:
+    forbid: true
+  empty-lines:
+    max: 1
+  empty-values: enable
+  float-values:
+    forbid-nan: true
+    require-numeral-before-decimal: true
+  indentation:
+    check-multi-line-strings: true
+    indent-sequences: true
+    spaces: 2
+  key-duplicates: disable
+  line-length:
+    allow-non-breakable-inline-mappings: true
+  octal-values: enable
