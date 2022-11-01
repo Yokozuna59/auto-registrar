@@ -1,0 +1,88 @@
+[tool.poetry]
+name = "auto_registrar"
+version = "0.8.1"
+description = "A CLI script to check/register courses from KFUPM Banner 9."
+license = "GPL-3.0-or-later"
+authors = ["Yokozuna59 <u.yokozuna@gmail.com>"]
+maintainers = ["Yokozuna59 <u.yokozuna@gmail.com>"]
+readme = "README.md"
+repository = "https://github.com/Yokozuna59/auto-registrar"
+keywords = ["cli"]
+classifiers = [
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+  "Programming Language :: Python :: 3.10",
+]
+
+[tool.poetry.dependencies]
+asyncio = "^3.4.3"
+beautifulsoup4 = "^4.11.1"
+cryptography = "^38.0.2"
+distro = "^1.8.0"
+nest-asyncio = "^1.5.6"
+pathlib = "^1.0.1"
+playsound = "^1.3.0"
+psutil = "^5.9.3"
+python = "^3.10"
+requests = "^2.28.1"
+virtualenv = "^20.16.6"
+
+[tool.poetry.dev-dependencies]
+black = "^22.10.0"
+docformatter = "^1.5.0"
+flake8 = "^5.0.4"
+isort = "^5.10.1"
+mypy = "^0.982"
+pre-commit = "^2.20.0"
+pycln = "^2.1.1"
+# pylint = "^2.15.5"
+pyupgrade = "^3.2.0"
+yamllint = "^1.28.0"
+
+[tool.black]
+exclude = '(\.git|\.mypy_cache|\.venv|__pycache__)'
+line-length = 80
+safe = true
+target-version = ['py310', 'py311']
+
+[tool.docformatter]
+blank = false
+recursive = true
+wrap-descriptions = 80
+wrap-summaries = 80
+
+[tool.flake8]
+exclude = [
+  ".git",
+  "__pycache__",
+  ".venv",
+]
+extend-ignore = ["E203", "W503"]
+max-doc-length = 80
+max-line-length = 80
+
+[tool.isort]
+indent = "    "
+line_length = 80
+profile = "black"
+py_version = 310
+skip_gitignore = true
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+no_implicit_optional = true
+python_version = "3.10"
+show_error_codes = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.pycln]
+all = true
+
+[tool.pylint.main]
+disable = ["C0114"]
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
