@@ -1,0 +1,16 @@
+{
+    "recommendations": [
+        "be5invis.toml",
+        "davidanson.vscode-markdownlint",
+        "fnando.linter",
+        "matangover.mypy",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "ms-python.pylint",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "redhat.vscode-yaml",
+        "shd101wyy.markdown-preview-enhanced",
+        "yzhang.markdown-all-in-one"
+    ]
+}
