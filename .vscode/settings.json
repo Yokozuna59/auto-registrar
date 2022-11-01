@@ -1,0 +1,27 @@
+{
+    "[json]": {
+        "editor.tabSize": 4
+    },
+    "black-formatter.path": [
+        "pyproject.toml"
+    ],
+    "files.insertFinalNewline": true,
+    "isort.args": [
+        "--settings-file=pyproject.toml"
+    ],
+    "markdownlint.customRules": [
+        ".markdownlint.yaml"
+    ],
+    "mypy.configFile": "pyproject.toml",
+    "pylint.path": [
+        "pyproject.toml"
+    ],
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.formatting.provider": "black",
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.lintOnSave": false,
+    "python.linting.mypyEnabled": true,
+    "python.linting.pylintEnabled": true
+}
