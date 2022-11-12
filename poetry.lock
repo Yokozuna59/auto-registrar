@@ -341,18 +341,18 @@ test = ["enum34", "ipaddress", "mock", "pywin32", "wmi"]
 
 [[package]]
 name = "pycln"
-version = "2.1.1"
+version = "2.1.2"
 description = "A formatter for finding and removing unused import statements."
 category = "dev"
 optional = false
 python-versions = ">=3.6.2,<4"
 
 [package.dependencies]
-libcst = ">=0.3.10,<0.5.0"
+libcst = {version = ">=0.3.10,<0.5.0", markers = "python_version >= \"3.7\""}
 pathspec = ">=0.9.0,<0.10.0"
 pyyaml = ">=5.3.1,<7.0.0"
 tomlkit = ">=0.11.1,<0.12.0"
-typer = ">=0.4.1,<0.7.0"
+typer = ">=0.4.1,<0.8.0"
 
 [[package]]
 name = "pycodestyle"
@@ -559,7 +559,7 @@ setuptools = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "a2ec6fee57298a7b2f3ef5251ee28d23da88cc85641f87a194c68fa08962bc92"
+content-hash = "99be4d239c0c2cef4b43ca541330605e3f91108e6025f4c3c73c39cfd77f3c41"
 
 [metadata.files]
 asyncio = [
@@ -867,8 +867,8 @@ psutil = [
     {file = "psutil-5.9.3.tar.gz", hash = "sha256:7ccfcdfea4fc4b0a02ca2c31de7fcd186beb9cff8207800e14ab66f79c773af6"},
 ]
 pycln = [
-    {file = "pycln-2.1.1-py3-none-any.whl", hash = "sha256:d90fad498563b309e570615d610e44399ef842d4644ba06925e4d46a8a691013"},
-    {file = "pycln-2.1.1.tar.gz", hash = "sha256:255a135935796761958dd3349822ccc71ce3052464c4d81e119df0106bbaf882"},
+    {file = "pycln-2.1.2-py3-none-any.whl", hash = "sha256:b0dcd6d443e72ba84790c53157bdd44c5afbb5ac5b933f10faef0e898fcbb63a"},
+    {file = "pycln-2.1.2.tar.gz", hash = "sha256:aeba833e233c8bb0c4945d4b61ecbcb08a0441c89d8f018d0ee904e7bba8efab"},
 ]
 pycodestyle = [
     {file = "pycodestyle-2.9.1-py2.py3-none-any.whl", hash = "sha256:d1735fc58b418fd7c5f658d28d943854f8a849b01a5d0a1e6f3f3fdd0166804b"},
