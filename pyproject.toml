@@ -30,11 +30,13 @@ virtualenv = "^20.16.7"
 black = "^22.10.0"
 docformatter = "^1.5.0"
 flake8 = "^5.0.4"
+ipykernel = "^6.17.1"
 isort = "^5.10.1"
 mypy = "^0.991"
 pre-commit = "^2.20.0"
 pycln = "^2.1.2"
 # pylint = "^2.15.5"
+pytest = "^7.2.0"
 pyupgrade = "^3.2.2"
 yamllint = "^1.28.0"
 
@@ -42,10 +44,13 @@ yamllint = "^1.28.0"
 exclude = '(\.git|\.mypy_cache|\.venv|__pycache__)'
 line-length = 80
 safe = true
+skip-magic-trailing-comma = true
 target-version = ['py310', 'py311']
 
 [tool.docformatter]
 blank = false
+close-quotes-on-newline = true
+in-place = true
 recursive = true
 wrap-descriptions = 80
 wrap-summaries = 80
@@ -68,6 +73,7 @@ py_version = 310
 skip_gitignore = true
 
 [tool.mypy]
+allow_redefinition = true
 check_untyped_defs = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
