@@ -8,8 +8,6 @@ repos:
     rev: v0.12.0
     hooks:
       - id: markdownlint
-        args:
-          - "--config=.markdownlint.yaml"
 
   # Yaml files (.yaml|.yml)
   - repo: https://github.com/adrienverge/yamllint
@@ -35,12 +33,10 @@ repos:
         args:
           - "--config=pyproject.toml"
 
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: "3.9.2"
+  - repo: https://github.com/pycqa/flake8
+    rev: 5.0.4
     hooks:
       - id: flake8
-        args:
-          - "--config=pyproject.toml"
 
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
@@ -50,28 +46,28 @@ repos:
           - "--settings-file=pyproject.toml"
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.982
+    rev: v0.991
     hooks:
       - id: mypy
         args:
           - "--config-file=pyproject.toml"
 
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.15.5
+    rev: v2.15.6
     hooks:
       - id: pylint
         args:
-          - "--rcfile pyproject.toml"
+          - "--rcfile=pyproject.toml"
 
   - repo: https://github.com/hadialqattan/pycln
-    rev: v2.1.1
+    rev: v2.1.2
     hooks:
       - id: pycln
         args:
           - "--config=pyproject.toml"
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.2.0
+    rev: v3.2.2
     hooks:
       - id: pyupgrade
         args:
