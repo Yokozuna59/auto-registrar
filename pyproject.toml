@@ -35,7 +35,7 @@ mypy = "^0.991"
 pre-commit = "^2.20.0"
 pycln = "^2.1.2"
 # pylint = "^2.15.5"
-pyupgrade = "^3.2.2"
+pyupgrade = "^3.3.0"
 yamllint = "^1.28.0"
 
 [tool.black]
