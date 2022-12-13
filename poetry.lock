@@ -381,7 +381,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "pyupgrade"
-version = "3.2.2"
+version = "3.3.1"
 description = "A tool to automatically upgrade syntax for newer versions."
 category = "dev"
 optional = false
@@ -560,8 +560,7 @@ setuptools = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "80e910c579e01202f485453c306865391adb9c38d9c7bb4d4d551d1763f5555a"
-
+content-hash = "c168929a2d61c0c5cd1e78afac494cb1001f4fa5d5be2d58abfce14e35b5e577"
 
 [metadata.files]
 asyncio = [
@@ -869,8 +868,8 @@ pyflakes = [
     {file = "pyflakes-3.0.1.tar.gz", hash = "sha256:ec8b276a6b60bd80defed25add7e439881c19e64850afd9b346283d4165fd0fd"},
 ]
 pyupgrade = [
-    {file = "pyupgrade-3.2.2-py2.py3-none-any.whl", hash = "sha256:16c0e3a6ac2d83cd0fd30c138af5504918c59d584344f60a15d5f8009b11a0ed"},
-    {file = "pyupgrade-3.2.2.tar.gz", hash = "sha256:6bfa246fb9d94e490fad37980bcfc05b9494183ff29d9100ef4f7f22a952ce67"},
+    {file = "pyupgrade-3.3.1-py2.py3-none-any.whl", hash = "sha256:3b93641963df022d605c78aeae4b5956a5296ea24701eafaef9c487527b77e60"},
+    {file = "pyupgrade-3.3.1.tar.gz", hash = "sha256:f88bce38b0ba92c2a9a5063c8629e456e8d919b67d2d42c7ecab82ff196f9813"},
 ]
 pyyaml = [
     {file = "PyYAML-6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d4db7c7aef085872ef65a8fd7d6d09a14ae91f691dec3e87ee5ee0539d516f53"},
