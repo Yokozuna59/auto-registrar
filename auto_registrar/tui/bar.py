@@ -13,7 +13,7 @@ def progress_bar(total_time: int) -> None:
     Return `None`.
     """
 
-    REFRESH_RATE = 10
+    REFRESH_RATE = 1
 
     try:
         AnsiCursor.hide()
