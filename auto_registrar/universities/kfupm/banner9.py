@@ -181,7 +181,9 @@ class KFUPM_banner9:
                 while index < len(loaded_response) - 1:
                     department_code = loaded_response[index]["code"]
                     description = loaded_response[index]["description"]
-                    departments_dict[description.replace("amp;", "")] = department_code
+                    departments_dict[
+                        description.replace("amp;", "")
+                    ] = department_code
                     index += 1
 
                 if len(departments_dict) == 0:
@@ -201,7 +203,9 @@ class KFUPM_banner9:
 
             if interface == "cli":
                 departments_choices = Questions.mcq_dict_question(
-                    question=("Select the department has/have the course/courses"),
+                    question=(
+                        "Select the department has/have the course/courses"
+                    ),
                     choices=departments_dict,
                 )
                 departments_list = []
@@ -211,7 +215,9 @@ class KFUPM_banner9:
 
         return departments_list
 
-    async def get_banner9_courses(term: str, departments: list, interface: str) -> list:
+    async def get_banner9_courses(
+        term: str, departments: list, interface: str
+    ) -> list:
         """
         Do a get and post requests to get content.\n
         Return the content as a `dict` type.
@@ -231,21 +237,20 @@ class KFUPM_banner9:
                 session = Session()
                 response = session.get(url=search_url)
 
-                session.post(
-                    url=search_url,
-                    data={"term": term},
-                )
+                session.post(url=search_url, data={"term": term})
 
                 request_url = (
                     "https://banner9-registration.kfupm.edu.sa/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_term=%s&txt_subject=%s&pageOffset=0&pageMaxSize=500"
                     % (term, departments_list)
                 )
-                response = session.get(
-                    url=request_url,
-                )
-                if (response.status_code == 200) and (response.json()["data"] != None):
+                response = session.get(url=request_url)
+                if (response.status_code == 200) and (
+                    response.json()["data"] != None
+                ):
                     courses += response.json()["data"]
-                    number_of_pages = int(response.json()["sectionsFetchedCount"] / 500)
+                    number_of_pages = int(
+                        response.json()["sectionsFetchedCount"] / 500
+                    )
 
                     request_finished = True
             except ConnectionError:
@@ -268,7 +273,8 @@ class KFUPM_banner9:
             while not request_finished:
                 try:
                     futures = [
-                        loop.run_in_executor(executor, session.get, url) for url in urls
+                        loop.run_in_executor(executor, session.get, url)
+                        for url in urls
                     ]
                     for response in await gather(*futures):
                         if (response.status_code == 200) and (
@@ -292,7 +298,8 @@ class KFUPM_banner9:
     def get_banner9_courses_structured(courses_requested: list) -> list:
         found_elements = list(
             filter(
-                lambda x: int(x["seatsAvailable"]) > 0 or int(x["waitAvailable"]) > 0,
+                lambda x: int(x["seatsAvailable"]) > 0
+                or int(x["waitAvailable"]) > 0,
                 courses_requested,
             )
         )
@@ -301,13 +308,15 @@ class KFUPM_banner9:
         for element in found_elements:
             course_dict = {}
             course_dict["crn"] = element["courseReferenceNumber"]
-            course_dict["course_name"] = element["subjectCourse"].replace(" ", "")
+            course_dict["course_name"] = element["subjectCourse"].replace(
+                " ", ""
+            )
             course_dict["section"] = element["sequenceNumber"]
             course_dict["available_seats"] = int(element["seatsAvailable"])
             course_dict["waiting_list_count"] = int(element["waitAvailable"])
-            course_dict["class_type"] = element["meetingsFaculty"][0]["meetingTime"][
-                "meetingScheduleType"
-            ]
+            course_dict["class_type"] = element["meetingsFaculty"][0][
+                "meetingTime"
+            ]["meetingScheduleType"]
             course_dict["class_days"] = "".join(
                 [
                     DAYS[day]
@@ -315,18 +324,22 @@ class KFUPM_banner9:
                     if element["meetingsFaculty"][0]["meetingTime"][day]
                 ]
             )
-            course_dict["start_time"] = element["meetingsFaculty"][0]["meetingTime"][
-                "beginTime"
+            course_dict["start_time"] = element["meetingsFaculty"][0][
+                "meetingTime"
+            ]["beginTime"]
+            course_dict["end_time"] = element["meetingsFaculty"][0][
+                "meetingTime"
+            ]["endTime"]
+            course_dict["building"] = element["meetingsFaculty"][0][
+                "meetingTime"
+            ]["building"]
+            course_dict["room"] = element["meetingsFaculty"][0]["meetingTime"][
+                "room"
             ]
-            course_dict["end_time"] = element["meetingsFaculty"][0]["meetingTime"][
-                "endTime"
-            ]
-            course_dict["building"] = element["meetingsFaculty"][0]["meetingTime"][
-                "building"
-            ]
-            course_dict["room"] = element["meetingsFaculty"][0]["meetingTime"]["room"]
             if len(element["faculty"]) != 0:
-                course_dict["instructor_name"] = element["faculty"][0]["displayName"]
+                course_dict["instructor_name"] = element["faculty"][0][
+                    "displayName"
+                ]
             else:
                 course_dict["instructor_name"] = ""
             courses_structured.append(course_dict)

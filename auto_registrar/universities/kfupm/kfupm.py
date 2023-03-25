@@ -4,8 +4,13 @@ from threading import Thread
 from playsound import playsound
 
 import auto_registrar.config as config
+
+# from auto_registrar.config import ask_and_write_passcode
 from auto_registrar.tui.ansi import AnsiColor, AnsiCursor, AnsiErase, AnsiStyle
-from auto_registrar.tui.colored_text import print_more_color_text, print_one_color_text
+from auto_registrar.tui.colored_text import (
+    print_more_color_text,
+    print_one_color_text,
+)
 from auto_registrar.tui.questions import Questions
 from auto_registrar.universities.kfupm.banner9 import KFUPM_banner9
 from auto_registrar.universities.kfupm.registrar import KFUPM_registrar
@@ -76,7 +81,9 @@ class KFUPM:
         )
         config_file["interface"] = default_interface
 
-        username = Questions.str_questoin(question="Enter your student ID with `S`")
+        username = Questions.str_questoin(
+            question="Enter your student ID with `S`"
+        )
         config_file["username"] = username
 
         passcode = config.ask_and_write_passcode(
@@ -102,7 +109,9 @@ class KFUPM:
 
         return term, departments
 
-    def get_search_filter(interface: str, term: str, registration: bool) -> dict:
+    def get_search_filter(
+        interface: str, term: str, registration: bool
+    ) -> dict:
         """
         Ask user for what he want to search by each refresh.\n
         return answers as `dict` type.
@@ -183,7 +192,9 @@ class KFUPM:
 
                                 for section in sections_str.strip().split(" "):
                                     if section.isdigit():
-                                        sections_list.append("%02d" % int(section))
+                                        sections_list.append(
+                                            "%02d" % int(section)
+                                        )
                                         finished = True
                                     else:
                                         print_more_color_text(
@@ -261,7 +272,9 @@ class KFUPM:
                                 for index, element in enumerate(
                                     courses_names_str.strip().split(" ")
                                 ):
-                                    if ((element.isalpha()) and (index % 2 == 1)) or (
+                                    if (
+                                        (element.isalpha()) and (index % 2 == 1)
+                                    ) or (
                                         (element.isdigit()) and (index % 2 == 0)
                                     ):
                                         print_more_color_text(
@@ -274,22 +287,32 @@ class KFUPM:
                                         )
                                         break
                                     else:
-                                        if (element.isalpha()) and (index % 2 == 0):
+                                        if (element.isalpha()) and (
+                                            index % 2 == 0
+                                        ):
                                             course = element
                                             index += 1
-                                        elif (element.isdigit()) and (index % 2 == 1):
+                                        elif (element.isdigit()) and (
+                                            index % 2 == 1
+                                        ):
                                             course += element
-                                            course_names_list.append(course.upper())
+                                            course_names_list.append(
+                                                course.upper()
+                                            )
                                             index += 1
                                         elif element.isalnum():
-                                            course_names_list.append(element.upper())
+                                            course_names_list.append(
+                                                element.upper()
+                                            )
                                             index += 2
                                         correct_answer = True
 
                                 AnsiCursor.restore_position()
                                 AnsiErase.erase_line_to_end()
                                 print_one_color_text(
-                                    text_string=" ".join(course_names_list).upper(),
+                                    text_string=" ".join(
+                                        course_names_list
+                                    ).upper(),
                                     text_color=AnsiColor.LIGHT_BLUE,
                                 )
                             filter_dictionary["course_name"] = course_names_list
@@ -334,7 +357,9 @@ class KFUPM:
                                 buildings_str = Questions.str_questoin(
                                     question="Enter Building/Buildings you want to check each refresh"
                                 )
-                                for building in buildings_str.strip().split(" "):
+                                for building in buildings_str.strip().split(
+                                    " "
+                                ):
                                     if building.isdigit():
                                         buildings_list.append(building)
                                         correct_answer = True
@@ -378,7 +403,10 @@ class KFUPM:
         return courses
 
     def check_for_changes(
-        courses_strucured: list, search_filter: dict, interface: str, alarm_path: str
+        courses_strucured: list,
+        search_filter: dict,
+        interface: str,
+        alarm_path: str,
     ) -> bool:
         """
         Checks if there is available seats in courses.\n
@@ -390,7 +418,9 @@ class KFUPM:
             for key, value in element.items():
                 max_lengths[key] = max(max_lengths.get(key, 0), len(str(value)))
 
-        course_name_length = max_lengths["course_name"] + max_lengths["section"] + 1
+        course_name_length = (
+            max_lengths["course_name"] + max_lengths["section"] + 1
+        )
         course_type_length = max_lengths["class_type"]
         course_available_seats = max_lengths["available_seats"]
         course_waiting_list = max_lengths["waiting_list_count"]
@@ -445,14 +475,16 @@ class KFUPM:
                     if index == "section":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["section"] in search_filter["section"],
+                                lambda x: x["section"]
+                                in search_filter["section"],
                                 courses_strucured,
                             )
                         )
                     elif index == "activity":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["class_type"] in search_filter["activity"],
+                                lambda x: x["class_type"]
+                                in search_filter["activity"],
                                 courses_strucured,
                             )
                         )
@@ -492,7 +524,8 @@ class KFUPM:
                     elif index == "building":
                         courses_strucured = list(
                             filter(
-                                lambda x: x["building"] in search_filter["building"],
+                                lambda x: x["building"]
+                                in search_filter["building"],
                                 courses_strucured,
                             )
                         )
@@ -544,9 +577,12 @@ class KFUPM:
                             sign = "-"
 
                         full_course_name = (
-                            f"%{-course_name_length}s" % f"{course_name}-{section}"
+                            f"%{-course_name_length}s"
+                            % f"{course_name}-{section}"
                         )
-                        full_course_type = f"%{-course_type_length}s" % class_type
+                        full_course_type = (
+                            f"%{-course_type_length}s" % class_type
+                        )
                         full_course_available_seats = (
                             f"%{-course_available_seats}s" % available_seats
                         )
@@ -573,8 +609,10 @@ class KFUPM:
 
     def get_courses_structured(courses_requested: list, source: str) -> list:
         if source == "registrar":
-            structured_courses = KFUPM_registrar.get_registrar_courses_structured(
-                courses_requested=courses_requested
+            structured_courses = (
+                KFUPM_registrar.get_registrar_courses_structured(
+                    courses_requested=courses_requested
+                )
             )
         else:
             structured_courses = KFUPM_banner9.get_banner9_courses_structured(

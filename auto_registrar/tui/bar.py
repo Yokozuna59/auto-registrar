@@ -46,7 +46,9 @@ def progress_bar(total_time: int) -> None:
             elif index != total_time:
                 progress = index / total_time
                 full = "█" * floor(columns * progress)
-                empty = "░" * (ceil((columns * (total_time - index) / total_time)) - 1)
+                empty = "░" * (
+                    ceil((columns * (total_time - index) / total_time)) - 1
+                )
             else:
                 progress = 1
                 full = "█" * (columns - 1)

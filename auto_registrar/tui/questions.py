@@ -9,7 +9,10 @@ from auto_registrar.tui.ansi import (
     AnsiKeys,
     AnsiStyle,
 )
-from auto_registrar.tui.colored_text import print_more_color_text, print_one_color_text
+from auto_registrar.tui.colored_text import (
+    print_more_color_text,
+    print_one_color_text,
+)
 from auto_registrar.tui.readchars import read_one_char
 
 
@@ -88,11 +91,7 @@ class Questions:
         Returns answer as `str`.
         """
         print_more_color_text(
-            "?",
-            AnsiColor.GREEN,
-            question + "?",
-            AnsiStyle.BOLD,
-            end_with=" ",
+            "?", AnsiColor.GREEN, question + "?", AnsiStyle.BOLD, end_with=" "
         )
         AnsiCursor.save_position()
 
@@ -203,11 +202,7 @@ class Questions:
         letter = ""
         current_index = 0
         print_more_color_text(
-            "?",
-            AnsiColor.GREEN,
-            question + "?",
-            AnsiStyle.BOLD,
-            end_with=" ",
+            "?", AnsiColor.GREEN, question + "?", AnsiStyle.BOLD, end_with=" "
         )
         AnsiCursor.save_position()
         print("\n(esc to make passcode visible)", end="")
@@ -222,10 +217,7 @@ class Questions:
                 if answer != "":
                     AnsiCursor.restore_position()
                     AnsiErase.erase_line_to_end()
-                    print_more_color_text(
-                        "*" * len(answer),
-                        AnsiColor.BLUE,
-                    )
+                    print_more_color_text("*" * len(answer), AnsiColor.BLUE)
                     finished = True
             elif letter == AnsiKeys.CNTL_C:
                 AnsiCursor.move_left(len(question) + 41)
@@ -269,7 +261,9 @@ class Questions:
                     AnsiCursor.move_right(len(answer))
                 elif letter == AnsiKeys.DELETE:
                     answer = AnsiErase.delete(
-                        user_input=answer, index=current_index, passcode=not visible
+                        user_input=answer,
+                        index=current_index,
+                        passcode=not visible,
                     )
             elif letter == AnsiKeys.BACKSPACE:
                 answer = AnsiErase.backspace(
@@ -277,7 +271,9 @@ class Questions:
                 )
                 current_index -= 1
             else:
-                answer = answer[:current_index] + letter + answer[current_index:]
+                answer = (
+                    answer[:current_index] + letter + answer[current_index:]
+                )
                 current_index += 1
                 if current_index == len(answer):
                     if visible:
@@ -305,11 +301,7 @@ class Questions:
 
         AnsiCursor.hide()
         print_more_color_text(
-            "?",
-            AnsiColor.GREEN,
-            question + "?",
-            AnsiStyle.BOLD,
-            end_with=" ",
+            "?", AnsiColor.GREEN, question + "?", AnsiStyle.BOLD, end_with=" "
         )
         AnsiCursor.save_position()
         stdout.write(AnsiKeys.NEW_LINE)
@@ -319,7 +311,9 @@ class Questions:
             terminal_columns, terminal_rows = get_terminal_size()
             question_lines = (
                 (len(question) + 41)
-                - terminal_columns * floor(len(question) + 41) / terminal_columns
+                - terminal_columns
+                * floor(len(question) + 41)
+                / terminal_columns
                 + 1
             )
 
@@ -355,13 +349,15 @@ class Questions:
                             AnsiErase.erase_entire_line()
                             if list_lenght == 1:
                                 print_one_color_text(
-                                    text_string=f"> {choice}", text_color=AnsiColor.BLUE
+                                    text_string=f"> {choice}",
+                                    text_color=AnsiColor.BLUE,
                                 )
                                 answer = choice
                             else:
                                 # TODO: edit when list length is as same as list length (quesion disappear)
                                 print_one_color_text(
-                                    text_string=f"  {choice}", text_color=AnsiStyle.BOLD
+                                    text_string=f"  {choice}",
+                                    text_color=AnsiStyle.BOLD,
                                 )
                         else:
                             printable = False
@@ -441,7 +437,9 @@ class Questions:
                         AnsiErase.erase_entire_line()
                     AnsiCursor.restore_position()
                     print_one_color_text(
-                        text_string=answer, text_color=AnsiColor.BLUE, end_with=""
+                        text_string=answer,
+                        text_color=AnsiColor.BLUE,
+                        end_with="",
                     )
                     AnsiErase.erase_line_to_end()
                     AnsiCursor.show()
@@ -516,7 +514,12 @@ class Questions:
         for index, choice in enumerate(choices):
             if index == 0:
                 print_more_color_text(
-                    ">", AnsiColor.BLUE, "○", AnsiStyle.BOLD, choice, AnsiColor.BLUE
+                    ">",
+                    AnsiColor.BLUE,
+                    "○",
+                    AnsiStyle.BOLD,
+                    choice,
+                    AnsiColor.BLUE,
                 )
             else:
                 print_one_color_text(

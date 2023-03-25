@@ -15,7 +15,9 @@ def print_one_color_text(
     stdout.flush()
 
 
-def print_more_color_text(*args: str, end_with: str = AnsiKeys.NEW_LINE) -> None:
+def print_more_color_text(
+    *args: str, end_with: str = AnsiKeys.NEW_LINE
+) -> None:
     """
     Prints colorful text with more than one color.\n
     Returns `None`.

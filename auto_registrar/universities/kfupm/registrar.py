@@ -31,7 +31,9 @@ class KFUPM_registrar:
             except ConnectionError:
                 if interface == "cli":
                     print_one_color_text(
-                        text_string="! Sorry, you currently don't have internet connection! the script will recheck in 10 seconds.",
+                        text_string="! Sorry, you currently don't have"
+                        + "internet connection! the script will recheck in 10"
+                        + "seconds.",
                         text_color=AnsiColor.RED,
                     )
                     progress_bar(10)
@@ -97,7 +99,8 @@ class KFUPM_registrar:
             while not request_finished:
                 try:
                     futures = [
-                        loop.run_in_executor(executor, get, url, 10) for url in urls
+                        loop.run_in_executor(executor, get, url, 10)
+                        for url in urls
                     ]
                     for response in await gather(*futures):
                         if (
@@ -132,8 +135,10 @@ class KFUPM_registrar:
                     )
                 )
             else:
-                courses_structured = KFUPM_registrar.get_registrar_courses_structured(
-                    courses_requested=courses
+                courses_structured = (
+                    KFUPM_registrar.get_registrar_courses_structured(
+                        courses_requested=courses
+                    )
                 )
 
             return courses_structured
@@ -141,7 +146,8 @@ class KFUPM_registrar:
     def get_registrar_courses_structured(courses_requested: list) -> list:
         found_elements = list(
             filter(
-                lambda x: x["available_seats"] > 0 or x["waiting_list_count"] > 0,
+                lambda x: x["available_seats"] > 0
+                or x["waiting_list_count"] > 0,
                 courses_requested,
             )
         )
@@ -151,9 +157,13 @@ class KFUPM_registrar:
             course_dict = {}
             course_dict["crn"] = element["crn"]
             if "course_number" in element:
-                course_dict["course_name"] = element["course_number"].replace(" ", "")
+                course_dict["course_name"] = element["course_number"].replace(
+                    " ", ""
+                )
             else:
-                course_dict["course_name"] = element["course_name"].replace(" ", "")
+                course_dict["course_name"] = element["course_name"].replace(
+                    " ", ""
+                )
             if "section_number" in element:
                 course_dict["section"] = element["section_number"]
             else:

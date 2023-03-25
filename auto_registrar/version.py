@@ -25,7 +25,9 @@ def check_updates() -> None:
     if response != b"Not Found":
         soup = BeautifulSoup(markup=response, features="html.parser")
         latest_version = (
-            soup.find(class_="d-inline mr-3").text.split(" ")[-1].replace("v", "")
+            soup.find(class_="d-inline mr-3")
+            .text.split(" ")[-1]
+            .replace("v", "")
         )
         local_version = LOCAL_VERSION.replace("v", "")
 
@@ -53,7 +55,9 @@ def main() -> None:
     print("Auto Registrar:", LOCAL_VERSION)
     print("Python:", local_python_version)
     if "linux" in device_platfrom:
-        print("OS Platform and Distribution:", device_platfrom, name(), version())
+        print(
+            "OS Platform and Distribution:", device_platfrom, name(), version()
+        )
     else:
         print("OS Platform and Distribution:", device_platfrom)
     print("Shell:", shell)
