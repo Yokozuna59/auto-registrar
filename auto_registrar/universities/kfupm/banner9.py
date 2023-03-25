@@ -178,7 +178,7 @@ class KFUPM_banner9:
                 index = 0
                 departments_dict = {}
 
-                while index < len(loaded_response) - 1:
+                while index < len(loaded_response):
                     department_code = loaded_response[index]["code"]
                     description = loaded_response[index]["description"]
                     departments_dict[
