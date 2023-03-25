@@ -141,7 +141,7 @@ class KFUPM_banner9:
                 if len(terms_dict) == 0:
                     print_one_color_text(
                         text_string="! Sorry, there isn't any terms available for registration.",
-                        color=AnsiColor.RED,
+                        text_color=AnsiColor.RED,
                     )
                     exit()
                 request_done = True
