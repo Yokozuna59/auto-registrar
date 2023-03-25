@@ -51,15 +51,9 @@ class KFUPM:
 
         default_banner = Questions.dict_question(
             question="Select default banner for registration",
-            choices={"Banner 9": 9},  # "Banner 8": 8}
+            choices={"Banner 9": "banner9"},  # "Banner 8": "banner8"}
         )
         config_file["banner"] = default_banner
-
-        default_browser = Questions.dict_question(
-            question="Select default browser",
-            choices={"Chrome": "chromedriver"},  # "Firefox": "geckodriver"},
-        )
-        config_file["browser"] = default_browser
 
         default_delay = Questions.dict_question(
             question="Select default time delay between refreshes",
@@ -87,11 +81,11 @@ class KFUPM:
         config_file["username"] = username
 
         passcode = config.ask_and_write_passcode(
-            configs_file=config_file, ask_for_passcode=True
+            configs=config_file, ask_for_passcode=True
         )
 
         config_file["configured"] = True
-        config.write_config_file(configs_file=config_file)
+        config.write_configs_file(configs_contents=config_file)
 
         config_file["passcode"] = passcode
 

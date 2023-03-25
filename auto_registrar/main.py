@@ -1,4 +1,6 @@
-from auto_registrar.config import SOUNDS_PATH, get_configs, write_config_file
+from pathlib import Path
+
+from auto_registrar.config import SOUNDS_PATH, get_configs, write_configs_file
 from auto_registrar.tui.ansi import AnsiColor
 from auto_registrar.tui.bar import progress_bar
 from auto_registrar.tui.colored_text import print_one_color_text
@@ -7,22 +9,25 @@ from auto_registrar.universities.kfupm.kfupm import KFUPM
 
 
 def main() -> None:
-    """
-    The main and start of the program.\n
-    Returns `None`.
+    """The main and start function of the program.
+
+    Args:
+        None
+
+    Returns:
+        None
     """
 
     # Get local configuration
-    configs = get_configs()
-    browser = configs["browser"]
-    delay = configs["delay"]
-    driver_path = configs["driver_path"]
-    interface = configs["interface"]
-    username = configs["username"]
-    passcode = configs["passcode"]
-    university = configs["university"]
+    configs: dict = get_configs()
+    delay: int = configs["delay"]
+    interface: str = configs["interface"]
+    # username: str = configs["username"]
+    # passcode: str = configs["passcode"]
+    university: str = configs["university"]
+
     if configs["configured"]:
-        purpose = Questions.list_question(
+        purpose: str = Questions.list_question(
             question="What do you want to do in this run",
             choices=[
                 "Reconfig configuration",
@@ -36,15 +41,13 @@ def main() -> None:
     if university == "kfupm":
         if purpose == "Reconfig configuration":
             configs["configured"] = False
-            write_config_file(configs_file=configs)
+            write_configs_file(configs_contents=configs)
             get_configs(ask_for_configs=False)
-            exit()
         elif purpose == "Edit schedule":
             print_one_color_text(
-                text_string="Currently the edit schedule is not supported!",
+                text_string="! Sorry, editing schedule is not supported currently!",
                 text_color=AnsiColor.RED,
             )
-            exit()
             # term, departments  = KFUPM.get_term_and_departments(
             #     interface=interface
             # )
@@ -52,16 +55,18 @@ def main() -> None:
             #     username=username, passcode=passcode, term=term
             # )
         elif purpose == "Check courses status":
-            alarm_path = SOUNDS_PATH.joinpath("alarm.mp3")
+            alarm_path: Path = SOUNDS_PATH.joinpath("alarm.mp3")
 
-            term, departments = KFUPM.get_term_and_departments(interface=interface)
-            search_filter = KFUPM.get_search_filter(
+            term, departments = KFUPM.get_term_and_departments(
+                interface=interface
+            )
+            search_filter: dict = KFUPM.get_search_filter(
                 interface=interface, term=term, registration=False
             )
 
-            finished = False
+            finished: bool = False
             while not finished:
-                courses_requested = KFUPM.get_courses(
+                courses_requested: list = KFUPM.get_courses(
                     term=term, departments=departments, interface=interface
                 )
                 finished = KFUPM.check_for_changes(

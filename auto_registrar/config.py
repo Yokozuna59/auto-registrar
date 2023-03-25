@@ -10,112 +10,110 @@ from auto_registrar.tui.colored_text import print_one_color_text
 from auto_registrar.tui.questions import Questions
 from auto_registrar.universities.kfupm.kfupm import KFUPM
 
-PROJECT_PATH = Path(__file__).parent.parent
-CONFIGS_PATH = PROJECT_PATH.joinpath(".config.json")
-DRIVERS_PATH = PROJECT_PATH.joinpath("drivers")
-KEY_PATH = PROJECT_PATH.joinpath(".key")
-SOUNDS_PATH = PROJECT_PATH.joinpath("sounds")
+PROJECT_PATH: Path = Path(__file__).parent.parent
+CONFIGS_PATH: Path = PROJECT_PATH.joinpath(".config.json")
+DRIVERS_PATH: Path = PROJECT_PATH.joinpath("drivers")
+KEY_PATH: Path = PROJECT_PATH.joinpath(".key")
+SOUNDS_PATH: Path = PROJECT_PATH.joinpath("sounds")
 
 
-def get_configs(ask_for_configs: bool = True) -> dict:
-    """
-    Checks if user configured his default configuration.\n
-    Returns configurations as `dict`.
+def get_configs() -> dict:
+    """Get configurations if user has configured. Else write the default
+    configurations and ask to configure.
+
+    Args:
+        None
+
+    Returns:
+        Configurations as `dict` type.
     """
 
     if not path.exists(path=CONFIGS_PATH):
-        university = Questions.list_question(
+        university: str = Questions.list_question(
             question="What university you're in", choices=["KFUPM"]
         )
         if university == "KFUPM":
-            json_objects = {
+            default_configs: dict = {
                 "configured": False,
-                "banner": 9,
-                "browser": "chrome",
+                "banner": "banner9",
                 "delay": 60,
                 "interface": "cli",
                 "passcode": None,
                 "university": "kfupm",
                 "username": None,
             }
-        write_config_file(configs_file=json_objects)
+            write_configs_file(configs_contents=default_configs)
 
-    with open(file=CONFIGS_PATH, mode="r") as file:
-        configs = loads(s=file.read())
+    with open(file=CONFIGS_PATH, encoding="utf-8") as configs_file:
+        configs: dict = loads(configs_file.read())
 
     if not configs["configured"]:
-        bool_answer = True
-        if ask_for_configs:
-            print_one_color_text(
-                text_string="! Sorry, you haven't configured yet!",
-                text_color=AnsiColor.LIGHT_RED,
-            )
-            bool_answer = Questions.bool_question(
-                question="Do you want to configurate now"
-            )
-
-        if bool_answer:
-            if configs["university"]:
-                configs = KFUPM.ask_for_configs(config_file=configs)
-    else:
-        configs["passcode"] = decode_passcode(
-            passcode=configs["passcode"], configs_file=configs
-        )
-
-    if path.exists(path=DRIVERS_PATH):
-        # TODO: check if drivers are installed
-        configs["driver_path"] = DRIVERS_PATH.joinpath(configs["browser"])
-    else:
         print_one_color_text(
-            text_string="! Sorry, you don't have drivers folder yet, which means the script can't open any WebDrivers to registrar courses!",
+            text_string="! Sorry, you haven't configured yet!",
             text_color=AnsiColor.LIGHT_RED,
         )
-        print_one_color_text(
-            text_string="Run `install.sh` or `install.ps1` file, please read the `README.md` file for more information.",
-            text_color=AnsiColor.LIGHT_YELLOW,
+        boolean_answer: bool = Questions.bool_question(
+            question="Do you want to configurate now"
         )
-        configs["driver_path"] = None
+
+        if boolean_answer:
+            if configs["university"]:
+                configs: dict = KFUPM.ask_for_configs(config_file=configs)
 
     return configs
 
 
-def ask_and_write_passcode(configs_file: dict, ask_for_passcode: bool) -> dict:
-    """
-    Ask user to enter the passcode,\n
-    Returns the passcode as `str`.
+def ask_and_write_passcode(configs: dict, ask_for_passcode: bool) -> str:
+    """Ask the user to enter his passcode and write the encrypted one.
+
+    Args:
+        configs: This is the current configurations.
+        ask_for_passcode: To check if it's needed ask user for passcode.
+
+    Returns:
+        Passcode as `str` type.
     """
 
     if ask_for_passcode:
-        passcode = Questions.passcode_question(question="Enter your portal passcode")
+        passcode: str = Questions.passcode_question(
+            question="Enter your portal passcode"
+        )
     else:
-        passcode = configs_file["passcode"]
+        passcode: str = configs["passcode"]
 
-    key = Fernet.generate_key()
-    with open(file=KEY_PATH, mode="w") as fernet:
-        fernet.write(
+    key: bytes = Fernet.generate_key()
+    with open(file=KEY_PATH, mode="w", encoding="utf-8") as key_file:
+        key_file.write(
             "-----BEGIN PRIVATE KEY-----\n"
             + key.decode()
             + "\n-----END PRIVATE KEY-----\n"
         )
-    if (platform == "win32") or (platform == "cygwin"):
-        system("attrib +h " + fernet.name)
-    fernet = Fernet(key=key)
-    passcode_encrypted = fernet.encrypt(data=passcode.encode()).decode()
-    configs_file["passcode"] = passcode_encrypted
-    write_config_file(configs_file=configs_file)
+    if platform in ("win32", "cygwin"):
+        system("attrib +h " + key_file.name)
+
+    fernet: Fernet = Fernet(key=key)
+    passcode_encrypted: str = fernet.encrypt(data=passcode.encode()).decode()
+    configs["passcode"] = passcode_encrypted
+    write_configs_file(configs_contents=configs)
 
     return passcode
 
 
-def decode_passcode(passcode: str, configs_file: dict) -> str:
-    """
-    Decrypts the passcode with Fernet,\n
-    Returns the decrypted passcode as `str`.
+def decode_passcode(passcode: str, configs_contents: dict) -> str:
+    """Decrypts the passcode with Fernet.
+
+    Args:
+        passcode: The user's passcode.
+        configs_contents: The current user configuration.
+
+    Returns:
+        The decrypted passcode as `str` type.
     """
 
     if not path.exists(path=KEY_PATH):
         print_one_color_text(
-            text_string="! Sorry, you have deleted your key file, which means the script can't decrypt your passcode!",
+            text_string="! Sorry, you have deleted your key file, "
+            + "which means the script can't decrypt your passcode!",
             text_color=AnsiColor.LIGHT_RED,
         )
         print_one_color_text(
@@ -123,40 +121,49 @@ def decode_passcode(passcode: str, configs_file: dict) -> str:
             text_color=AnsiColor.LIGHT_YELLOW,
         )
 
-        passcode = ask_and_write_passcode(
-            configs_file=configs_file, ask_for_passcode=True
+        passcode: str = ask_and_write_passcode(
+            configs=configs_contents, ask_for_passcode=True
         )
-        configs_file["passcode"] = passcode
+        configs_contents["passcode"] = passcode
 
-    with open(file=KEY_PATH, mode="r") as fernet:
-        key = fernet.readlines()[1]
-    fernet = Fernet(key=key)
+    with open(file=KEY_PATH, encoding="utf-8") as key_file:
+        key: str = key_file.readlines()[1]
+
+    fernet: Fernet = Fernet(key=key)
     try:
-        passcode_decrypted = fernet.decrypt(token=passcode.encode()).decode()
+        passcode_decrypted: str = fernet.decrypt(
+            token=passcode.encode()
+        ).decode()
     except InvalidToken:
         print_one_color_text(
-            text_string="! Sorry, you have edited your key file, which means the script can't decrypt your passcode!",
+            text_string="! Sorry, you have edited your key file, "
+            + "which means the script can't decrypt your passcode!",
             text_color=AnsiColor.LIGHT_RED,
         )
         print_one_color_text(
             text_string="Please re-enter your passcode again.",
             text_color=AnsiColor.LIGHT_YELLOW,
         )
-        passcode_decrypted = ask_and_write_passcode(
-            configs_file=configs_file, ask_for_passcode=True
+        passcode_decrypted: str = ask_and_write_passcode(
+            configs=configs_contents, ask_for_passcode=True
         )
 
     return passcode_decrypted
 
 
-def write_config_file(configs_file: dict) -> None:
-    """
-    Write config file as `json` type.\n
-    Returns `None`.
+def write_configs_file(configs_contents: dict) -> None:
+    """Write configurations file with `.json` extension.
+
+    Args:
+        configs_contents: The contents of the file will be written.
+
+    Returns:
+        None
     """
 
-    json_objects = dumps(obj=configs_file, sort_keys=True, indent=4)
-    with open(file=CONFIGS_PATH, mode="w") as file:
-        file.write(json_objects)
-    if (platform == "win32") or (platform == "cygwin"):
-        system("attrib +h " + file.name)
+    json_string: str = dumps(obj=configs_contents, sort_keys=True, indent=4)
+    with open(file=CONFIGS_PATH, mode="w", encoding="utf-8") as configs_file:
+        configs_file.write(json_string)
+
+    if platform in ("win32", "cygwin"):
+        system("attrib +h " + configs_file.name)
