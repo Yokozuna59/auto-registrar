@@ -97,7 +97,7 @@ class KFUPM:
         return the user answer as `list` type.
         """
 
-        term, departments = KFUPM_registrar.get_registrar_terms_and_departments(
+        term, departments = KFUPM_banner9.get_banner9_terms_and_departments(
             interface=interface
         )
 
