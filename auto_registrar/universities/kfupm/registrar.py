@@ -53,7 +53,7 @@ class KFUPM_registrar:
         return term, departments
 
     def get_registrar_terms(soup: BeautifulSoup) -> str:
-        terms_element = soup.find(id="course_term_code")
+        terms_element = soup.find(id="term_code")
         options = terms_element.find_all("option")[1:]
 
         dict_elements = {}
@@ -69,7 +69,7 @@ class KFUPM_registrar:
         return term
 
     def get_registrar_departments(soup: BeautifulSoup) -> list:
-        departments_element = soup.find(id="course_dept_code")
+        departments_element = soup.find(id="dept_code")
         options = departments_element.find_all("option")[1:]
 
         dict_elements = {}
