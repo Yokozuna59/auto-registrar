@@ -291,7 +291,7 @@ function check_cut {
         elif [[ "$package_manager" == "zypper" ]]; then
             sudo zypper install cut -q
         elif [[ "$package_manager" == "brew" ]]; then
-            brew isntall cut
+            brew install cut
         elif [[ "$package_manager" == "port" ]]; then
             sudo port install cut
         fi
