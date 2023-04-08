@@ -15,7 +15,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 asyncio = "^3.4.3"
-beautifulsoup4 = "^4.11.1"
+beautifulsoup4 = "^4.12.2"
 cryptography = "^39.0.2"
 distro = "^1.8.0"
 nest-asyncio = "^1.5.6"
