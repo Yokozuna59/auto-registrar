@@ -1,4 +1,5 @@
 from asyncio import get_event_loop
+from pathlib import Path
 from threading import Thread
 
 from playsound import playsound
@@ -38,8 +39,8 @@ CLASS_TYPE_COLORS = {
 }
 
 
-def playsounds(sound_path: str):
-    playsound(sound_path)
+def playsounds(sound_path: Path):
+    playsound(str(sound_path))
 
 
 class KFUPM:
