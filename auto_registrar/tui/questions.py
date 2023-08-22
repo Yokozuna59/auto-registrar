@@ -265,7 +265,7 @@ class Questions:
                         index=current_index,
                         passcode=not visible,
                     )
-            elif letter == AnsiKeys.BACKSPACE:
+            elif letter == AnsiKeys.BACKSPACE or letter == '\x08':
                 answer = AnsiErase.backspace(
                     user_input=answer, index=current_index, passcode=not visible
                 )
@@ -332,8 +332,8 @@ class Questions:
 
             AnsiCursor.restore_position()
 
-            if (current_letter != AnsiKeys.ARROW_UP) and (
-                current_letter != AnsiKeys.ARROW_DOWN
+            if (current_letter != AnsiKeys.ARROW_UP and current_letter != '\x00H') and (
+                current_letter != AnsiKeys.ARROW_DOWN and current_letter != '\x00P'
             ):
                 list_lenght = 0
                 choices = []
@@ -374,7 +374,7 @@ class Questions:
             AnsiCursor.move_right(len(word))
             current_letter = read_one_char()
 
-            if current_letter.startswith("\x1B"):
+            if current_letter.startswith("\x1B") or current_letter.startswith('\x00'):
                 if current_letter == AnsiKeys.ARROW_UP and list_lenght != 0:
                     AnsiCursor.move_next_line(current_index + line_gap + 1)
                     AnsiErase.erase_entire_line()
@@ -404,7 +404,7 @@ class Questions:
                     )
 
                     answer = choices[current_index]
-                elif current_letter == AnsiKeys.ARROW_DOWN and list_lenght != 0:
+                elif (current_letter == AnsiKeys.ARROW_DOWN or current_letter == '\x00P') and list_lenght != 0:
                     AnsiCursor.move_next_line(current_index + line_gap + 1)
                     AnsiErase.erase_entire_line()
 
@@ -464,7 +464,7 @@ class Questions:
                 AnsiCursor.show()
                 exit()
             else:
-                if current_letter == AnsiKeys.BACKSPACE:
+                if current_letter == AnsiKeys.BACKSPACE or current_letter == '\x08':
                     word = AnsiErase.backspace(
                         user_input=word, index=current_index + 1, passcode=False
                     )
@@ -532,7 +532,7 @@ class Questions:
             AnsiCursor.restore_position()
             letter = read_one_char()
 
-            if letter == AnsiKeys.ARROW_UP:
+            if letter == AnsiKeys.ARROW_UP or letter == '\x00H':
                 AnsiCursor.move_next_line(current_index)
                 AnsiErase.erase_entire_line()
                 current_index -= 1
@@ -563,7 +563,7 @@ class Questions:
                     AnsiColor.BLUE,
                     end_with="",
                 )
-            elif letter == AnsiKeys.ARROW_DOWN:
+            elif letter == AnsiKeys.ARROW_DOWN or letter == '\x00P':
                 AnsiCursor.move_next_line(current_index)
                 AnsiErase.erase_entire_line()
 

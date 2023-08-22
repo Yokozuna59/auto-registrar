@@ -7,7 +7,7 @@ try:
 
     unix = True
 except ImportError:
-    from msvcrt import getch, kbhit
+    from msvcrt import getch
 
     unix = False
 
@@ -33,16 +33,27 @@ def read_one_char() -> str:
         finally:
             tcsetattr(fd, TCSADRAIN, old_settings)
     else:
-        if kbhit():
-            char = getch()
+        char = getch().decode("utf-8")
+        if char == "\x00":
+            executor = ThreadPoolExecutor()
+            future = executor.submit(read_more_chars)
+            try:
+                return_value = future.result(timeout=0.01)
+                future.cancel()
+                char += return_value
+            finally:
+                stdin.flush()
     stdin.flush()
     return char
 
 
 def read_more_chars() -> str:
-    chars = stdin.read(2)
-    if chars[-1].isdigit():
-        chars += stdin.read(1)
+    if unix:
+        chars = stdin.read(2)
+        if chars[-1].isdigit():
+            chars += stdin.read(1)
+    else:
+        chars = getch().decode("utf-8")
     return chars
 
 
